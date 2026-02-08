@@ -28,6 +28,9 @@ import java.util.List;
  * @author James F. Bowring
  */
 public enum MassSpectrometerContextEnum {
+    OGTRIPOLI("OGTripoli", "unknown",
+            "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, IsoWorksMethod, FolderPath",
+            null, null, 1, true),
     PHOENIX_FULL("Phoenix Full", "Phoenix",
             "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, IsoWorksMethod, FolderPath",
             PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2", 4, true),

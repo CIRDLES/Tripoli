@@ -42,8 +42,8 @@ public class OgTripoliImporter {
             AnalysisInterface tripoliAnalysis = AnalysisInterface.initializeNewAnalysis(0);
             MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
 
-            MassSpectrometerContextEnum massSpectrometerContext = tripoliAnalysis.getParameters().getMassSpectrometerContext();
-            massSpecExtractedData.setMassSpectrometerContext(massSpectrometerContext);
+            // placeholder to get case 1
+            massSpecExtractedData.setMassSpectrometerContext(MassSpectrometerContextEnum.OGTRIPOLI);
 
             FileReader fileReader = new FileReader(ogTripoliFile);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -60,24 +60,27 @@ public class OgTripoliImporter {
             }
 
             // Create UserFunctions based on headers (skipping Time)
-            String[] headers = Arrays.stream(line.split("\t"))
+            String[] headersa = Arrays.stream(line.split("\t"))
                     .map(String::trim)
                     .toArray(String[]::new);
 
             List<UserFunction> ufList = tripoliAnalysis.getUserFunctions();
-            if (headers[0].equalsIgnoreCase("Time")) timeExists = true;
+            if (headersa[0].equalsIgnoreCase("Time")) timeExists = true;
+            String[] headers = new String[headersa.length + (timeExists ? 1 : 2)];
+            System.arraycopy(headersa, 0, headers, (timeExists ? 1 : 2), headersa.length);
+            headers[1] = "Time";
+            headers[0] = "Cycle";
 
             for (int i = 0; i < headers.length; i++) {
-                if (timeExists && i == 0) i++; // skip time column
                 UserFunction uf;
                 if (headers[i].contains("OxideCor:")) { // Manually set oxide corrected flag
                     String[] nameParts = headers[i].split("OxideCor:");
                     String correctedName = nameParts[0].trim() + "oc";
                     headers[i] = correctedName;
-                    uf = new UserFunction(correctedName, timeExists ? i - 1 : i);
+                    uf = new UserFunction(correctedName, i);
                     uf.setOxideCorrected(true);
                 } else {
-                    uf = new UserFunction(headers[i], timeExists ? i - 1 : i);
+                    uf = new UserFunction(headers[i], i);
                 }
                 ufList.add(uf);
 
@@ -99,6 +102,11 @@ public class OgTripoliImporter {
                 // blank line = end of block
                 if (dataLine.isEmpty()) {
                     if (!currentBlockCycles.isEmpty()) {
+                        if (cyclesPerBlock == 0) cyclesPerBlock = currentBlockCycles.size();
+                        for (int i = 0; i < currentBlockCycles.size(); i++) {
+                            currentBlockCycles.get(i)[0] = (blockIndex - 1) * cyclesPerBlock + i + 1;
+                            if (!timeExists) currentBlockCycles.get(i)[1] = 1.0;
+                        }
                         double[][] blockDataLite = currentBlockCycles.toArray(new double[0][]);
                         boolean[][] blockDataLiteIncluded = currentBlockIncluded.toArray(new boolean[0][]);
                         boolean blockIncluded = currentBlockIncluded.stream()
@@ -118,7 +126,7 @@ public class OgTripoliImporter {
                                 blockDataLiteIncluded
                         )); // store each block into map
                         blockIndex++;
-                        if (cyclesPerBlock == 0) cyclesPerBlock = currentBlockCycles.size();
+
                         currentBlockCycles.clear();
                         currentBlockIncluded.clear();
                     }
@@ -128,18 +136,12 @@ public class OgTripoliImporter {
                 // Parse data row
                 String[] cycleValues = dataLine.split("\t");
 
-                int timeExistsArrayLength = timeExists ? cycleValues.length - 1 : cycleValues.length;
+                int timeExistsArrayLength = timeExists ? cycleValues.length + 1 : cycleValues.length + 2;
                 double[] numericCycle = new double[timeExistsArrayLength];
                 boolean[] includedCycle = new boolean[timeExistsArrayLength];
 
                 for (int i = 0; i < cycleValues.length; i++) {
-                    if (timeExists && i == 0) {
-                        // This is where I'd put my time value. IF I HAD ONE
-                        //timeValues.add(Double.parseDouble(cycleValues[0]));
-                        continue;
-                    }
-
-                    int timeExistsIndex = timeExists ? i - 1 : i;
+                    int timeExistsIndex = timeExists ? i + 1 : i + 2;
                     if (cycleValues[i].trim().isEmpty()) cycleValues[i] = "0.0"; // null is 0
 
                     double value = Double.parseDouble(cycleValues[i]);
@@ -153,6 +155,8 @@ public class OgTripoliImporter {
                 }
 
                 currentBlockCycles.add(numericCycle);
+                includedCycle[0] = true;
+                includedCycle[1] = true;
                 currentBlockIncluded.add(includedCycle);
             }
 
@@ -165,20 +169,18 @@ public class OgTripoliImporter {
             }
             // Set headers
             massSpecExtractedData.setHeader(new MassSpecExtractedData.MassSpecExtractedHeader(
-                    "",
+                    "OGTripoli",
                     tripoliAnalysis.getAnalysisName(),
                     "",
-                    "implied ogtripoli",
+                    "OGTripoli import",
                     true,
                     false,
                     "",
                     cyclesPerBlock
             ));
 
-            String[] columnHeaders = new String[headers.length + 2];
-            columnHeaders[0] = "Cycle";
-            columnHeaders[1] = "Time";
-            System.arraycopy(headers, 0, columnHeaders, 2, headers.length);
+            String[] columnHeaders = new String[headers.length];
+            System.arraycopy(headers, 0, columnHeaders, 0, headers.length);
             massSpecExtractedData.setColumnHeaders(columnHeaders);
 
             // Set analysis metadata
@@ -190,7 +192,13 @@ public class OgTripoliImporter {
             List<UserFunction> ufModels = tripoliAnalysis.getAnalysisMethod().getUserFunctionsModel();
             for (UserFunction ufm : ufModels) {
                 if (ufm.isTreatAsIsotopicRatio()){
-                    ufList.get(ufm.getColumnIndex()).setTreatAsIsotopicRatio(true);
+                    ufModels.get(ufm.getColumnIndex()).setTreatAsIsotopicRatio(true);
+                }
+                if(ufm.getName().contains("Cycle")){
+                    ufModels.get(ufm.getColumnIndex()).setDisplayed(false);
+                }
+                if(ufm.getName().contains("Time")){
+                    ufModels.get(ufm.getColumnIndex()).setDisplayed(false);
                 }
             }
 
