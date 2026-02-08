@@ -43,7 +43,7 @@ public class OgTripoliImporter {
             MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
 
             // placeholder to get case 1
-            massSpecExtractedData.setMassSpectrometerContext(MassSpectrometerContextEnum.PHOENIX_TIMSDP_CASE1);
+            massSpecExtractedData.setMassSpectrometerContext(MassSpectrometerContextEnum.OGTRIPOLI);
 
             FileReader fileReader = new FileReader(ogTripoliFile);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -72,7 +72,6 @@ public class OgTripoliImporter {
             headers[0] = "Cycle";
 
             for (int i = 0; i < headers.length; i++) {
-                //if (timeExists && i == 0) i++; // skip time column
                 UserFunction uf;
                 if (headers[i].contains("OxideCor:")) { // Manually set oxide corrected flag
                     String[] nameParts = headers[i].split("OxideCor:");
@@ -142,11 +141,11 @@ public class OgTripoliImporter {
                 boolean[] includedCycle = new boolean[timeExistsArrayLength];
 
                 for (int i = 0; i < cycleValues.length; i++) {
-                    if (timeExists && i == 0) {
+                   /* if (timeExists && i == 0) {
                         // This is where I'd put my time value. IF I HAD ONE
                         //timeValues.add(Double.parseDouble(cycleValues[0]));
                         continue;
-                    }
+                    }*/
 
                     int timeExistsIndex = timeExists ? i + 1 : i + 2;
                     if (cycleValues[i].trim().isEmpty()) cycleValues[i] = "0.0"; // null is 0
@@ -176,7 +175,7 @@ public class OgTripoliImporter {
             }
             // Set headers
             massSpecExtractedData.setHeader(new MassSpecExtractedData.MassSpecExtractedHeader(
-                    "",
+                    "OGTripoli",
                     tripoliAnalysis.getAnalysisName(),
                     "",
                     "OGTripoli import",
