@@ -179,7 +179,7 @@ public class OgTripoliImporter {
                     "",
                     tripoliAnalysis.getAnalysisName(),
                     "",
-                    "implied ogtripoli",
+                    "OGTripoli import",
                     true,
                     false,
                     "",
@@ -201,10 +201,13 @@ public class OgTripoliImporter {
                 if (ufm.isTreatAsIsotopicRatio()){
                     ufModels.get(ufm.getColumnIndex()).setTreatAsIsotopicRatio(true);
                 }
+                if(ufm.getName().contains("Cycle")){
+                    ufModels.get(ufm.getColumnIndex()).setDisplayed(false);
+                }
+                if(ufm.getName().contains("Time")){
+                    ufModels.get(ufm.getColumnIndex()).setDisplayed(false);
+                }
             }
-            // hide cycle and time
-            tripoliAnalysis.getUserFunctions().get(0).setDisplayed(false);
-            tripoliAnalysis.getUserFunctions().get(1).setDisplayed(false);
 
             return tripoliAnalysis;
 
