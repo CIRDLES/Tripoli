@@ -141,12 +141,6 @@ public class OgTripoliImporter {
                 boolean[] includedCycle = new boolean[timeExistsArrayLength];
 
                 for (int i = 0; i < cycleValues.length; i++) {
-                   /* if (timeExists && i == 0) {
-                        // This is where I'd put my time value. IF I HAD ONE
-                        //timeValues.add(Double.parseDouble(cycleValues[0]));
-                        continue;
-                    }*/
-
                     int timeExistsIndex = timeExists ? i + 1 : i + 2;
                     if (cycleValues[i].trim().isEmpty()) cycleValues[i] = "0.0"; // null is 0
 
