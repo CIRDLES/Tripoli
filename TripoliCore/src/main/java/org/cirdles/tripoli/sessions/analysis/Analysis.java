@@ -71,6 +71,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_FULL_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
@@ -181,69 +183,103 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
 
     public static AnalysisInterface concatenateTwoAnalysesLite(AnalysisInterface analysisOne, AnalysisInterface analysisTwo) throws TripoliException {
-        // assume for now that these are two sequential runs with all the same metadata
-        // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
+        //Jan 2026 new approach
+        Stream<UserFunction> ufStream1 = analysisOne.getUserFunctions().stream();
+        List<String> ufNames1 = ufStream1
+                .map(UserFunction::getName)
+                .collect(Collectors.toList());
+        Stream<UserFunction> ufStream2 = analysisOne.getUserFunctions().stream();
+        List<String> ufNames2 = ufStream2
+                .map(UserFunction::getName)
+                .collect(Collectors.toList());
 
-        AnalysisInterface analysisConcat = new Analysis(
-                "AnalysisConcatTest", analysisOne.getAnalysisMethod(), analysisOne.getAnalysisSampleName());
-        ((Analysis) analysisConcat).setUserFunctions(analysisConcat.getAnalysisMethod().createUserFunctions());
+        Analysis analysisConcat = null;
+        if (ufNames1.equals(ufNames2)) {
+            // proceed with simple case
+            // assume for now that these are two sequential runs with all the same metadata
+            // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
 
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String analysisTime = df.format(new Date());
+            analysisConcat = new Analysis(
+                    "AnalysisConcatTest", analysisOne.getAnalysisMethod(), analysisOne.getAnalysisSampleName());
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String analysisTime = df.format(new Date());
+            analysisConcat.setAnalysisStartTime(analysisTime);
+            analysisConcat.setUserFunctions(analysisConcat.getAnalysisMethod().createUserFunctions());
 
-        analysisConcat.setAnalysisStartTime(analysisTime);
+            for (UserFunction uf : analysisConcat.getUserFunctions()) {
+                Map<Integer, PlotBlockCyclesRecord> userFunctionConcatMapBlockToCyclesRecord = new TreeMap<>();
+                int concatBlockId = 1;
+                UserFunction ufFromAnalysisOne = ((Analysis)analysisOne).getUserFunctionByName(uf.getName());
+                Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMapOne =
+                        ufFromAnalysisOne.getMapBlockIdToBlockCyclesRecord();
 
-        // for plotting analysis boundaries
-        // TODO: synchronize tree maps per above
-        int[] concatenatedBlockCounts = new int[1];
-        concatenatedBlockCounts[0] = analysisOne.getMapOfBlockIdToRawDataLiteOne().size() + analysisTwo.getMapOfBlockIdToRawDataLiteOne().size();
-        Map<Integer, PlotBlockCyclesRecord> userFunctionConcatMapBlockToCyclesRecord = new TreeMap<>();
+                UserFunction ufFromAnalysisTwo = ((Analysis)analysisTwo).getUserFunctionByName(uf.getName());
+                Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMapTwo =
+                        ufFromAnalysisTwo.getMapBlockIdToBlockCyclesRecord();
 
-        int concatBlockId = 1;
-        for (UserFunction uf : analysisOne.getUserFunctions()) {
-            Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap = uf.getMapBlockIdToBlockCyclesRecord();
-            for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
-                userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
+                for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMapOne.entrySet()) {
+                    userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
+                    concatBlockId++;
+                }
+                for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMapTwo.entrySet()) {
+                    userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
+                    concatBlockId++;
+                }
+                uf.setMapBlockIdToBlockCyclesRecord(userFunctionConcatMapBlockToCyclesRecord);
+            }
+
+
+
+            // for plotting analysis boundaries
+            // TODO: synchronize tree maps per above
+       //     Map<Integer, PlotBlockCyclesRecord> userFunctionConcatMapBlockToCyclesRecord = new TreeMap<>();
+        //    int concatBlockId = 1;
+
+
+      /*      for (UserFunction uf : analysisOne.getUserFunctions()) {
+                Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap = uf.getMapBlockIdToBlockCyclesRecord();
+                for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
+                    userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
+                    concatBlockId++;
+                }
+            }
+            for (UserFunction uf : analysisTwo.getUserFunctions()) {
+                Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap = uf.getMapBlockIdToBlockCyclesRecord();
+                for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
+                    userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
+                    concatBlockId++;
+                }
+            }*/
+
+/*            // TODO: Assuming uf always in same order ... need to use sortedlist
+            for (UserFunction uf : analysisConcat.getUserFunctions()) {
+                uf.setMapBlockIdToBlockCyclesRecord(userFunctionConcatMapBlockToCyclesRecord);
+            }
+
+            AllBlockInitForDataLiteOne.initBlockModels(analysisOne);
+            AllBlockInitForDataLiteOne.initBlockModels(analysisTwo);
+            concatBlockId = 1;
+            Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOneConcat = analysisConcat.getMapOfBlockIdToRawDataLiteOne();
+            for (Map.Entry<Integer, SingleBlockRawDataLiteSetRecord> entry : analysisOne.getMapOfBlockIdToRawDataLiteOne().entrySet()) {
+                mapOfBlockIdToRawDataLiteOneConcat.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
                 concatBlockId++;
             }
-        }
-        for (UserFunction uf : analysisTwo.getUserFunctions()) {
-            Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap = uf.getMapBlockIdToBlockCyclesRecord();
-            for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
-                userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
+            for (Map.Entry<Integer, SingleBlockRawDataLiteSetRecord> entry : analysisTwo.getMapOfBlockIdToRawDataLiteOne().entrySet()) {
+                mapOfBlockIdToRawDataLiteOneConcat.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
                 concatBlockId++;
-            }
+            }*/
+
+            MassSpecExtractedData massSpecExtractedData = analysisConcat.getMassSpecExtractedData();
+            massSpecExtractedData.setMassSpectrometerContext(analysisOne.getMassSpecExtractedData().getMassSpectrometerContext());
+            massSpecExtractedData.setHeader(analysisOne.getMassSpecExtractedData().getHeader());
+            // TODO: modify header
+            massSpecExtractedData.setColumnHeaders(analysisOne.getMassSpecExtractedData().getColumnHeaders());
+
+            massSpecExtractedData.setBlocksDataLite(
+                    MassSpecExtractedData.blocksDataLiteConcatenate(
+                            analysisOne.getMassSpecExtractedData().getBlocksDataLite(),
+                            analysisTwo.getMassSpecExtractedData().getBlocksDataLite()));
         }
-
-        // TODO: Assuming uf always in same order ... need to use sortedlist
-        for (UserFunction uf : analysisConcat.getUserFunctions()) {
-            uf.setMapBlockIdToBlockCyclesRecord(userFunctionConcatMapBlockToCyclesRecord);
-        }
-
-        AllBlockInitForDataLiteOne.initBlockModels(analysisOne);
-        AllBlockInitForDataLiteOne.initBlockModels(analysisTwo);
-        concatBlockId = 1;
-        Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOneConcat = analysisConcat.getMapOfBlockIdToRawDataLiteOne();
-        for (Map.Entry<Integer, SingleBlockRawDataLiteSetRecord> entry : analysisOne.getMapOfBlockIdToRawDataLiteOne().entrySet()) {
-            mapOfBlockIdToRawDataLiteOneConcat.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
-            concatBlockId++;
-        }
-        for (Map.Entry<Integer, SingleBlockRawDataLiteSetRecord> entry : analysisTwo.getMapOfBlockIdToRawDataLiteOne().entrySet()) {
-            mapOfBlockIdToRawDataLiteOneConcat.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
-            concatBlockId++;
-        }
-
-        MassSpecExtractedData massSpecExtractedData = analysisConcat.getMassSpecExtractedData();
-        massSpecExtractedData.setMassSpectrometerContext(analysisOne.getMassSpecExtractedData().getMassSpectrometerContext());
-        massSpecExtractedData.setHeader(analysisOne.getMassSpecExtractedData().getHeader());
-        // TODO: modify header
-        massSpecExtractedData.setColumnHeaders(analysisOne.getMassSpecExtractedData().getColumnHeaders());
-
-        massSpecExtractedData.setBlocksDataLite(
-                MassSpecExtractedData.blocksDataLiteConcatenate(
-                        analysisOne.getMassSpecExtractedData().getBlocksDataLite(),
-                        analysisTwo.getMassSpecExtractedData().getBlocksDataLite()));
-
         return analysisConcat;
     }
 
@@ -843,6 +879,14 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     public List<UserFunction> getUserFunctions() {
         return userFunctions;
+    }
+    public UserFunction getUserFunctionByName(String ufName) {
+        for (UserFunction uf : userFunctions) {
+            if (uf.getName().equals(ufName)) {
+                return uf;
+            }
+        }
+        return null;
     }
 
     public void setUserFunctions(List<UserFunction> userFunctions) {

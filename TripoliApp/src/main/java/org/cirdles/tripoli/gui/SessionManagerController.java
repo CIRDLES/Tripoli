@@ -197,7 +197,7 @@ public class SessionManagerController implements Initializable {
     }
 
 
-    /* Removed pending future release
+    // Removed pending future release
     public void testConcatAction() throws TripoliException {
         Stream<AnalysisInterface> stream = tripoliSession.getMapOfAnalyses().values().stream();
         Object[] analyses = stream.sorted().toArray();
@@ -205,7 +205,6 @@ public class SessionManagerController implements Initializable {
         tripoliSession.getMapOfAnalyses().put(analysisConcat.getAnalysisName(), analysisConcat);
         populateSessionManagerGridPane();
     }
-    */
 
     class AnalysisDisplaySummary extends ListCell<AnalysisInterface> {
         @Override
