@@ -52,7 +52,9 @@ public class MassSpecExtractedData implements Serializable {
     }
 
     public static Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenate(
-            Map<Integer, MassSpecOutputBlockRecordLite> blocksDataOne, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataTwo) {
+            Map<Integer, MassSpecOutputBlockRecordLite> blocksDataOne,
+            Map<Integer, MassSpecOutputBlockRecordLite> blocksDataTwo) {
+
         Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenated = new TreeMap<>();
 
         for (Integer blockID : blocksDataOne.keySet()) {

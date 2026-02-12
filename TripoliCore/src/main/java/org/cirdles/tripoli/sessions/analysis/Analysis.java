@@ -228,7 +228,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
                 uf.setMapBlockIdToBlockCyclesRecord(userFunctionConcatMapBlockToCyclesRecord);
             }
 
-
+            AllBlockInitForDataLiteOne.initBlockModels(analysisConcat);
 
             // for plotting analysis boundaries
             // TODO: synchronize tree maps per above
