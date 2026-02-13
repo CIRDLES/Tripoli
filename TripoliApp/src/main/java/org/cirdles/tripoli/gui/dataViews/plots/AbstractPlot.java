@@ -455,7 +455,10 @@ public abstract class AbstractPlot extends Canvas {
     }
 
     public boolean pointInPlot(double x, double y) {
-        return ((mapX(x) >= leftMargin) && (mapX(x) <= (leftMargin + plotWidth)) && (mapY(y) >= topMargin) && (mapY(y) <= (topMargin + plotHeight)));
+        return ((mapX(x) >= leftMargin)
+                && (mapX(x) <= (leftMargin + plotWidth))
+                && (mapY(y) >= topMargin)
+                && (mapY(y) <= (topMargin + plotHeight)));
     }
 
     public boolean xInPlot(double x) {
@@ -463,8 +466,9 @@ public abstract class AbstractPlot extends Canvas {
     }
 
     /**
-     * @param doReScale  the value of doReScale
-     * @param inLiveMode the value of inLiveMode
+     *
+     * @param reScaleX
+     * @param reScaleY
      */
     public void refreshPanel(boolean reScaleX, boolean reScaleY) {
         try {
