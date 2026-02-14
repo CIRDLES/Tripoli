@@ -90,6 +90,9 @@ public class MassSpecExtractedData implements Serializable {
                 case "METHODNAME" -> methodName = headerStrings[1].trim().substring(0, headerStrings[1].lastIndexOf('.'));
                 case "METHOD NAME" -> methodName = headerStrings[1].trim().substring(0, headerStrings[1].lastIndexOf('.'));
 
+                // OG Tripoli
+                case "INPUTFILE" -> filename = headerStrings[1].trim();
+
                 // Phoenix
                 case "VERSION" -> softwareVersion = headerStrings[1].trim();
                 case "FILENAME" -> filename = headerStrings[1].trim();
