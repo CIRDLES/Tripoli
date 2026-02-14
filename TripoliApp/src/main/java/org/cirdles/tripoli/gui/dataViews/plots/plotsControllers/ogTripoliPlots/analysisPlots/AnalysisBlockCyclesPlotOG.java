@@ -759,7 +759,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             int blockID =  xAxisDataBlockIDs[i];
             cycleCount = cycleCount - cyclesCountedToStartOfBlockIndex[blockID - 1];
 
-            if ((yAxisData[i] != 0.0)) {
+            if (pointInPlot(xAxisData[i], yAxisData[i]) && (yAxisData[i] != 0.0)) {
                 g2d.setFill(Color.web(analysis.getDataHexColorString()));
                 g2d.setStroke(Color.web(analysis.getDataHexColorString()));
                 if (!analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID)
