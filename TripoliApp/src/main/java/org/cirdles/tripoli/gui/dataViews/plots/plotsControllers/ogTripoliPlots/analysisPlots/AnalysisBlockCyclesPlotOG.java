@@ -55,7 +55,6 @@ import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.gen
 import static org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN.countOfTrailingDigitsForSigFig;
 import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.applyChauvenetsCriterion;
 
-
 /**
  * @author James F. Bowring
  */
@@ -118,7 +117,6 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         Tooltip.install(this, tooltip);
 
         setOnMouseClicked(new MouseClickEventHandler());
-
     }
 
     public static AbstractPlot generatePlot(
