@@ -66,6 +66,10 @@ public abstract class AbstractPlot extends Canvas {
     protected double minY;
     protected double maxY;
 
+    protected int[] cyclesPerEachBlockIndex;
+    protected int [] xAxisDataBlockIDs;
+    protected int[] cyclesCountedToStartOfBlockIndex;
+
     protected ContextMenu plotContextMenu;
     protected MenuItem plotContextMenuItemSculpt;
     protected double mouseStartX;
@@ -112,6 +116,11 @@ public abstract class AbstractPlot extends Canvas {
 
         xAxisData = new double[0];
         yAxisData = new double[0];
+
+        cyclesPerEachBlockIndex= new int[0];
+        xAxisDataBlockIDs= new int[0];
+        cyclesCountedToStartOfBlockIndex= new int[0];
+
         ticsX = new BigDecimal[0];
         ticsY = new BigDecimal[0];
         showStats = false;
