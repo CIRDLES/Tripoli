@@ -214,8 +214,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
         Analysis analysisConcat = null;
         if (ufNames1.equals(ufNames2)) {
-            // proceed with simple case
-            // assume for now that these are two sequential runs with all the same metadata
+            // proceed with simple case of identical methods per analysis
+            // assume for now that these are two or more sequential runs with all the same metadata
             // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
 
             analysisConcat = new Analysis(
@@ -228,27 +228,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
             analysisConcat.setAnalysisStartTime(analysisTime);
             analysisConcat.setUserFunctions(analysisConcat.getAnalysisMethod().createUserFunctions());
 
-            for (UserFunction uf : analysisConcat.getUserFunctions()) {
-                Map<Integer, PlotBlockCyclesRecord> userFunctionConcatMapBlockToCyclesRecord = new TreeMap<>();
-                int concatBlockId = 1;
-                UserFunction ufFromAnalysisOne = ((Analysis) analyses[0]).getUserFunctionByName(uf.getName());
-                Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMapOne =
-                        ufFromAnalysisOne.getMapBlockIdToBlockCyclesRecord();
-
-                UserFunction ufFromAnalysisTwo = ((Analysis) analyses[1]).getUserFunctionByName(uf.getName());
-                Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMapTwo =
-                        ufFromAnalysisTwo.getMapBlockIdToBlockCyclesRecord();
-
-                for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMapOne.entrySet()) {
-                    userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
-                    concatBlockId++;
-                }
-                for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMapTwo.entrySet()) {
-                    userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
-                    concatBlockId++;
-                }
-                uf.setMapBlockIdToBlockCyclesRecord(userFunctionConcatMapBlockToCyclesRecord);
-            }
+            analysisConcat.updateConcatenatedAnalysis();
 
             AllBlockInitForDataLiteOne.initBlockModels(analysisConcat);
 
@@ -262,6 +242,28 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
                     MassSpecExtractedData.blocksDataLiteConcatenate(analyses));
         }
         return analysisConcat;
+    }
+
+    public void updateConcatenatedAnalysis(){
+        for (UserFunction uf : getUserFunctions()) {
+            Map<Integer, PlotBlockCyclesRecord> userFunctionConcatMapBlockToCyclesRecord = new TreeMap<>();
+            int concatBlockId = 1;
+
+            for (int i = 0; i < getMemberAnalyses().length; i++) {
+                UserFunction ufFromAnalysis = ((Analysis) getMemberAnalyses()[i]).getUserFunctionByName(uf.getName());
+                Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap =
+                        ufFromAnalysis.getMapBlockIdToBlockCyclesRecord();
+                for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
+                    userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
+                    concatBlockId++;
+                }
+            }
+            uf.setMapBlockIdToBlockCyclesRecord(userFunctionConcatMapBlockToCyclesRecord);
+        }
+    }
+
+    public boolean hasMemberAnalyses() {
+        return memberAnalyses.length > 0;
     }
 
     public void setAnalysisSpeciesStats(DescriptiveStatistics[] analysisSpeciesStats) {

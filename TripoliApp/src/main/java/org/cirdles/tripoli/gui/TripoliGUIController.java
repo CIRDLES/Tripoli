@@ -32,6 +32,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.imports.OgTripoliImporter;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
 import org.cirdles.tripoli.utilities.file.FileWatcher;
@@ -686,6 +687,8 @@ public class TripoliGUIController implements Initializable {
     private void launchAnalysesManager() throws IOException, TripoliException {
         if (analysis != null) {
             removeAllManagers();
+
+            ((Analysis)analysis).updateConcatenatedAnalysis();
 
             analysesManagerUI = FXMLLoader.load(getClass().getResource("AnalysesManager.fxml"));
             analysesManagerUI.setId("AnalysesManager");
