@@ -35,10 +35,7 @@ import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisBlockCyclesRecord;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
-import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
-import org.cirdles.tripoli.sessions.analysis.BlockStatsRecord;
-import org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord;
+import org.cirdles.tripoli.sessions.analysis.*;
 import org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN;
 
 import java.math.BigDecimal;
@@ -804,11 +801,9 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         int blockID = 1;
         for (int b = 0; b < cyclesCountedToStartOfBlockIndex.length; b++) {
             int i = cyclesCountedToStartOfBlockIndex[b];
-            //  }
-            //  for (int i = 0; i < xAxisData.length; i += cyclesPerBlock) {
             if (xInPlot(xAxisData[i])) {
                 double dataX = mapX(xAxisData[i] - 0.5);
-                if (userFunction.getConcatenatedBlockCounts()[0] == blockID - 1) {
+                if (((Analysis)analysis).getMemberAnalysisBorderFlags().contains(blockID - 1)){
                     g2d.setLineWidth(2.0);
                     g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
                     g2d.setLineWidth(1.0);

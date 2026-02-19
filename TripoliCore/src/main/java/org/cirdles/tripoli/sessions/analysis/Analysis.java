@@ -105,7 +105,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = Collections.synchronizedSortedMap(new TreeMap<>());
-    //    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
     private TripoliSpeciesColorMap analysisMapOfSpeciesToColors;
     private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
     private Session parentSession;
@@ -136,6 +135,24 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     // Parameters
     private Parameters analysisParameters;
+
+    // concatenation support
+    private AnalysisInterface[] memberAnalyses;
+    private List<Integer> memberAnalysisBorderFlags;
+
+    public List<Integer> getMemberAnalysisBorderFlags() {
+        if (memberAnalysisBorderFlags == null) calculateMemberAnalysisBorderFlags();
+        return memberAnalysisBorderFlags;
+    }
+
+    private void calculateMemberAnalysisBorderFlags(){
+        memberAnalysisBorderFlags = new ArrayList<>();
+        int totalBlocks = 0;
+        for(int i = 0; i < memberAnalyses.length; i++){
+            totalBlocks += memberAnalyses[i].getMapOfBlockIdToRawDataLiteOne().size();
+            memberAnalysisBorderFlags.add(totalBlocks);
+        }
+    }
 
     private Analysis() {
     }
@@ -179,10 +196,11 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
                     new boolean[analysisMethod.getSpeciesList().size()], true, true, true, true, true, false);
         }
         userFunctions = new ArrayList<>();
+
+        memberAnalyses = new AnalysisInterface[0];
     }
 
-
-    public static AnalysisInterface concatenateTwoAnalysesLite(
+    public static AnalysisInterface concatenateAnalysesLite(
             AnalysisInterface[] analyses) throws TripoliException {
 
         Stream<UserFunction> ufStream1 = analyses[0].getUserFunctions().stream();
@@ -201,7 +219,10 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
             // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
 
             analysisConcat = new Analysis(
-                    "AnalysisConcatTest", analyses[0].getAnalysisMethod(), analyses[1].getAnalysisSampleName());
+                    "AnalysisConcatTest", analyses[0].getAnalysisMethod(), analyses[0].getAnalysisSampleName());
+            analysisConcat.setMemberAnalyses(analyses);
+            analysisConcat.calculateMemberAnalysisBorderFlags();
+
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String analysisTime = df.format(new Date());
             analysisConcat.setAnalysisStartTime(analysisTime);
@@ -210,11 +231,11 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
             for (UserFunction uf : analysisConcat.getUserFunctions()) {
                 Map<Integer, PlotBlockCyclesRecord> userFunctionConcatMapBlockToCyclesRecord = new TreeMap<>();
                 int concatBlockId = 1;
-                UserFunction ufFromAnalysisOne = ((Analysis)analyses[0]).getUserFunctionByName(uf.getName());
+                UserFunction ufFromAnalysisOne = ((Analysis) analyses[0]).getUserFunctionByName(uf.getName());
                 Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMapOne =
                         ufFromAnalysisOne.getMapBlockIdToBlockCyclesRecord();
 
-                UserFunction ufFromAnalysisTwo = ((Analysis)analyses[1]).getUserFunctionByName(uf.getName());
+                UserFunction ufFromAnalysisTwo = ((Analysis) analyses[1]).getUserFunctionByName(uf.getName());
                 Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMapTwo =
                         ufFromAnalysisTwo.getMapBlockIdToBlockCyclesRecord();
 
@@ -516,7 +537,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     public AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData() {
         Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = mapOfBlockIdToRawData;
-        SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[mapOfBlockIdToProcessStatus.keySet().size()];
+        SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[mapOfBlockIdToProcessStatus.size()];
         int index = 0;
         for (SingleBlockRawDataSetRecord singleBlockRawDataSetRecord : singleBlockRawDataSetRecordMap.values()) {
             singleBlockRawDataSetRecords[index] = singleBlockRawDataSetRecord;
@@ -525,7 +546,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
         int cycleCount = 0;
         Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = mapOfBlockIdToFinalModel;
-        SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[mapOfBlockIdToProcessStatus.keySet().size()];
+        SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[mapOfBlockIdToProcessStatus.size()];
         index = 0;
         for (SingleBlockModelRecord singleBlockModelRecord : singleBlockModelRecordMap.values()) {
             singleBlockModelRecords[index] = singleBlockModelRecord;
@@ -840,6 +861,11 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     public List<UserFunction> getUserFunctions() {
         return userFunctions;
     }
+
+    public void setUserFunctions(List<UserFunction> userFunctions) {
+        this.userFunctions = userFunctions;
+    }
+
     public UserFunction getUserFunctionByName(String ufName) {
         for (UserFunction uf : userFunctions) {
             if (uf.getName().equals(ufName)) {
@@ -847,10 +873,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
             }
         }
         return null;
-    }
-
-    public void setUserFunctions(List<UserFunction> userFunctions) {
-        this.userFunctions = userFunctions;
     }
 
     public String getDataFilePathString() {
@@ -1020,5 +1042,13 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         int retVal = 0;
         retVal = analysisStartTime.compareTo(((Analysis) o).getAnalysisStartTime());
         return retVal;
+    }
+
+    public AnalysisInterface[] getMemberAnalyses() {
+        return memberAnalyses;
+    }
+
+    public void setMemberAnalyses(AnalysisInterface[] memberAnalyses) {
+        this.memberAnalyses = memberAnalyses;
     }
 }

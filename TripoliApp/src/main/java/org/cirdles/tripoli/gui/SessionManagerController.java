@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -203,7 +202,7 @@ public class SessionManagerController implements Initializable {
         for (int i = 0; i < analysesObjects.length; i++) {
             analyses[i] = (AnalysisInterface) analysesObjects[i];
         }
-        AnalysisInterface analysisConcat = Analysis.concatenateTwoAnalysesLite(analyses);
+        AnalysisInterface analysisConcat = Analysis.concatenateAnalysesLite(analyses);
         tripoliSession.getMapOfAnalyses().put(analysisConcat.getAnalysisName(), analysisConcat);
         populateSessionManagerGridPane();
     }
