@@ -196,12 +196,14 @@ public class SessionManagerController implements Initializable {
         });
     }
 
-
-    // Removed pending future release
     public void testConcatAction() throws TripoliException {
         Stream<AnalysisInterface> stream = tripoliSession.getMapOfAnalyses().values().stream();
-        Object[] analyses = stream.sorted().toArray();
-        AnalysisInterface analysisConcat = Analysis.concatenateTwoAnalysesLite((AnalysisInterface) analyses[0], (AnalysisInterface) analyses[1]);
+        Object[] analysesObjects = stream.sorted().toArray();
+        AnalysisInterface[] analyses = new AnalysisInterface[analysesObjects.length];
+        for (int i = 0; i < analysesObjects.length; i++) {
+            analyses[i] = (AnalysisInterface) analysesObjects[i];
+        }
+        AnalysisInterface analysisConcat = Analysis.concatenateTwoAnalysesLite(analyses);
         tripoliSession.getMapOfAnalyses().put(analysisConcat.getAnalysisName(), analysisConcat);
         populateSessionManagerGridPane();
     }

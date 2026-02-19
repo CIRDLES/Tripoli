@@ -19,6 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import org.apache.commons.lang3.time.DateUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -52,8 +53,12 @@ public class MassSpecExtractedData implements Serializable {
     }
 
     public static Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenate(
-            Map<Integer, MassSpecOutputBlockRecordLite> blocksDataOne,
-            Map<Integer, MassSpecOutputBlockRecordLite> blocksDataTwo) {
+            AnalysisInterface[] analyses) {
+
+        Map<Integer, MassSpecOutputBlockRecordLite> blocksDataOne =
+                analyses[0].getMassSpecExtractedData().getBlocksDataLite();
+        Map<Integer, MassSpecOutputBlockRecordLite> blocksDataTwo =
+                analyses[1].getMassSpecExtractedData().getBlocksDataLite();
 
         Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenated = new TreeMap<>();
 
