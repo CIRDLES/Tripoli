@@ -67,7 +67,7 @@ public abstract class AbstractPlot extends Canvas {
     protected double maxY;
 
     protected int[] cyclesPerEachBlockIndex;
-    protected int [] xAxisDataBlockIDs;
+    protected int[] xAxisDataBlockIDs;
     protected int[] cyclesCountedToStartOfBlockIndex;
 
     protected ContextMenu plotContextMenu;
@@ -117,9 +117,9 @@ public abstract class AbstractPlot extends Canvas {
         xAxisData = new double[0];
         yAxisData = new double[0];
 
-        cyclesPerEachBlockIndex= new int[0];
-        xAxisDataBlockIDs= new int[0];
-        cyclesCountedToStartOfBlockIndex= new int[0];
+        cyclesPerEachBlockIndex = new int[0];
+        xAxisDataBlockIDs = new int[0];
+        cyclesCountedToStartOfBlockIndex = new int[0];
 
         ticsX = new BigDecimal[0];
         ticsY = new BigDecimal[0];
@@ -139,8 +139,7 @@ public abstract class AbstractPlot extends Canvas {
                     zoomChunkX = Math.abs(zoomChunkX) * Math.signum(event.getDeltaY());
                     zoomChunkY = Math.abs(zoomChunkY) * Math.signum(event.getDeltaY());
                     if (getDisplayRangeX() >= zoomChunkX) {
-                        if (event.getSource() instanceof AnalysisBlockCyclesPlotI) {
-                            AnalysisBlockCyclesPlotI sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlotI) event.getSource();
+                        if (event.getSource() instanceof AnalysisBlockCyclesPlotI sourceAnalysisBlockCyclesPlot) {
                             if (event.isControlDown()) {
                                 ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeRatioPlotsScroll(sourceAnalysisBlockCyclesPlot, zoomChunkX, zoomChunkY);
                             } else {
@@ -158,8 +157,7 @@ public abstract class AbstractPlot extends Canvas {
         // Feb 2024 moving pan action to right mouse
         mouseDraggedEventHandler = event -> {
             if (mouseInHouse(event.getX(), event.getY()) && event.isSecondaryButtonDown()) {
-                if (event.getSource() instanceof AnalysisBlockCyclesPlotI) {
-                    AnalysisBlockCyclesPlotI sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlotI) event.getSource();
+                if (event.getSource() instanceof AnalysisBlockCyclesPlotI sourceAnalysisBlockCyclesPlot) {
                     if (event.isControlDown()) {
                         ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeRatioPlotsDrag(event.getX(), event.getY());
                     } else {
@@ -194,8 +192,7 @@ public abstract class AbstractPlot extends Canvas {
 
         EventHandler<MouseEvent> mousePressedEventHandler = e -> {
             if (mouseInHouse(e.getX(), e.getY())) {// && e.isPrimaryButtonDown()) {
-                if (e.getSource() instanceof AnalysisBlockCyclesPlotI) {
-                    AnalysisBlockCyclesPlotI sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlotI) e.getSource();
+                if (e.getSource() instanceof AnalysisBlockCyclesPlotI sourceAnalysisBlockCyclesPlot) {
                     ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeMouseStartsOnPress(e.getX(), e.getY());
                 } else {
                     adjustMouseStartsForPress(e.getX(), e.getY());
@@ -340,7 +337,7 @@ public abstract class AbstractPlot extends Canvas {
                                 leftMargin, mapY(bigDecimalTicY.doubleValue()), leftMargin + plotWidth, mapY(bigDecimalTicY.doubleValue()));
                         // left side
                         double ticValue = bigDecimalTicY.doubleValue();
-                        DecimalFormat df = new DecimalFormat((99999 < Math.abs(ticValue) || 1.0e-5 > Math.abs(ticValue)) ? "0.0####E0" : "#####0.#####",new DecimalFormatSymbols(Locale.ENGLISH));
+                        DecimalFormat df = new DecimalFormat((99999 < Math.abs(ticValue) || 1.0e-5 > Math.abs(ticValue)) ? "0.0####E0" : "#####0.#####", new DecimalFormatSymbols(Locale.ENGLISH));
                         String yText = (ticValue == 0.0) ? "0" : df.format(ticValue);
 
                         text.setText(yText);
@@ -363,7 +360,7 @@ public abstract class AbstractPlot extends Canvas {
                             topMargin + plotHeight + 3);
                     // bottom
                     double ticValue = ticsX[i].doubleValue();
-                    DecimalFormat df = new DecimalFormat((99999 < Math.abs(ticValue) || 1.0e-5 > Math.abs(ticValue)) ? "0.0####E0" : "#####0.#####",new DecimalFormatSymbols(Locale.ENGLISH));
+                    DecimalFormat df = new DecimalFormat((99999 < Math.abs(ticValue) || 1.0e-5 > Math.abs(ticValue)) ? "0.0####E0" : "#####0.#####", new DecimalFormatSymbols(Locale.ENGLISH));
                     String xText = (ticValue == 0.0) ? "0" : df.format(ticValue);
 
                     g2d.fillText(xText,
@@ -445,7 +442,9 @@ public abstract class AbstractPlot extends Canvas {
         g2d.setFill(Paint.valueOf("BLACK"));
     }
 
-    public DelegateActionInterface getRepaintDelegateAction() {return this::repaint;}
+    public DelegateActionInterface getRepaintDelegateAction() {
+        return this::repaint;
+    }
 
     /**
      * @param x
@@ -475,7 +474,6 @@ public abstract class AbstractPlot extends Canvas {
     }
 
     /**
-     *
      * @param reScaleX
      * @param reScaleY
      */

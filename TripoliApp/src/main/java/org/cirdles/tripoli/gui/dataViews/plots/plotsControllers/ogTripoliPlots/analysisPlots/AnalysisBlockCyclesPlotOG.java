@@ -57,18 +57,21 @@ import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.applyCha
  */
 public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisBlockCyclesPlotI {
     private final Tooltip tooltip;
-    private final String tooltipTextSculpt = "Left mouse: cntrl click toggles block, Dbl-click to Sculpt data. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
-    private final String tooltipTextExitSculpt = "Left mouse: cntrl click toggles block, Dbl-click Exits Sculpting. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
-    int[] blockIDsPerTimeSlot;
+    private final String tooltipTextSculpt =
+            "Left mouse: cntrl click toggles block, Dbl-click to Sculpt data. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
+    private final String tooltipTextExitSculpt =
+            "Left mouse: cntrl click toggles block, Dbl-click Exits Sculpting. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
+    private final String tooltipTextConcat =
+            "Right mouse: cntrl click zooms one block, Click toggles full view.";
     private final AnalysisInterface analysis;
     private final Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
     private final UserFunction userFunction;
-
+    private final PlotWallPaneInterface parentWallPane;
+    private final boolean isRatio;
+    int[] blockIDsPerTimeSlot;
     private double[] oneSigmaForCycles;
     private boolean logScale;
     private boolean[] zoomFlagsXY;
-    private final PlotWallPaneInterface parentWallPane;
-    private final boolean isRatio;
     private boolean blockMode;
     private AnalysisStatsRecord analysisStatsRecord;
     private double selectorBoxX;
@@ -108,7 +111,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         this.isRatio = userFunction.isTreatAsIsotopicRatio();
         this.ignoreRejects = false;
 
-        tooltip = new Tooltip(tooltipTextSculpt);
+        tooltip = new Tooltip(((Analysis) analysis).hasMemberAnalyses() ? tooltipTextConcat : tooltipTextSculpt);
         Tooltip.install(this, tooltip);
 
         setOnMouseClicked(new MouseClickEventHandler());
@@ -803,7 +806,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             int i = cyclesCountedToStartOfBlockIndex[b];
             if (xInPlot(xAxisData[i])) {
                 double dataX = mapX(xAxisData[i] - 0.5);
-                if (((Analysis)analysis).getMemberAnalysisBorderFlags().contains(blockID - 1)){
+                if (((Analysis) analysis).getMemberAnalysisBorderFlags().contains(blockID - 1)) {
                     g2d.setLineWidth(2.0);
                     g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
                     g2d.setLineWidth(1.0);
@@ -1063,9 +1066,9 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         int xAxisIndexOfMouse = Math.min(xAxisData.length - 1, (int) Math.round(mouseTime));
         double t0 = xAxisData[xAxisIndexOfMouse];
         double t2 = xAxisData[(xAxisIndexOfMouse >= 2) ? (xAxisIndexOfMouse - 2) : 0];
-        int sculptBlockIDCalc = blockIDsPerTimeSlot[(xAxisIndexOfMouse >= 1) ? (xAxisIndexOfMouse - 1) : 0];
+        int sculptBlockIDCalc = xAxisDataBlockIDs[(xAxisIndexOfMouse >= 1) ? (xAxisIndexOfMouse - 1) : 0];
         if (((t0 - t2) > 5.0) && (Math.abs(mouseTime - t2) > Math.abs(mouseTime - t0))) {
-            sculptBlockIDCalc = blockIDsPerTimeSlot[xAxisIndexOfMouse];
+            sculptBlockIDCalc = xAxisDataBlockIDs[xAxisIndexOfMouse];
         }
 
         if (sculptBlockIDCalc == 0) sculptBlockIDCalc = mapBlockIdToBlockCyclesRecord.size();
@@ -1097,7 +1100,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
     public void sculptBlock(boolean zoomBlock) {
         if ((0 < sculptBlockID) && !inSculptorMode) {
-            inSculptorMode = true;
+            inSculptorMode = !((Analysis) analysis).hasMemberAnalyses();
             showSelectionBox = true;
             setOnMouseDragged(new AnalysisBlockCyclesPlotOG.MouseDraggedEventHandlerSculpt());
             setOnMousePressed(new AnalysisBlockCyclesPlotOG.MousePressedEventHandlerSculpt());
@@ -1106,7 +1109,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             selectorBoxY = mouseStartY;
 
             // zoom into block
-            countOfPreviousBlockIncludedData = (sculptBlockID - 1) * mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
+            countOfPreviousBlockIncludedData = cyclesCountedToStartOfBlockIndex[sculptBlockID - 1];//       (sculptBlockID - 1) * mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
             if (zoomBlock) {
                 displayOffsetX = 0;
                 int countOfCycles = mapBlockIdToBlockCyclesRecord.get(sculptBlockID).cyclesIncluded().length;
@@ -1148,7 +1151,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         zoomBoxY = mouseStartY;
         refreshPanel(true, true);
         ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
-        tooltip.setText(tooltipTextSculpt);
+        tooltip.setText(((Analysis) analysis).hasMemberAnalyses() ? tooltipTextConcat : tooltipTextSculpt);
     }
 
     private void enterSculptingMode() {
@@ -1161,7 +1164,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
         sculptBlock(false);//mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()));
         inSculptorMode = true;
-        tooltip.setText(tooltipTextExitSculpt);
+        tooltip.setText(((Analysis) analysis).hasMemberAnalyses() ? tooltipTextConcat : tooltipTextExitSculpt);
     }
 
     public boolean isIgnoreRejects() {
@@ -1189,11 +1192,15 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     if (inSculptorMode) {
                         exitSculptingMode();
                     } else {
-                        enterSculptingMode();
+                        if (!((Analysis) analysis).hasMemberAnalyses()) {
+                            enterSculptingMode();
+                        }
                     }
                 }
             } else {
-                if (isPrimary && mouseEvent.isControlDown() && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()))) {
+                if (isPrimary && mouseEvent.isControlDown()
+                        && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()))
+                        && !((Analysis) analysis).hasMemberAnalyses()) {
                     // turn off / on block
                     sculptBlockID = determineSculptBlock(mouseEvent.getX());
                     mapBlockIdToBlockCyclesRecord.put(sculptBlockID,
@@ -1208,14 +1215,18 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     // zoom block
                     sculptBlockID = determineSculptBlock(mouseEvent.getX());
                     ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
-                    ((TripoliPlotPane) getParent().getParent()).builtSculptingHBox(
-                            "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
+                    if (!((Analysis) analysis).hasMemberAnalyses()) {
+                        ((TripoliPlotPane) getParent().getParent()).builtSculptingHBox(
+                                "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
+                    }
                     sculptBlock(true);
                     inZoomBoxMode = !inSculptorMode;
                     showZoomBox = !inSculptorMode;
 
-                    tooltip.setText(tooltipTextExitSculpt);
+                    tooltip.setText(((Analysis) analysis).hasMemberAnalyses() ? tooltipTextConcat : tooltipTextExitSculpt);
                     repaint();
+                } else if (!isPrimary) {
+                    refreshPanel(true, true);
                 }
             }
         }
@@ -1423,13 +1434,18 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     inZoomBoxMode = false;
                     showZoomBox = false;
                     ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
-                    ((TripoliPlotPane) getParent().getParent()).builtSculptingHBox(
-                            "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
-                    inSculptorMode = true;
-                    showSelectionBox = false;
+
+                    inSculptorMode = !((Analysis) analysis).hasMemberAnalyses();
+                    if (inSculptorMode) {
+                        ((TripoliPlotPane) getParent().getParent()).builtSculptingHBox(
+                                "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
+                    }
                     setOnMouseDragged(new AnalysisBlockCyclesPlotOG.MouseDraggedEventHandlerSculpt());
                     setOnMousePressed(new AnalysisBlockCyclesPlotOG.MousePressedEventHandlerSculpt());
                     setOnMouseReleased(new AnalysisBlockCyclesPlotOG.MouseReleasedEventHandlerSculpt());
+
+                    showSelectionBox = false;
+
                     selectorBoxX = mouseStartX;
                     selectorBoxY = mouseStartY;
 
