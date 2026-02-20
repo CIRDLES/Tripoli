@@ -96,6 +96,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIEL
 import static org.cirdles.tripoli.expressions.operations.Operation.OPERATIONS_MAP;
 import static org.cirdles.tripoli.gui.SessionManagerController.listOfSelectedAnalyses;
 import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
+import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
@@ -1159,7 +1160,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         }
     }
-    
+
+    public void manageSampleAction() {
+        MenuItem menuItemSessionManager = ((MenuBar) primaryStage.getScene()
+                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
+        menuItemSessionManager.fire();
+    }
+
     private class Plot2SelectionListCell extends ListCell<PlotTwo> {
         private final CheckBox checkBox;
         private final HBox hBox;
