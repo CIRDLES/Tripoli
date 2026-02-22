@@ -234,10 +234,6 @@ public class UserFunction implements Comparable, Serializable {
         return concatenatedBlockCounts;
     }
 
-    public void setConcatenatedBlockCounts(int[] concatenatedBlockCounts) {
-        this.concatenatedBlockCounts = concatenatedBlockCounts;
-    }
-
     /**
      * @param o the object to be compared.
      * @return
