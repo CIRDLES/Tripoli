@@ -70,9 +70,8 @@
         <Label alignment="CENTER" prefHeight="17.0" prefWidth="86.0" style="-fx-text-fill: #3c77c9;" text="Lab Name:" />
         <TextField fx:id="labNameTextField" prefHeight="26.0" prefWidth="219.0" promptText="Lab Name:" />
     </HBox>
-    <VBox prefHeight="133.0" prefWidth="130.0" GridPane.rowIndex="4" GridPane.rowSpan="2">
+    <VBox GridPane.rowIndex="4" GridPane.rowSpan="2">
         <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Meta Data:" />
-      <Button fx:id="openConcatenatedButton" mnemonicParsing="false" onAction="#openConcatenatedAction" prefHeight="26.0" prefWidth="131.0" style="-fx-text-fill: red;" text="Open Concatenated" />
     </VBox>
     <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Analysis Name:" GridPane.rowIndex="1" />
     <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Sample &amp; Description:" GridPane.rowIndex="2" />
@@ -137,7 +136,7 @@
       <children>
          <TabPane fx:id="dataTabPane" prefHeight="200.0" prefWidth="1072.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE">
            <tabs>
-             <Tab fx:id="dataTab" text="Meta Data and Data">
+             <Tab fx:id="dataTab" text="Meta Data and Data Summary">
                <content>
                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                         <children>

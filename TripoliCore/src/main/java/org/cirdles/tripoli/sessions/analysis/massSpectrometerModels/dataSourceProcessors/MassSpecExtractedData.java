@@ -19,6 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import org.apache.commons.lang3.time.DateUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -51,16 +52,18 @@ public class MassSpecExtractedData implements Serializable {
         blocksDataLite = new TreeMap<>();
     }
 
-    public static Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenate(
-            Map<Integer, MassSpecOutputBlockRecordLite> blocksDataOne, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataTwo) {
-        Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenated = new TreeMap<>();
+    public static Map<Integer, MassSpecOutputBlockRecordLite> concatenateBlocksDataLite(
+            AnalysisInterface[] analyses) {
 
-        for (Integer blockID : blocksDataOne.keySet()) {
-            blocksDataLiteConcatenated.put(blockID, blocksDataOne.get(blockID));
-        }
-        int blockIDOffset = blocksDataLiteConcatenated.size();
-        for (Integer blockID : blocksDataTwo.keySet()) {
-            blocksDataLiteConcatenated.put(blockID + blockIDOffset, blocksDataTwo.get(blockID).copyWithNewBlockID(blockID + blockIDOffset));
+        Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenated = new TreeMap<>();
+        int blockIDOffset = 0;
+        for (int i = 0; i < analyses.length; i++) {
+            Map<Integer, MassSpecOutputBlockRecordLite> blocksData =
+                    analyses[i].getMassSpecExtractedData().getBlocksDataLite();
+            for (Integer blockID : blocksData.keySet()) {
+                blocksDataLiteConcatenated.put(blockID + blockIDOffset, blocksData.get(blockID).copyWithNewBlockID(blockID + blockIDOffset));
+            }
+            blockIDOffset += blocksData.size();
         }
 
         return blocksDataLiteConcatenated;

@@ -79,7 +79,11 @@ public record MassSpecOutputBlockRecordLite(
     }
 
     public MassSpecOutputBlockRecordLite copyWithNewBlockID(int blockIDNew) {
-        return new MassSpecOutputBlockRecordLite(blockIDNew, cycleData);
+        double[][] cycleDataClone = new double[cycleData.length][];
+        for (int row = 0; row < cycleData.length; row++) {
+            cycleDataClone[row] = cycleData[row].clone();
+        }
+        return new MassSpecOutputBlockRecordLite(blockIDNew, cycleDataClone);
     }
 
 }

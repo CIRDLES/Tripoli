@@ -162,4 +162,19 @@ public record PlotBlockCyclesRecord(
                 title
         );
     }
+
+    public PlotBlockCyclesRecord cloneCyclesRecord() {
+        int countIncluded = countTrue(cyclesIncluded);
+
+        return new PlotBlockCyclesRecord(
+                blockID,
+                isRatio,
+                processed,
+                (countIncluded != 0),
+                cyclesIncluded.clone(),
+                cycleMeansData.clone(),
+                cycleOneSigmaData.clone(),
+                title.clone()
+        );
+    }
 }

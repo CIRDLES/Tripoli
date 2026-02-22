@@ -28,7 +28,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<GridPane fx:id="sessionGridPane" hgap="15.0" minHeight="660.0" minWidth="1250.0" prefHeight="660.0" prefWidth="1250.0" style="-fx-background-color: LINEN;" vgap="10.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.SessionManagerController">
+<GridPane fx:id="sessionGridPane" hgap="15.0" minHeight="660.0" minWidth="1250.0" prefHeight="660.0" prefWidth="1250.0" style="-fx-background-color: LINEN;" vgap="10.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.SessionManagerController">
     <columnConstraints>
         <ColumnConstraints halignment="RIGHT" hgrow="NEVER" percentWidth="10.0" />
         <ColumnConstraints fx:id="columnTwoConstraints" hgrow="ALWAYS" percentWidth="90.0" />
@@ -44,9 +44,8 @@
     <padding>
         <Insets bottom="15.0" left="20.0" right="20.0" top="1.0" />
     </padding>
-    <!-- Removed pending needed documentation to move forward with feature
-        <Button disable="true" mnemonicParsing="false" onAction="#testConcatAction" text="Experimental concatenation of two sequential files (same columns) per issue #229 for comment.  Top two listed files automatically chosen.  Thanks for feedback." GridPane.columnIndex="1" GridPane.rowIndex="4" />
-        -->
+     <!--Removed pending needed documentation to move forward with feature-->
+        <Button fx:id="concatenateButton" disable="false" mnemonicParsing="false" onAction="#concatenationAction" text="Concatenate two or more analyses with same method (use case 1)." GridPane.columnIndex="1" GridPane.rowIndex="4" />
     <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
         <TextField fx:id="sessionNameText" prefHeight="27.0" prefWidth="323.0" promptText="Please provide session name" HBox.hgrow="ALWAYS" />
         <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Analyst Name:" />
