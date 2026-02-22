@@ -238,6 +238,7 @@ public class TripoliGUIController implements Initializable {
                                 analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
                                 tripoliSession.addAnalysis(analysisProposed);
                                 analysis = analysisProposed;
+                                AllBlockInitForDataLiteOne.initBlockModels(analysis);
                                 reportsMenu.setDisable(false);
                                 AnalysisManagerController.readingFile = true;
                                 analysis.getParameters().setMassSpectrometerContext(analysis.getMassSpecExtractedData().getMassSpectrometerContext());
@@ -688,7 +689,9 @@ public class TripoliGUIController implements Initializable {
         if (analysis != null) {
             removeAllManagers();
 
-            ((Analysis)analysis).updateConcatenatedAnalysis();
+            if(((Analysis)analysis).hasMemberAnalyses()) {
+                ((Analysis) analysis).updateConcatenatedAnalysis();
+            }
 
             analysesManagerUI = FXMLLoader.load(getClass().getResource("AnalysesManager.fxml"));
             analysesManagerUI.setId("AnalysesManager");

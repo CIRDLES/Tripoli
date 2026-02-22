@@ -34,7 +34,7 @@ import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
@@ -61,6 +61,7 @@ public class SessionManagerController implements Initializable {
     public static Session tripoliSession;
     public ColumnConstraints columnTwoConstraints;
     public GridPane sessionGridPane;
+    public Button concatenateButton;
     @FXML
     private TextField analystNameText;
     @FXML
@@ -111,6 +112,7 @@ public class SessionManagerController implements Initializable {
                             analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
                             tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                             analysis = analysisProposed;
+                            AllBlockInitForDataLiteOne.initBlockModels(analysis);
                             AnalysisManagerController.readingFile = true;
                         } else {
                             analysis = null;
@@ -132,6 +134,17 @@ public class SessionManagerController implements Initializable {
 
         populateSessionManagerGridPane();
         setupListeners();
+        if (listViewOfAnalyses.getItems().size() < 2) {
+            concatenateButton.setDisable(true);
+        } else {
+            concatenateButton.setOnAction(event -> {
+                try {
+                    concatenationAction();
+                } catch (TripoliException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 
     private void populateSessionManagerGridPane() {
@@ -146,14 +159,11 @@ public class SessionManagerController implements Initializable {
 
         ObservableList<AnalysisInterface> items = FXCollections.observableArrayList(tripoliSession.getMapOfAnalyses().values());
         listViewOfAnalyses.setCellFactory((parameter) -> new AnalysisDisplaySummary());
-        IntuitiveStringComparator<String> intuitiveStringComparator = new IntuitiveStringComparator<>();
         items = items.sorted();
-//        items = items.sorted((AnalysisInterface analysis1, AnalysisInterface analysis2)
-//                -> intuitiveStringComparator.compare(analysis1.getAnalysisName(), analysis2.getAnalysisName()));
         listViewOfAnalyses.setItems(items);
         listViewOfAnalyses.setOnMouseClicked(event -> {
             AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
-            analysis = analysisSelected;
+            AnalysisManagerController.analysis = analysisSelected;
             listOfSelectedAnalyses.clear();
             listOfSelectedAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems());
             if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
@@ -165,6 +175,9 @@ public class SessionManagerController implements Initializable {
                         tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
                     }
 
+                    if (!((Analysis)analysis).hasMemberAnalyses()) {
+                        AnalysisManagerController.concatenatedAnalysis = null;
+                    }
                     MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                             .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
                     menuItemAnalysesManager.fire();
@@ -195,19 +208,27 @@ public class SessionManagerController implements Initializable {
         });
     }
 
-    public void testConcatAction() throws TripoliException {
-        Stream<AnalysisInterface> stream = tripoliSession.getMapOfAnalyses().values().stream();
-        Object[] analysesObjects = stream.sorted().toArray();
-        AnalysisInterface[] analyses = new AnalysisInterface[analysesObjects.length];
-        for (int i = 0; i < analysesObjects.length; i++) {
-            analyses[i] = (AnalysisInterface) analysesObjects[i];
+    public void concatenationAction() throws TripoliException {
+        // Check if analyses have the same method = use case 1
+        String methodNameForConcat = listOfSelectedAnalyses.get(0).getMethod().getMethodName();
+        List<AnalysisInterface> analysesWithSameMethodList = new ArrayList<>();
+        for (AnalysisInterface analysis : listOfSelectedAnalyses) {
+            if(analysis.getMethod().getMethodName().equals(methodNameForConcat)
+                && !((Analysis) analysis).hasMemberAnalyses()) {
+                analysesWithSameMethodList.add(analysis);
+            }
         }
-        AnalysisInterface analysisConcat = Analysis.concatenateAnalysesLite(analyses);
-        tripoliSession.getMapOfAnalyses().put(analysisConcat.getAnalysisName(), analysisConcat);
-        populateSessionManagerGridPane();
+        AnalysisInterface[] analysesToConcatenate
+                = analysesWithSameMethodList.stream().toArray(AnalysisInterface[]::new);
+
+        if(analysesToConcatenate.length > 1) {
+            AnalysisInterface analysisConcat = Analysis.concatenateAnalysesLite(analysesToConcatenate);
+            tripoliSession.getMapOfAnalyses().put(analysisConcat.getAnalysisName(), analysisConcat);
+            populateSessionManagerGridPane();
+        }
     }
 
-    class AnalysisDisplaySummary extends ListCell<AnalysisInterface> {
+    static class AnalysisDisplaySummary extends ListCell<AnalysisInterface> {
         @Override
         protected void updateItem(AnalysisInterface analysis, boolean empty) {
             super.updateItem(analysis, empty);

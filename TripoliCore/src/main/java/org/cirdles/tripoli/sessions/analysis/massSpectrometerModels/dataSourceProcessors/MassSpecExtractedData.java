@@ -52,23 +52,18 @@ public class MassSpecExtractedData implements Serializable {
         blocksDataLite = new TreeMap<>();
     }
 
-    public static Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenate(
+    public static Map<Integer, MassSpecOutputBlockRecordLite> concatenateBlocksDataLite(
             AnalysisInterface[] analyses) {
 
-        Map<Integer, MassSpecOutputBlockRecordLite> blocksDataOne =
-                analyses[0].getMassSpecExtractedData().getBlocksDataLite();
-        Map<Integer, MassSpecOutputBlockRecordLite> blocksDataTwo =
-                analyses[1].getMassSpecExtractedData().getBlocksDataLite();
-
         Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenated = new TreeMap<>();
-
-        for (Integer blockID : blocksDataOne.keySet()) {
-            blocksDataLiteConcatenated.put(blockID, blocksDataOne.get(blockID));
-        }
-
-        int blockIDOffset = blocksDataLiteConcatenated.size();
-        for (Integer blockID : blocksDataTwo.keySet()) {
-            blocksDataLiteConcatenated.put(blockID + blockIDOffset, blocksDataTwo.get(blockID).copyWithNewBlockID(blockID + blockIDOffset));
+        int blockIDOffset = 0;
+        for (int i = 0; i < analyses.length; i++) {
+            Map<Integer, MassSpecOutputBlockRecordLite> blocksData =
+                    analyses[i].getMassSpecExtractedData().getBlocksDataLite();
+            for (Integer blockID : blocksData.keySet()) {
+                blocksDataLiteConcatenated.put(blockID + blockIDOffset, blocksData.get(blockID).copyWithNewBlockID(blockID + blockIDOffset));
+            }
+            blockIDOffset += blocksData.size();
         }
 
         return blocksDataLiteConcatenated;

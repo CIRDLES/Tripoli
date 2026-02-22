@@ -1159,10 +1159,10 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         inZoomBoxMode = false;
         showZoomBox = false;
         ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
-        sculptBlockID = 1;//determineSculptBlock(mouseEvent.getX());
+        sculptBlockID = 1;
         ((TripoliPlotPane) getParent().getParent()).builtSculptingHBox(
                 "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
-        sculptBlock(false);//mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()));
+        sculptBlock(false);
         inSculptorMode = true;
         tooltip.setText(((Analysis) analysis).hasMemberAnalyses() ? tooltipTextConcat : tooltipTextExitSculpt);
     }

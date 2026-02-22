@@ -71,8 +71,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_FULL_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
@@ -140,20 +138,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private AnalysisInterface[] memberAnalyses;
     private List<Integer> memberAnalysisBorderFlags;
 
-    public List<Integer> getMemberAnalysisBorderFlags() {
-        if (memberAnalysisBorderFlags == null) calculateMemberAnalysisBorderFlags();
-        return memberAnalysisBorderFlags;
-    }
-
-    private void calculateMemberAnalysisBorderFlags(){
-        memberAnalysisBorderFlags = new ArrayList<>();
-        int totalBlocks = 0;
-        for(int i = 0; i < memberAnalyses.length; i++){
-            totalBlocks += memberAnalyses[i].getMapOfBlockIdToRawDataLiteOne().size();
-            memberAnalysisBorderFlags.add(totalBlocks);
-        }
-    }
-
     private Analysis() {
     }
 
@@ -202,51 +186,56 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     public static AnalysisInterface concatenateAnalysesLite(
             AnalysisInterface[] analyses) throws TripoliException {
+        // use case 1 assume for now that these are two or more sequential runs with all the same metadata
+        // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
 
-        Stream<UserFunction> ufStream1 = analyses[0].getUserFunctions().stream();
-        List<String> ufNames1 = ufStream1
-                .map(UserFunction::getName)
-                .collect(Collectors.toList());
-        Stream<UserFunction> ufStream2 = analyses[1].getUserFunctions().stream();
-        List<String> ufNames2 = ufStream2
-                .map(UserFunction::getName)
-                .collect(Collectors.toList());
+        Analysis analysisConcat = new Analysis(
+                "Concatenated Analysis",
+                analyses[0].getAnalysisMethod(),
+                analyses[0].getAnalysisSampleName());
+        analysisConcat.setMemberAnalyses(analyses);
+        analysisConcat.calculateMemberAnalysisBorderFlags();
+        analysisConcat.setAnalysisSampleDescription("Concatenated analyses");
+        analysisConcat.setDataFilePathString("N/A");
 
-        Analysis analysisConcat = null;
-        if (ufNames1.equals(ufNames2)) {
-            // proceed with simple case of identical methods per analysis
-            // assume for now that these are two or more sequential runs with all the same metadata
-            // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String analysisTime = df.format(new Date());
+        analysisConcat.setAnalysisStartTime(analysisTime);
+        analysisConcat.setUserFunctions(analysisConcat.getAnalysisMethod().createUserFunctions());
 
-            analysisConcat = new Analysis(
-                    "AnalysisConcatTest", analyses[0].getAnalysisMethod(), analyses[0].getAnalysisSampleName());
-            analysisConcat.setMemberAnalyses(analyses);
-            analysisConcat.calculateMemberAnalysisBorderFlags();
+        analysisConcat.updateConcatenatedAnalysis();
 
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String analysisTime = df.format(new Date());
-            analysisConcat.setAnalysisStartTime(analysisTime);
-            analysisConcat.setUserFunctions(analysisConcat.getAnalysisMethod().createUserFunctions());
+        AllBlockInitForDataLiteOne.initBlockModels(analysisConcat);
 
-            analysisConcat.updateConcatenatedAnalysis();
+        MassSpecExtractedData massSpecExtractedData = analysisConcat.getMassSpecExtractedData();
+        massSpecExtractedData.setMassSpectrometerContext(analyses[0].getMassSpecExtractedData().getMassSpectrometerContext());
+        massSpecExtractedData.setHeader(analyses[0].getMassSpecExtractedData().getHeader());
+        // TODO: modify header
+        massSpecExtractedData.setColumnHeaders(analyses[0].getMassSpecExtractedData().getColumnHeaders());
 
-            AllBlockInitForDataLiteOne.initBlockModels(analysisConcat);
-
-            MassSpecExtractedData massSpecExtractedData = analysisConcat.getMassSpecExtractedData();
-            massSpecExtractedData.setMassSpectrometerContext(analyses[0].getMassSpecExtractedData().getMassSpectrometerContext());
-            massSpecExtractedData.setHeader(analyses[0].getMassSpecExtractedData().getHeader());
-            // TODO: modify header
-            massSpecExtractedData.setColumnHeaders(analyses[0].getMassSpecExtractedData().getColumnHeaders());
-
-            massSpecExtractedData.setBlocksDataLite(
-                    MassSpecExtractedData.blocksDataLiteConcatenate(analyses));
-        }
+        massSpecExtractedData.setBlocksDataLite(
+                MassSpecExtractedData.concatenateBlocksDataLite(analyses));
         return analysisConcat;
     }
 
-    public void updateConcatenatedAnalysis(){
+    public List<Integer> getMemberAnalysisBorderFlags() {
+        if (memberAnalysisBorderFlags == null) calculateMemberAnalysisBorderFlags();
+        return memberAnalysisBorderFlags;
+    }
+
+    private void calculateMemberAnalysisBorderFlags() {
+        memberAnalysisBorderFlags = new ArrayList<>();
+        int totalBlocks = 0;
+        for (int i = 0; i < memberAnalyses.length; i++) {
+            totalBlocks += memberAnalyses[i].getMapOfBlockIdToRawDataLiteOne().size();
+            memberAnalysisBorderFlags.add(totalBlocks);
+        }
+    }
+
+    public void updateConcatenatedAnalysis() {
         for (UserFunction uf : getUserFunctions()) {
-            Map<Integer, PlotBlockCyclesRecord> userFunctionConcatMapBlockToCyclesRecord = new TreeMap<>();
+            Map<Integer, PlotBlockCyclesRecord> userFunctionConcatMapBlockToCyclesRecord =
+                    uf.getMapBlockIdToBlockCyclesRecord();
             int concatBlockId = 1;
 
             for (int i = 0; i < getMemberAnalyses().length; i++) {
@@ -254,7 +243,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
                 Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap =
                         ufFromAnalysis.getMapBlockIdToBlockCyclesRecord();
                 for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
-                    userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
+                    PlotBlockCyclesRecord record = entry.getValue().cloneCyclesRecord();
+                    userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, record.changeBlockIDforConcat(concatBlockId));
                     concatBlockId++;
                 }
             }
@@ -262,6 +252,11 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         }
     }
 
+    /**
+     * Denotes concatenation
+     *
+     * @return boolean
+     */
     public boolean hasMemberAnalyses() {
         return memberAnalyses.length > 0;
     }
