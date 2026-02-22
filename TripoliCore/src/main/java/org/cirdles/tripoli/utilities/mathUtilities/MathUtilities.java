@@ -81,8 +81,8 @@ public class MathUtilities {
         The number of elements in data is n
         Calculate the mean and standard deviation of data, xbar and stddev.
         For each element of data, calculate absZ_i = abs(data_i - xbar) / stddev where abs() is the absolute value
-        Calculate Chauvenet’s criterion, C_i = n * erfc(absZ_i) for each absZ_i
-        Identify all data with C_i > ChauvenetRejectionProbability as an outlier by Chauvenet’s Criterion
+        Calculate Chauvenet’s criterion, C_i = n * erfc(absZ_i/Math.sqrt(2.0)) for each absZ_i
+        Identify all data with C_i < ChauvenetRejectionProbability as an outlier by Chauvenet’s Criterion
         ***
         Plot Chauvenet-identified outliers in red and recalculate all statistics after rejecting the identified outliers.
         Gray out the Chauvenet button so that it can’t be re-applied.
@@ -110,7 +110,7 @@ public class MathUtilities {
             double[] absZ = new double[dataIn.length];
             for (int i = 0; i < dataIn.length; i++) {
                 absZ[i] = Math.abs(dataIn[i] - xbar) / stddev;
-                double chauvenetsCriterion = erfc(absZ[i]) * descriptiveStatistics.getN();
+                double chauvenetsCriterion = erfc(absZ[i]/Math.sqrt(2.0)) * descriptiveStatistics.getN();
                 if (chauvenetsCriterion < chauvenetRejectionProbability) {
                     includedIndices[i] = false;
                 }

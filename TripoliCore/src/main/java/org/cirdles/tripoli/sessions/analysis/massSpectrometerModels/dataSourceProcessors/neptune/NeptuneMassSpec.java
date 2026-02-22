@@ -70,6 +70,7 @@ public enum NeptuneMassSpec {
                 if (line.startsWith("Block")) {
                     massSpecExtractedData.populateHeader(headerByLineSplit);
                     columnNamesSplit.add(line.split("\t"));
+                    columnNamesSplit.get(0)[0] = "Cycle";
                     massSpecExtractedData.populateColumnNamesList(columnNamesSplit);
                     phase = 4;
                 } else if (line.startsWith("***")) {
@@ -116,7 +117,7 @@ public enum NeptuneMassSpec {
         for (String line : blockData) {
             String[] lineSplit = line.split("\t");
             timeStampByLineSplit.add(lineSplit[1].trim());
-            cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
+            cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 0, lineSplit.length));
         }
 
         return buildSingleBlockNeptuneRecord(

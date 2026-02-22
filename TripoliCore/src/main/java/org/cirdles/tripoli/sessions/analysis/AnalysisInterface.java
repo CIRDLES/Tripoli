@@ -223,4 +223,6 @@ public interface AnalysisInterface {
 
     List<UserFunction> getUserFunctions();
 
+    void setUserFunctions(List<UserFunction> userFunctions);
+
 }

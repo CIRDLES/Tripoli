@@ -50,7 +50,7 @@ dependencies {
 val mavenArtifactId = name
 val mavenGroupId = "org.cirdles"
 // preserve double quotes in mavenVersion as Tripoli uses regex based on them to check on latest version
-val mavenVersion = "1.0.0"//19 Oct 2025
+val mavenVersion = "2.2.1"//22 Feb 2026
 
 object Versions {
     const val junitVersion = "5.8.2"

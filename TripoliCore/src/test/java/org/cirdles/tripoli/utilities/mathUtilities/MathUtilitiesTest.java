@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import static org.apache.commons.math3.special.Erf.erfc;
 import com.google.common.math.Stats;
 
 class MathUtilitiesTest {
@@ -48,7 +47,7 @@ class MathUtilitiesTest {
         indices = new boolean[] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
 
 
-        solvedIndices = new boolean[] {false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false};
+        solvedIndices = new boolean[] {false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false};
     }
 
     @AfterEach

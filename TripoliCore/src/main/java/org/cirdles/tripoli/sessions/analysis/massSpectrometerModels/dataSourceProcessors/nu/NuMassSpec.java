@@ -93,9 +93,11 @@ public enum NuMassSpec {
                                     parseAndBuildSingleBlockNuRecord(currentBlockID, cyclesPerBlock, dataByBlocks.get(currentBlockID - 1)));
                             currentBlockID++;
                             dataByBlock = new ArrayList<>();
-                            dataByBlock.add(cycleIndex + "\t0.0\t" + line);
+                            // note: no time field in file, so time = 1.0
+                            dataByBlock.add(cycleIndex + "\t1.0\t" + line);
                         } else {
-                            dataByBlock.add(cycleIndex + "\t0.0\t" + line);
+                            // note: no time field in file, so time = 1.0
+                            dataByBlock.add(cycleIndex + "\t1.0\t" + line);
                         }
                     }
                     case 8 -> {
@@ -117,7 +119,7 @@ public enum NuMassSpec {
         for (String line : blockData) {
             String[] lineSplit = line.split("\t");
             timeStampByLineSplit.add(lineSplit[1].trim());
-            cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
+            cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 0, lineSplit.length));
         }
 
         return buildSingleBlockNuRecord(

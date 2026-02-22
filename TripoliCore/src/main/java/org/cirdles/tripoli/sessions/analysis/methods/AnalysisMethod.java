@@ -101,11 +101,11 @@ public class AnalysisMethod implements Serializable {
         int r265_267ColumnIndex = -1;
         AnalysisMethod analysisMethod = new AnalysisMethod(massSpecExtractedData.getHeader().methodName(), massSpecExtractedData.getMassSpectrometerContext());
         String[] columnHeaders = massSpecExtractedData.getColumnHeaders();
-        // ignore first two columns: Cycle, Time
+
         String regex = "[^alpha].*\\d?:?\\(?\\d{2,3}.{0,2}\\/\\d?:?\\d{2,3}.{0,2}.*";
 
-        for (int i = 2; i < columnHeaders.length; i++) {
-            UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 2);
+        for (int i = 0; i < columnHeaders.length; i++) {
+            UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 0);
             if (columnHeaders[i].matches(regex)) {
                 userFunction.setTreatAsIsotopicRatio(true);
                 userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE);
@@ -119,10 +119,10 @@ public class AnalysisMethod implements Serializable {
                 }
 
                 if (etReduxRatioName.compareTo("270_267") == 0) {
-                    r270_267ColumnIndex = i - 2;
+                    r270_267ColumnIndex = i - 0;
                 }
                 if (etReduxRatioName.compareTo("265_267") == 0) {
-                    r265_267ColumnIndex = i - 2;
+                    r265_267ColumnIndex = i - 0;
                 }
 
                 String invertedETReduxRatioName = denominator + "_" + numerator;
@@ -133,6 +133,9 @@ public class AnalysisMethod implements Serializable {
             } else {
                 userFunction.setTreatAsIsotopicRatio(false);
                 userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE);
+                if (userFunction.getName().contains("Cycle") || userFunction.getName().contains("Time")){
+                    userFunction.setDisplayed(false);
+                }
             }
             analysisMethod.getUserFunctionsModel().add(userFunction);
         }
@@ -146,26 +149,26 @@ public class AnalysisMethod implements Serializable {
             System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);
 
             columnHeadersExpanded[columnHeaders.length + 0] = "233/235oc";
-            UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length - 2, true, true);
+            UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length, true, true);
             userFunction.setEtReduxName("233_235");
             userFunction.setOxideCorrected(true);
             analysisMethod.getUserFunctionsModel().add(userFunction);
 
             columnHeadersExpanded[columnHeaders.length + 1] = "238/235oc";
-            userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 1], columnHeaders.length - 1, true, true);
+            userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 1], columnHeaders.length + 1, true, true);
             userFunction.setEtReduxName("238_235");
             userFunction.setOxideCorrected(true);
             analysisMethod.getUserFunctionsModel().add(userFunction);
 
             columnHeadersExpanded[columnHeaders.length + 2] = "238/233oc";
-            userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 2], columnHeaders.length, true, true);
+            userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 2], columnHeaders.length + 2, true, true);
             userFunction.setEtReduxName("238_233");
             userFunction.setOxideCorrected(true);
             analysisMethod.getUserFunctionsModel().add(userFunction);
 
             massSpecExtractedData.setColumnHeaders(columnHeadersExpanded);
 
-            System.out.println(columnHeaders[r270_267ColumnIndex + 2]);
+            System.out.println(columnHeaders[r270_267ColumnIndex + 0]);
         }
         populateCustomExpressionFunctions(massSpecExtractedData, analysisMethod);
 

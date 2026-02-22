@@ -44,6 +44,7 @@ import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.*;
+import javafx.util.Callback;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
 import org.cirdles.tripoli.ExpressionsForTripoliLexer;
@@ -77,6 +78,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
+import org.cirdles.tripoli.plots.PlotTwo;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.ByteArrayInputStream;
@@ -94,6 +96,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIEL
 import static org.cirdles.tripoli.expressions.operations.Operation.OPERATIONS_MAP;
 import static org.cirdles.tripoli.gui.SessionManagerController.listOfSelectedAnalyses;
 import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
+import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
@@ -111,6 +114,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public static MCMC2PlotsWindow MCMC2PlotsWindow;
     public static OGTripoliPlotsWindow ogTripoliReviewPlotsWindow;
     public static OGTripoliPlotsWindow ogTripoliPreviewPlotsWindow;
+
+    public static AnalysisInterface concatenatedAnalysis;
+
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     private final TextArea expressionAsTextArea = new TextArea();
     private final BooleanProperty editAsText = new SimpleBooleanProperty(false);
@@ -146,6 +152,23 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Tab sequenceTableTab;
     public Tab selectRatiosToPlotTab;
     public Tab selectColumnsToPlot;
+    public Tab selectTwoUserFunctionsTab;
+    @FXML
+    public ComboBox<UserFunction> xAxisUserFunctionComboBox;
+    @FXML
+    public ComboBox<UserFunction> yAxisUserFunctionComboBox;
+    @FXML
+    public ComboBox<UserFunction> intensityUserFunctionComboBox;
+    @FXML
+    public ListView<PlotTwo> plot2SelectionLV;
+    
+    private final ObservableList<PlotTwo> plot2SelectionList = FXCollections.observableArrayList();
+    @FXML
+    public Button generateTwoUserFunctionsPlotButton;
+    @FXML
+    public Button savePlot2SelectionButton;
+    @FXML
+    public Button deletePlot2SelectionButton;
     public VBox ratiosVBox;
     public VBox functionsVBox;
     public TextField fractionNameTextField;
@@ -202,6 +225,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Label expressionInvalidLabel;
     @FXML
     public Label expressionUnsavedLabel;
+    public TabPane dataTabPane;
+    public Tab concatTab;
+    public Tab dataTab;
+    public Button openConcatenatedButton;
+    @FXML
+    private ListView<AnalysisInterface> memberAnalysesListView = new ListView<>();
+
     Text insertIndicator = new Text("|");
     @FXML
     public CheckBox treatAsRatioCheckBox;
@@ -342,6 +372,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                             listOfSelectedAnalyses.clear();
                             listOfSelectedAnalyses.add(analysis);
                             // manage analysis
+                            AllBlockInitForDataLiteOne.initBlockModels(analysis);
                             readingFile = true;
                             MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                                     .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
@@ -366,14 +397,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
 
         setupListeners();
-
-//        try {
-//            if (readingFile) {
-//                readingFile = false;
-//                previewAndSculptDataFromFile();
-//            } else {
-//                previewAndSculptDataAction();
-//            }
         populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
 //        } catch (TripoliException e) {
 //TODO: ALL need fixing:           throw new RuntimeException(e);
@@ -391,7 +414,58 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
 
         populateCustomExpressionTab();
+
+        if (((Analysis)analysis).hasMemberAnalyses()){
+            concatenatedAnalysis = analysis;
+            ObservableList<AnalysisInterface> items =
+                    FXCollections.observableArrayList(((Analysis) analysis).getMemberAnalyses());
+            memberAnalysesListView.setCellFactory((parameter)
+                    -> new AnalysisDisplaySummary());
+            items = items.sorted();
+            memberAnalysesListView.setItems(items);
+            memberAnalysesListView.setOnMouseClicked(event -> {
+                AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
+                analysis = analysisSelected;
+                if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
+                    if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
+                          MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
+                        menuItemAnalysesManager.fire();
+                    }
+                }
+            });
+
+            populateAnalysisDataFields();
+            dataTabPane.getTabs().remove(dataTab);
+        } else {
+            dataTabPane.getTabs().remove(concatTab);
+        }
+
+        openConcatenatedButton.setVisible((null != concatenatedAnalysis)
+                && !((Analysis) analysis).hasMemberAnalyses());
     }
+
+    public void openConcatenatedAction() {
+        analysis = concatenatedAnalysis;
+        MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
+        menuItemAnalysesManager.fire();
+    }
+
+    static class AnalysisDisplaySummary extends ListCell<AnalysisInterface> {
+        @Override
+        protected void updateItem(AnalysisInterface analysis, boolean empty) {
+            super.updateItem(analysis, empty);
+
+            if (null == analysis || empty) {
+                setText(null);
+            } else {
+                setText(analysis.prettyPrintAnalysisSummary());
+                setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 12));
+            }
+        }
+    }
+
 
     private void setupListeners() {
         analysisNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -462,6 +536,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysisMethodTabPane.getTabs().remove(sequenceTableTab);
                 analysisMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
                 analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
+                analysisMethodTabPane.getTabs().remove(selectTwoUserFunctionsTab);
                 analysisMethodTabPane.getTabs().remove(customExpressionsTab);
             }
             case 1 -> {
@@ -472,8 +547,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
                 if (null != analysis.getAnalysisMethod()) {
                     showTab(analysisMethodTabPane, 2, selectColumnsToPlot);
+                    showTab(analysisMethodTabPane, 3, customExpressionsTab);
+                    showTab(analysisMethodTabPane, 4, selectTwoUserFunctionsTab);
                     analysisMethodTabPane.getSelectionModel().select(2);
                     populateAnalysisMethodColumnsSelectorPane();
+                    populateTwoUserFunctionsSelectorTab();
                     processingToolBar.setVisible(false);
                 }
             }
@@ -483,8 +561,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 showTab(analysisMethodTabPane, 4, sequenceTableTab);
                 showTab(analysisMethodTabPane, 5, selectRatiosToPlotTab);
                 analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
-
+                analysisMethodTabPane.getTabs().remove(selectTwoUserFunctionsTab);
                 analysisMethodTabPane.getTabs().remove(customExpressionsTab);
+              
                 populateAnalysisMethodGridPane();
                 populateAnalysisMethodRatioBuilderPane();
                 populateBlocksStatus();
@@ -501,6 +580,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
         if (analysis.getAnalysisName().contains("(Live Data)")){
             analysisMethodTabPane.getTabs().remove(customExpressionsTab);
+            analysisMethodTabPane.getTabs().remove(selectTwoUserFunctionsTab);
         }
 
 
@@ -510,7 +590,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private void populateAnalysisDataFields() {
         metaDataTextArea.setText(analysis.prettyPrintAnalysisMetaData());
         dataSummaryTextArea.setText(analysis.prettyPrintAnalysisDataSummary());
-        aboutAnalysisTextArea.setText((null == analysis.getAnalysisMethod()) ? "No analysis method loaded" : analysis.getAnalysisMethod().prettyPrintMethodSummary(true));
+        aboutAnalysisTextArea.setText((null == analysis.getAnalysisMethod())
+                ? "No analysis method loaded" : analysis.getAnalysisMethod().prettyPrintMethodSummary(true));
     }
 
     private void populateAnalysisMethodGridPane() {
@@ -1026,6 +1107,446 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         });
     }
 
+    private void populateTwoUserFunctionsSelectorTab() {
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+        
+        // Create lists with null option at the beginning for deselection
+        List<UserFunction> userFunctionsWithBlank = new ArrayList<>();
+        userFunctionsWithBlank.add(null); // Blank option for deselection
+        userFunctionsWithBlank.addAll(userFunctions);
+        
+        xAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        yAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        intensityUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        
+        // Create shared cell factory for user function display
+        Callback<ListView<UserFunction>, ListCell<UserFunction>> cellFactory = listView -> createUserFunctionListCell();
+        
+        // Apply shared cell factory and create separate button cells for each ComboBox
+        xAxisUserFunctionComboBox.setCellFactory(cellFactory);
+        xAxisUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
+        yAxisUserFunctionComboBox.setCellFactory(cellFactory);
+        yAxisUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
+        intensityUserFunctionComboBox.setCellFactory(cellFactory);
+        intensityUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
+        
+        // Load saved plot2 selections from persistence
+        loadPlot2Selections();
+        
+        // Populate ListView with custom cell factory for checkboxes
+        if (plot2SelectionLV != null) {
+            plot2SelectionLV.setItems(plot2SelectionList);
+            plot2SelectionLV.setCellFactory(listView -> new Plot2SelectionListCell());
+
+            // When the user double-clicks a saved Plot2 selection, populate the
+            // X, Y, and Intensity ComboBoxes with that selection's values.
+            plot2SelectionLV.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2) {
+                    PlotTwo selected = plot2SelectionLV.getSelectionModel().getSelectedItem();
+                    if (selected != null) {
+                        applyPlot2SelectionToComboBoxes(selected);
+                    }
+                }
+            });
+        }
+        
+        // Set up button enable/disable logic
+        setupPlot2ButtonStates();
+    }
+    
+    private void setupPlot2ButtonStates() {
+        // Initially disable both buttons
+        if (savePlot2SelectionButton != null) {
+            savePlot2SelectionButton.setDisable(true);
+        }
+        if (deletePlot2SelectionButton != null) {
+            deletePlot2SelectionButton.setDisable(true);
+        }
+        
+        // Enable/disable save and generate plot buttons based on X and Y axis selections
+        if (xAxisUserFunctionComboBox != null && yAxisUserFunctionComboBox != null) {
+            ChangeListener<UserFunction> comboBoxChangeListener = (observable, oldValue, newValue) -> {
+                updateSaveAndGenerateButtonStates();
+            };
+            
+            xAxisUserFunctionComboBox.getSelectionModel().selectedItemProperty().addListener(comboBoxChangeListener);
+            yAxisUserFunctionComboBox.getSelectionModel().selectedItemProperty().addListener(comboBoxChangeListener);
+            
+            // Set initial state
+            updateSaveAndGenerateButtonStates();
+        }
+        
+        // Enable/disable delete button based on ListView selection
+        if (plot2SelectionLV != null && deletePlot2SelectionButton != null) {
+            plot2SelectionLV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                updateDeleteButtonState();
+            });
+            
+            // Also update when list items change
+            plot2SelectionList.addListener((ListChangeListener<PlotTwo>) c -> {
+                updateDeleteButtonState();
+            });
+            
+            // Set initial state
+            updateDeleteButtonState();
+        }
+    }
+    
+    private void updateDeleteButtonState() {
+        if (deletePlot2SelectionButton != null && plot2SelectionLV != null) {
+            PlotTwo selected = plot2SelectionLV.getSelectionModel().getSelectedItem();
+            deletePlot2SelectionButton.setDisable(selected == null);
+        }
+    }
+    
+    private void updateSaveAndGenerateButtonStates() {
+        if (xAxisUserFunctionComboBox != null && yAxisUserFunctionComboBox != null) {
+            UserFunction xAxis = xAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+            UserFunction yAxis = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+            
+            // Enable buttons only if both X and Y axes are selected (not null)
+            boolean shouldDisable = (xAxis == null || yAxis == null);
+            
+            if (savePlot2SelectionButton != null) {
+                savePlot2SelectionButton.setDisable(shouldDisable);
+            }
+            if (generateTwoUserFunctionsPlotButton != null) {
+                generateTwoUserFunctionsPlotButton.setDisable(shouldDisable);
+            }
+        }
+    }
+
+    public void manageSessionAction() {
+        MenuItem menuItemSessionManager = ((MenuBar) primaryStage.getScene()
+                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
+        menuItemSessionManager.fire();
+    }
+
+    private class Plot2SelectionListCell extends ListCell<PlotTwo> {
+        private final CheckBox checkBox;
+        private final HBox hBox;
+        private final Label label;
+        
+        public Plot2SelectionListCell() {
+            checkBox = new CheckBox();
+            label = new Label();
+            hBox = new HBox(5);
+            hBox.setAlignment(Pos.CENTER_LEFT);
+            hBox.getChildren().addAll(checkBox, label);
+            
+            checkBox.setOnAction(event -> {
+                PlotTwo item = getItem();
+                if (item != null) {
+                    item.setDisplayed(checkBox.isSelected());
+                    savePlot2SelectionDisplayedState();
+                }
+            });
+        }
+        
+        @Override
+        protected void updateItem(PlotTwo item, boolean empty) {
+            super.updateItem(item, empty);
+            
+            if (empty || item == null) {
+                setGraphic(null);
+                setText(null);
+            } else {
+                checkBox.setSelected(item.isDisplayed());
+                label.setText(item.toString());
+                setGraphic(hBox);
+            }
+        }
+    }
+    
+    private void savePlot2SelectionDisplayedState() {
+        if (analysis == null || analysis.getMethod() == null) {
+            return;
+        }
+        
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            return;
+        }
+        
+        if (tripoliPersistentState == null) {
+            return;
+        }
+        
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+        
+        if (analysisMethodPersistance != null) {
+            tripoliPersistentState.updateTripoliPersistentState();
+        }
+    }
+    
+    private void loadPlot2Selections() {
+        plot2SelectionList.clear();
+        
+        if (analysis == null || analysis.getMethod() == null) {
+            return;
+        }
+        
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            // No persistent state available
+            return;
+        }
+        
+        if (tripoliPersistentState != null) {
+            AnalysisMethodPersistance analysisMethodPersistance =
+                    tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+            if (analysisMethodPersistance != null) {
+                List<PlotTwo> savedSelections = analysisMethodPersistance.getPlotTwoList();
+                plot2SelectionList.addAll(savedSelections);
+            }
+        }
+    }
+
+    /**
+     * Applies a saved PlotTwo selection back into the Plot2 ComboBoxes, matching by user-function name.
+     */
+    private void applyPlot2SelectionToComboBoxes(PlotTwo selection) {
+        if (selection == null || analysis == null) {
+            return;
+        }
+
+        // Ensure combo boxes are populated
+        if (xAxisUserFunctionComboBox == null || yAxisUserFunctionComboBox == null || intensityUserFunctionComboBox == null) {
+            return;
+        }
+
+        String xName = selection.getXAxisUserFunctionName();
+        String yName = selection.getYAxisUserFunctionName();
+        String intensityName = selection.getIntensityUserFunctionName();
+
+        // Match by displayed name; fall back silently if not found.
+        UserFunction xMatch = null;
+        UserFunction yMatch = null;
+        UserFunction intensityMatch = null;
+
+        for (UserFunction uf : analysis.getUserFunctions()) {
+            if (uf != null) {
+                String ufName = uf.getName();
+                if (xMatch == null && ufName != null && ufName.equals(xName)) {
+                    xMatch = uf;
+                }
+                if (yMatch == null && ufName != null && ufName.equals(yName)) {
+                    yMatch = uf;
+                }
+                if (intensityName != null && intensityMatch == null && ufName != null && ufName.equals(intensityName)) {
+                    intensityMatch = uf;
+                }
+            }
+        }
+
+        // Apply matches to combo boxes (null is allowed for intensity)
+        xAxisUserFunctionComboBox.getSelectionModel().select(xMatch);
+        yAxisUserFunctionComboBox.getSelectionModel().select(yMatch);
+        intensityUserFunctionComboBox.getSelectionModel().select(intensityMatch);
+
+        // Keep button enabled/disabled state in sync with new selections
+        updateSaveAndGenerateButtonStates();
+    }
+    
+    private void refreshTwoUserFunctionsComboBoxes() {
+        if (xAxisUserFunctionComboBox == null || yAxisUserFunctionComboBox == null || intensityUserFunctionComboBox == null) {
+            return;
+        }
+        
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+        
+        // Store current selections to preserve them if possible
+        UserFunction currentXSelection = xAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction currentYSelection = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction currentIntensitySelection = intensityUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        
+        // Create lists with null option at the beginning for deselection
+        List<UserFunction> userFunctionsWithBlank = new ArrayList<>();
+        userFunctionsWithBlank.add(null); // Blank option for deselection
+        userFunctionsWithBlank.addAll(userFunctions);
+        
+        // Update the ComboBox items
+        xAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        yAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        intensityUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        
+        // Restore selections if they still exist in the updated list
+        if (currentXSelection != null && userFunctions.contains(currentXSelection)) {
+            xAxisUserFunctionComboBox.getSelectionModel().select(currentXSelection);
+        }
+        if (currentYSelection != null && userFunctions.contains(currentYSelection)) {
+            yAxisUserFunctionComboBox.getSelectionModel().select(currentYSelection);
+        }
+        if (currentIntensitySelection != null && userFunctions.contains(currentIntensitySelection)) {
+            intensityUserFunctionComboBox.getSelectionModel().select(currentIntensitySelection);
+        }
+    }
+    
+    private ListCell<UserFunction> createUserFunctionListCell() {
+        return new ListCell<>() {
+            @Override
+            protected void updateItem(UserFunction item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setText(null);
+                } else if (item == null) {
+                    setText(""); // Blank option for deselection
+                } else {
+                    setText(item.getName());
+                }
+            }
+        };
+    }
+    
+    @FXML
+    public void generateTwoUserFunctionsPlotAction() {
+        UserFunction xAxisUF = xAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction yAxisUF = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction intensityUF = intensityUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        
+        if (xAxisUF == null || yAxisUF == null) {
+            TripoliMessageDialog.showWarningDialog("Please select both X-axis and Y-axis user functions.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        // Close existing window if it exists (same pattern as Preview and Sculpt Data buttons)
+        if (null != ogTripoliReviewPlotsWindow) {
+            ogTripoliReviewPlotsWindow.close();
+        }
+        
+        AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
+        
+        // Create new window instance
+        ogTripoliReviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
+        ogTripoliReviewPlotsWindow.loadPlotsWindowForTwoUserFunctions();
+        
+        // Get the PlotWallPane from the OGTripoliViewController
+        OGTripoliViewController ogTripoliViewController = ogTripoliReviewPlotsWindow.getOgTripoliViewController();
+        if (ogTripoliViewController == null) {
+            TripoliMessageDialog.showWarningDialog("Plots window not properly initialized.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        // Use the plots2 approach - call the new method in OGTripoliViewController
+        try {
+            ogTripoliViewController.plotTwoUserFunctions(xAxisUF, yAxisUF, intensityUF);
+        } catch (Exception e) {
+            TripoliMessageDialog.showWarningDialog("Error creating plot: " + e.getMessage(), TripoliGUI.primaryStage);
+        }
+    }
+
+    @FXML
+    public void savePlot2SelectionAction() {
+        UserFunction xAxisUF = xAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction yAxisUF = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction intensityUF = intensityUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        
+        if (xAxisUF == null || yAxisUF == null) {
+            TripoliMessageDialog.showWarningDialog("Please select both X-axis and Y-axis user functions before saving.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        if (analysis == null || analysis.getMethod() == null) {
+            TripoliMessageDialog.showWarningDialog("No analysis method loaded.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            TripoliMessageDialog.showWarningDialog("Error accessing persistent state: " + e.getMessage(), TripoliGUI.primaryStage);
+            return;
+        }
+        
+        if (tripoliPersistentState == null) {
+            TripoliMessageDialog.showWarningDialog("Persistent state not available.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+        
+        if (analysisMethodPersistance == null) {
+            TripoliMessageDialog.showWarningDialog("Analysis method persistence not found.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        // Create plot2 selection
+        String intensityName = (intensityUF != null) ? intensityUF.getName() : null;
+        PlotTwo plot2Selection = new PlotTwo(
+                xAxisUF.getName(),
+                yAxisUF.getName(),
+                intensityName,
+                null // No custom name for now
+        );
+        
+        // Add to persistence
+        analysisMethodPersistance.getPlotTwoList().add(plot2Selection);
+        tripoliPersistentState.updateTripoliPersistentState();
+        
+        // Refresh ListView
+        loadPlot2Selections();
+        if (plot2SelectionLV != null) {
+            plot2SelectionLV.getSelectionModel().select(plot2Selection);
+        }
+        
+        // Update button states
+        updateDeleteButtonState();
+    }
+
+    @FXML
+    public void deletePlot2SelectionAction() {
+        PlotTwo selected = plot2SelectionLV.getSelectionModel().getSelectedItem();
+        
+        if (selected == null) {
+            TripoliMessageDialog.showWarningDialog("Please select a plot2 selection to delete.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        if (analysis == null || analysis.getMethod() == null) {
+            TripoliMessageDialog.showWarningDialog("No analysis method loaded.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            TripoliMessageDialog.showWarningDialog("Error accessing persistent state: " + e.getMessage(), TripoliGUI.primaryStage);
+            return;
+        }
+        
+        if (tripoliPersistentState == null) {
+            TripoliMessageDialog.showWarningDialog("Persistent state not available.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+        
+        if (analysisMethodPersistance == null) {
+            TripoliMessageDialog.showWarningDialog("Analysis method persistence not found.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        // Remove from persistence
+        analysisMethodPersistance.getPlotTwoList().remove(selected);
+        tripoliPersistentState.updateTripoliPersistentState();
+        
+        // Refresh ListView
+        loadPlot2Selections();
+        
+        // Update button states (delete button should be disabled after deletion)
+        updateDeleteButtonState();
+    }
+
+
     private void populateCustomExpressionTab() {
         expressionAccordion.getPanes().clear();
 
@@ -1454,7 +1975,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     }
                 }
                 tripoliSession.addAnalysis(analysisProposed);
+                listOfSelectedAnalyses.clear();
+                listOfSelectedAnalyses.add(analysisProposed);
                 analysis = analysisProposed;
+
+                AllBlockInitForDataLiteOne.initBlockModels(analysis);
 
                 MCMCPlotsController.analysis = analysis;
                 MCMC2PlotsController.analysis = analysis;
@@ -1924,6 +2449,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         userFunctions.add(newFunction);
 
         analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
+        
+        // Refresh the two user functions ComboBoxes to include the new custom expression
+        refreshTwoUserFunctionsComboBoxes();
 
         if (tripoliSession.isExpressionRefreshed()) {
             AnalysisMethodPersistance methodPersistence =
@@ -2025,6 +2553,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         userFunctions.remove(customExpression);
         analysis.getMassSpecExtractedData().removeCycleDataForDeletedExpression(customExpression.getCustomExpression());
+        
+        // Refresh the two user functions ComboBoxes to remove the deleted custom expression
+        refreshTwoUserFunctionsComboBoxes();
 
         int columnIndex = customExpression.getColumnIndex();
         for (UserFunction uf : userFunctions) { // Reindex down
