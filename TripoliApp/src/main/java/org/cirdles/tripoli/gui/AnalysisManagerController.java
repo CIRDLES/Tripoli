@@ -96,6 +96,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIEL
 import static org.cirdles.tripoli.expressions.operations.Operation.OPERATIONS_MAP;
 import static org.cirdles.tripoli.gui.SessionManagerController.listOfSelectedAnalyses;
 import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
+import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
@@ -113,6 +114,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public static MCMC2PlotsWindow MCMC2PlotsWindow;
     public static OGTripoliPlotsWindow ogTripoliReviewPlotsWindow;
     public static OGTripoliPlotsWindow ogTripoliPreviewPlotsWindow;
+
+    public static AnalysisInterface concatenatedAnalysis;
+
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     private final TextArea expressionAsTextArea = new TextArea();
     private final BooleanProperty editAsText = new SimpleBooleanProperty(false);
@@ -221,6 +225,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Label expressionInvalidLabel;
     @FXML
     public Label expressionUnsavedLabel;
+    public TabPane dataTabPane;
+    public Tab concatTab;
+    public Tab dataTab;
+    public Button openConcatenatedButton;
+    @FXML
+    private ListView<AnalysisInterface> memberAnalysesListView = new ListView<>();
+
     Text insertIndicator = new Text("|");
     @FXML
     public CheckBox treatAsRatioCheckBox;
@@ -361,6 +372,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                             listOfSelectedAnalyses.clear();
                             listOfSelectedAnalyses.add(analysis);
                             // manage analysis
+                            AllBlockInitForDataLiteOne.initBlockModels(analysis);
                             readingFile = true;
                             MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                                     .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
@@ -385,14 +397,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
 
         setupListeners();
-
-//        try {
-//            if (readingFile) {
-//                readingFile = false;
-//                previewAndSculptDataFromFile();
-//            } else {
-//                previewAndSculptDataAction();
-//            }
         populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
 //        } catch (TripoliException e) {
 //TODO: ALL need fixing:           throw new RuntimeException(e);
@@ -410,7 +414,58 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
 
         populateCustomExpressionTab();
+
+        if (((Analysis)analysis).hasMemberAnalyses()){
+            concatenatedAnalysis = analysis;
+            ObservableList<AnalysisInterface> items =
+                    FXCollections.observableArrayList(((Analysis) analysis).getMemberAnalyses());
+            memberAnalysesListView.setCellFactory((parameter)
+                    -> new AnalysisDisplaySummary());
+            items = items.sorted();
+            memberAnalysesListView.setItems(items);
+            memberAnalysesListView.setOnMouseClicked(event -> {
+                AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
+                analysis = analysisSelected;
+                if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
+                    if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
+                          MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
+                        menuItemAnalysesManager.fire();
+                    }
+                }
+            });
+
+            populateAnalysisDataFields();
+            dataTabPane.getTabs().remove(dataTab);
+        } else {
+            dataTabPane.getTabs().remove(concatTab);
+        }
+
+        openConcatenatedButton.setVisible((null != concatenatedAnalysis)
+                && !((Analysis) analysis).hasMemberAnalyses());
     }
+
+    public void openConcatenatedAction() {
+        analysis = concatenatedAnalysis;
+        MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
+        menuItemAnalysesManager.fire();
+    }
+
+    static class AnalysisDisplaySummary extends ListCell<AnalysisInterface> {
+        @Override
+        protected void updateItem(AnalysisInterface analysis, boolean empty) {
+            super.updateItem(analysis, empty);
+
+            if (null == analysis || empty) {
+                setText(null);
+            } else {
+                setText(analysis.prettyPrintAnalysisSummary());
+                setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 12));
+            }
+        }
+    }
+
 
     private void setupListeners() {
         analysisNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -535,7 +590,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private void populateAnalysisDataFields() {
         metaDataTextArea.setText(analysis.prettyPrintAnalysisMetaData());
         dataSummaryTextArea.setText(analysis.prettyPrintAnalysisDataSummary());
-        aboutAnalysisTextArea.setText((null == analysis.getAnalysisMethod()) ? "No analysis method loaded" : analysis.getAnalysisMethod().prettyPrintMethodSummary(true));
+        aboutAnalysisTextArea.setText((null == analysis.getAnalysisMethod())
+                ? "No analysis method loaded" : analysis.getAnalysisMethod().prettyPrintMethodSummary(true));
     }
 
     private void populateAnalysisMethodGridPane() {
@@ -1159,7 +1215,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         }
     }
-    
+
+    public void manageSessionAction() {
+        MenuItem menuItemSessionManager = ((MenuBar) primaryStage.getScene()
+                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
+        menuItemSessionManager.fire();
+    }
+
     private class Plot2SelectionListCell extends ListCell<PlotTwo> {
         private final CheckBox checkBox;
         private final HBox hBox;
@@ -1916,6 +1978,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 listOfSelectedAnalyses.clear();
                 listOfSelectedAnalyses.add(analysisProposed);
                 analysis = analysisProposed;
+
+                AllBlockInitForDataLiteOne.initBlockModels(analysis);
 
                 MCMCPlotsController.analysis = analysis;
                 MCMC2PlotsController.analysis = analysis;
