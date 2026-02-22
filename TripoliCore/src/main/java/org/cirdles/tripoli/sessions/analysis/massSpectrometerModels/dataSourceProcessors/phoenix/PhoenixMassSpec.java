@@ -63,8 +63,8 @@ public enum PhoenixMassSpec {
             throw new RuntimeException(e);
         }
         List<String> columnNamesFixedList = new ArrayList<>();
-        columnNamesFixedList.add("");
-        columnNamesFixedList.add("");
+        columnNamesFixedList.add("Cycle");
+        columnNamesFixedList.add("Time");
         Cell[] functionNamesRow = cycleSheet.getRow(1);
         for (int col = 2; col < functionNamesRow.length; col++) {
             if (functionNamesRow[col].getType() != CellType.EMPTY) {
@@ -115,14 +115,16 @@ public enum PhoenixMassSpec {
         int countOfCycles = 0;
         for (int blockID = 1; blockID <= blockCount; blockID++) {
             int countedLastBlockCycles = 0;
-            double[][] cycleData = new double[cyclesPerBlock][columnNamesFixedList.size() - 2];
+            double[][] cycleData = new double[cyclesPerBlock][columnNamesFixedList.size()];
             int blockCycleStartLineNumber = (blockID - 1) * cyclesPerBlock + countOfHeaderLines;
             for (int cycleNum = 0; cycleNum < cyclesPerBlock; cycleNum++) {
                 if ((cycleNum + blockCycleStartLineNumber) < (countOfAllDataCycles + countOfHeaderLines)) {
                     Cell[] cycleCellData = cycleSheet.getRow(cycleNum + blockCycleStartLineNumber);
                     for (int i = 2; i < cycleCellData.length; i++) {
-                        cycleData[cycleNum][i - 2] = ((NumberCell) cycleCellData[i]).getValue();
+                        cycleData[cycleNum][i] = ((NumberCell) cycleCellData[i]).getValue();
                     }
+                    cycleData[cycleNum][0] = ((NumberCell) cycleCellData[0]).getValue();
+                    cycleData[cycleNum][1] = ((NumberCell) cycleCellData[1]).getValue();
                 } else {
                     countedLastBlockCycles = cycleNum + 1;
                     break;
@@ -130,7 +132,7 @@ public enum PhoenixMassSpec {
             }
             // clean up for missing points in last block due to abort run etc.
             if (countedLastBlockCycles > 0){
-                double[][] cycleDataCopy = new double[countedLastBlockCycles - 1][columnNamesFixedList.size() - 2];
+                double[][] cycleDataCopy = new double[countedLastBlockCycles - 1][columnNamesFixedList.size()];
                 for (int cycleNum = 0; cycleNum < countedLastBlockCycles - 1; cycleNum ++){
                     for (int col = 0; col < cycleData[cycleNum].length; col ++) {
                         cycleDataCopy[cycleNum][col] =  cycleData[cycleNum][col];
@@ -461,7 +463,7 @@ public enum PhoenixMassSpec {
             String[] lineSplit = line.split(",");
             cycleNumberByLineSplit.add(lineSplit[0].trim());
             timeStampByLineSplit.add(lineSplit[1].trim());
-            cycleDataByLineSplitList.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
+            cycleDataByLineSplitList.add(Arrays.copyOfRange(lineSplit, 0, lineSplit.length));
         }
 
         return buildSingleBlockTIMSDPRecord(

@@ -47,19 +47,20 @@ public class ExpressionTreeTest {
         List<UserFunction> ufList = analysis.getUserFunctions();
         List<String> infixList = new ArrayList<>();
 
+        // note Cycle and Time are first 2 UF!
         // 204Pb + 205Pb * 206Pb - 207Pb * ( 208Pb + 204/206 )
-        infixList.add(ufList.get(0).getName());
-        infixList.add("+");
-        infixList.add(ufList.get(1).getName());
-        infixList.add("*");
         infixList.add(ufList.get(2).getName());
-        infixList.add("-");
+        infixList.add("+");
         infixList.add(ufList.get(3).getName());
         infixList.add("*");
-        infixList.add("(");
         infixList.add(ufList.get(4).getName());
-        infixList.add("+");
+        infixList.add("-");
         infixList.add(ufList.get(5).getName());
+        infixList.add("*");
+        infixList.add("(");
+        infixList.add(ufList.get(6).getName());
+        infixList.add("+");
+        infixList.add(ufList.get(7).getName());
         infixList.add(")");
 
         return infixList;

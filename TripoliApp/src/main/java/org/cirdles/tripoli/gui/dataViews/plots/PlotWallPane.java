@@ -421,6 +421,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         scaleControlsToolbar.getItems().add(resetAllDataButton);
 
         toggleSculptingModeButton = new Button("Toggle ALL Sculpting Mode");
+        toggleSculptingModeButton.setDisable(((Analysis)analysis).hasMemberAnalyses());
         toggleSculptingModeButton.setFont(commandFont);
         toggleSculptingModeButton.setStyle(toggleSculptingModeButton.getStyle() + ";-fx-text-fill: RED;");
         toggleSculptingModeButton.setOnAction(event -> {
