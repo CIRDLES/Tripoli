@@ -189,10 +189,20 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         // use case 1 assume for now that these are two or more sequential runs with all the same metadata
         // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
 
+        // detect unique sample names
+        Set<String> sampleNames = new HashSet<>();
+        for (AnalysisInterface analysis : analyses) {
+            sampleNames.add(analysis.getAnalysisSampleName());
+        }
+        String concatSampleName = "";
+        for (String sampleName : sampleNames) {
+            concatSampleName+=  " + " + sampleName;
+        }
+
         Analysis analysisConcat = new Analysis(
-                "Concatenated Analysis",
+                "Concatenated Analysis" + concatSampleName,
                 analyses[0].getAnalysisMethod(),
-                analyses[0].getAnalysisSampleName());
+                concatSampleName);
         analysisConcat.setMemberAnalyses(analyses);
         analysisConcat.calculateMemberAnalysisBorderFlags();
         analysisConcat.setAnalysisSampleDescription("Concatenated analyses");
