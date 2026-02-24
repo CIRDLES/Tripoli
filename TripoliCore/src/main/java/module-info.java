@@ -32,6 +32,7 @@ module Tripoli.TripoliCore {
     requires jxl;
     requires org.antlr.antlr4.runtime;
     requires javafx.graphics;
+    requires org.checkerframework.checker.qual;
 
 
     exports org.cirdles.tripoli;
