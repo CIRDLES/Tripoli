@@ -752,7 +752,6 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     public void plotData(GraphicsContext g2d) {
         g2d.setFill(Color.web(analysis.getDataHexColorString()));
         g2d.setStroke(Color.web(analysis.getDataHexColorString()));
-        g2d.setLineWidth(1.0);
 
         // block delimiters rendered behind data
         g2d.setStroke(Color.BLACK);
@@ -765,7 +764,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 if (((Analysis) analysis).getMemberAnalysisBorderFlags().contains(blockID - 1)) {
                     g2d.setLineWidth(2.0);
                     g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-                    g2d.setLineWidth(1.0);
+                    g2d.setLineWidth(0.5);
                 } else {
                     if (AnalysisManagerController.showBlockDelimiters) {
                         g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
@@ -782,6 +781,9 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             }
             blockID++;
         }
+
+        g2d.setLineWidth(1.0);
+        
         // right-hand border
         double dataX = mapX(xAxisData[xAxisData.length - 1] + 0.5);
         g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
