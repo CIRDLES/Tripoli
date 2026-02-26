@@ -71,7 +71,7 @@
         <TextField fx:id="labNameTextField" prefHeight="26.0" prefWidth="219.0" promptText="Lab Name:" />
     </HBox>
     <VBox prefHeight="133.0" prefWidth="130.0" GridPane.rowIndex="4" GridPane.rowSpan="2">
-        <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Meta Data:" />
+        <Label fx:id="metaDataLabel" alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Meta Data:" />
       <Button fx:id="openConcatenatedButton" mnemonicParsing="false" onAction="#openConcatenatedAction" prefHeight="26.0" prefWidth="131.0" style="-fx-text-fill: red;" text="Open Concatenated" />
     </VBox>
     <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Analysis Name:" GridPane.rowIndex="1" />
@@ -132,7 +132,7 @@
             </ToolBar>
         </children>
     </HBox>
-    <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Data Summary:" GridPane.rowIndex="5" />
+    <Label fx:id="dataSummaryLabel" alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Data Summary:" GridPane.rowIndex="5" />
    <AnchorPane GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.rowSpan="2">
       <children>
          <TabPane fx:id="dataTabPane" prefHeight="200.0" prefWidth="1072.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE">
@@ -153,11 +153,7 @@
              </Tab>
                <Tab fx:id="concatTab" closable="false" text="Concatenated Files">
                  <content>
-                     <ScrollPane prefHeight="169.0" prefWidth="616.0">
-                        <content>
-                           <ListView fx:id="memberAnalysesListView" prefHeight="185.0" prefWidth="1072.0" />
-                        </content>
-                     </ScrollPane>
+                     <ListView fx:id="memberAnalysesListView" prefHeight="185.0" prefWidth="1072.0" />
                  </content>
                </Tab>
            </tabs>

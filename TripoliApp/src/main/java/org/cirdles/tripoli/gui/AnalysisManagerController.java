@@ -231,6 +231,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Tab concatTab;
     public Tab dataTab;
     public Button openConcatenatedButton;
+    public Label metaDataLabel;
+    public Label dataSummaryLabel;
     @FXML
     private ListView<AnalysisInterface> memberAnalysesListView = new ListView<>();
 
@@ -418,6 +420,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         populateCustomExpressionTab();
 
         if (((Analysis)analysis).hasMemberAnalyses()){
+            metaDataLabel.setText("Member Analyses:");
+            dataSummaryLabel.setVisible(false);
             concatenatedAnalysis = analysis;
             ObservableList<AnalysisInterface> items =
                     FXCollections.observableArrayList(((Analysis) analysis).getMemberAnalyses());
@@ -440,6 +444,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             populateAnalysisDataFields();
             dataTabPane.getTabs().remove(dataTab);
         } else {
+            metaDataLabel.setText("Meta Data");
+            dataSummaryLabel.setVisible(true);
             dataTabPane.getTabs().remove(concatTab);
         }
 
