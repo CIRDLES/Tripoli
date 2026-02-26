@@ -26,9 +26,13 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class OgTripoliImporter {
 
@@ -207,5 +211,9 @@ public class OgTripoliImporter {
         } catch (IOException | TripoliException ignored) {
             return null;
         }
+    }
+
+    public static MassSpecExtractedData extractMassSpecDataFromOGTripoli(Path inputFilePath) throws TripoliException, IOException {
+        return Objects.requireNonNull(importTripolizedData(inputFilePath.toFile())).getMassSpecExtractedData();
     }
 }

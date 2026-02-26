@@ -150,7 +150,7 @@ public interface AnalysisInterface {
 
     void setAnalysisSampleDescription(String analysisSampleDescription);
 
-    String prettyPrintAnalysisSummary();
+    String prettyPrintAnalysisSummary(int trimNameSize);
 
     String prettyPrintAnalysisMetaData();
 

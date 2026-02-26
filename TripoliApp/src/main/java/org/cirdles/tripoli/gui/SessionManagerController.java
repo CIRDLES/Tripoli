@@ -236,7 +236,7 @@ public class SessionManagerController implements Initializable {
             if (null == analysis || empty) {
                 setText(null);
             } else {
-                setText(analysis.prettyPrintAnalysisSummary());
+                setText(analysis.prettyPrintAnalysisSummary(75));
                 setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 12));
             }
 
