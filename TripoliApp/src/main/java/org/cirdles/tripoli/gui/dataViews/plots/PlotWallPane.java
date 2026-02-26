@@ -18,6 +18,9 @@ package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -26,6 +29,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
+import org.cirdles.tripoli.gui.AnalysisManagerController;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
@@ -513,6 +517,20 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                     resetZoom();
                 });
 
+        CheckBox showBlockLinesCB = new CheckBox("Show Block Lines");
+        showBlockLinesCB.setPadding(new Insets(0,0,0,10));
+        showBlockLinesCB.setSelected(AnalysisManagerController.showBlockDelimiters);
+        showBlockLinesCB.setOnAction(event -> {
+            if (showBlockLinesCB.isSelected()) {
+                AnalysisManagerController.showBlockDelimiters = true;
+                rebuildPlot(false, false);
+            } else {
+                AnalysisManagerController.showBlockDelimiters = false;
+                rebuildPlot(false, false);
+            }
+        });
+
+        scaleControlsToolbar.getItems().add(showBlockLinesCB);
 
         getChildren().add(scaleControlsToolbar);
     }

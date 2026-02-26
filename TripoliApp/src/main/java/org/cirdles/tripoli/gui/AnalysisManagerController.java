@@ -117,6 +117,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public static AnalysisInterface concatenatedAnalysis;
 
+    public static  boolean showBlockDelimiters = true;
+
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     private final TextArea expressionAsTextArea = new TextArea();
     private final BooleanProperty editAsText = new SimpleBooleanProperty(false);

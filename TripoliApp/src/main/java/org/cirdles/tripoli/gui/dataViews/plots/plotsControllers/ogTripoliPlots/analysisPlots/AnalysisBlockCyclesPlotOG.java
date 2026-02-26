@@ -32,6 +32,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.gui.AnalysisManagerController;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisBlockCyclesRecord;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
@@ -753,9 +754,42 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         g2d.setStroke(Color.web(analysis.getDataHexColorString()));
         g2d.setLineWidth(1.0);
 
+        // block delimiters rendered behind data
+        g2d.setStroke(Color.BLACK);
+        g2d.setLineWidth(0.5);
+        int blockID = 1;
+        for (int b = 0; b < cyclesCountedToStartOfBlockIndex.length; b++) {
+            int i = cyclesCountedToStartOfBlockIndex[b];
+            if (xInPlot(xAxisData[i])) {
+                double dataX = mapX(xAxisData[i] - 0.5);
+                if (((Analysis) analysis).getMemberAnalysisBorderFlags().contains(blockID - 1)) {
+                    g2d.setLineWidth(2.0);
+                    g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+                    g2d.setLineWidth(1.0);
+                } else {
+                    if (AnalysisManagerController.showBlockDelimiters) {
+                        g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+                    }
+                }
+                // may 2024 issue#235
+                if (blockID % 2 == 0) {
+                    // account for blocks not fully developed via PhoenixLiveData
+                    int offset = Math.abs(cyclesPerEachBlockIndex[blockID - 1] / 2 - 1);
+                    int index = Math.min(i + offset, xAxisData.length - 1);
+                    double xPosition = mapX(xAxisData[index]);
+                    showBlockID(g2d, blockID, xPosition);
+                }
+            }
+            blockID++;
+        }
+        // right-hand border
+        double dataX = mapX(xAxisData[xAxisData.length - 1] + 0.5);
+        g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+
+        // data
         int cycleCountAll = 0;
         for (int i = 0; i < xAxisData.length; i++) {
-            int blockID = xAxisDataBlockIDs[i];
+            blockID = xAxisDataBlockIDs[i];
             int cycleCount = cycleCountAll - cyclesCountedToStartOfBlockIndex[blockID - 1];
 
             if (pointInPlot(xAxisData[i], yAxisData[i]) && (yAxisData[i] != 0.0)) {
@@ -768,7 +802,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     g2d.setFill(Color.web(analysis.getAntiDataHexColorString()));
                     g2d.setStroke(Color.web(analysis.getAntiDataHexColorString()));
                 }
-                double dataX = mapX(xAxisData[i]);
+                dataX = mapX(xAxisData[i]);
                 double dataY = mapY(yAxisData[i]);
                 // TODO: refine for ratio mode
                 double dataYplusSigma = mapY(yAxisData[i] + oneSigmaForCycles[i]);
@@ -797,37 +831,6 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             g2d.setLineWidth(1.5);
             g2d.strokeRect(Math.min(mouseStartX, zoomBoxX), Math.min(mouseStartY, zoomBoxY), Math.abs(zoomBoxX - mouseStartX), Math.abs(zoomBoxY - mouseStartY));
         }
-
-        // block delimiters
-        g2d.setStroke(Color.BLACK);
-        g2d.setLineWidth(0.5);
-        int blockID = 1;
-        for (int b = 0; b < cyclesCountedToStartOfBlockIndex.length; b++) {
-            int i = cyclesCountedToStartOfBlockIndex[b];
-            if (xInPlot(xAxisData[i])) {
-                double dataX = mapX(xAxisData[i] - 0.5);
-                if (((Analysis) analysis).getMemberAnalysisBorderFlags().contains(blockID - 1)) {
-                    g2d.setLineWidth(2.0);
-                    g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-                    g2d.setLineWidth(1.0);
-                } else {
-                    g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-                }
-                // may 2024 issue#235
-                if (blockID % 2 == 0) {
-                    // account for blocks not fully developed via PhoenixLiveData
-                    int offset = Math.abs(cyclesPerEachBlockIndex[blockID - 1] / 2 - 1);
-                    int index = Math.min(i + offset, xAxisData.length - 1);
-                    double xPosition = mapX(xAxisData[index]);
-
-                    showBlockID(g2d, blockID, xPosition);
-                }
-            }
-            blockID++;
-        }
-        double dataX = mapX(xAxisData[xAxisData.length - 1] + 0.5);
-        g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-
     }
 
     private void showBlockID(GraphicsContext g2d, int blockID, double xPosition) {
