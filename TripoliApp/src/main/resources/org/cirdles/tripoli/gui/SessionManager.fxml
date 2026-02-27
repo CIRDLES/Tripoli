@@ -28,6 +28,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <GridPane fx:id="sessionGridPane" hgap="15.0" minHeight="660.0" minWidth="1250.0" prefHeight="660.0" prefWidth="1250.0" style="-fx-background-color: LINEN;" vgap="10.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.SessionManagerController">
     <columnConstraints>
@@ -56,7 +57,13 @@
         <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Session Analyses:" />
       <Pane prefHeight="339.0" prefWidth="120.0">
          <children>
-            <Button fx:id="concatenateButton" disable="false" layoutY="99.0" mnemonicParsing="false" onAction="#concatenationAction" prefHeight="80.0" prefWidth="120.0" style="-fx-text-fill: red; -fx-border-color: black;" text="Concatenate two or more analyses with same method (use case 1)." textAlignment="CENTER" wrapText="true" />
+            <Button fx:id="concatenateButton" disable="false" graphicTextGap="0.0" layoutY="99.0" mnemonicParsing="false" onAction="#concatenationAction" prefHeight="108.0" prefWidth="120.0" style="-fx-text-fill: red; -fx-border-color: black; -fx-border-radius: 10; -fx-border-width: 2; -fx-background-color: white; -fx-background-radius: 10;" text="Concatenate two or more analyses with same method (use case 1)." textAlignment="CENTER" wrapText="true">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <font>
+                  <Font size="14.0" />
+               </font></Button>
          </children>
       </Pane>
     </VBox>

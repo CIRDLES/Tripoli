@@ -45,7 +45,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
@@ -59,6 +59,7 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColor
  */
 public class SessionManagerController implements Initializable {
     public static Session tripoliSession;
+    public static List<AnalysisInterface> listOfSelectedAnalyses = new ArrayList<>();
     public ColumnConstraints columnTwoConstraints;
     public GridPane sessionGridPane;
     public Button concatenateButton;
@@ -72,7 +73,6 @@ public class SessionManagerController implements Initializable {
     private TextField sessionFilePathAsStringText;
     @FXML
     private ListView<AnalysisInterface> listViewOfAnalyses;
-    public static List<AnalysisInterface> listOfSelectedAnalyses = new ArrayList<>();
 
     /**
      * @param location  The location used to resolve relative paths for the root object, or
@@ -105,8 +105,7 @@ public class SessionManagerController implements Initializable {
                     try {
                         analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
                         String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
-                        if (tripoliSession.getMapOfAnalyses().containsKey(analysisName))
-                            tripoliSession.getMapOfAnalyses().remove(analysisName);
+                        tripoliSession.getMapOfAnalyses().remove(analysisName);
                         if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
                             analysisProposed.setAnalysisName(analysisName);
                             analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
@@ -134,17 +133,15 @@ public class SessionManagerController implements Initializable {
 
         populateSessionManagerGridPane();
         setupListeners();
-        if (listViewOfAnalyses.getItems().size() < 2) {
-            concatenateButton.setDisable(true);
-        } else {
-            concatenateButton.setOnAction(event -> {
-                try {
-                    concatenationAction();
-                } catch (TripoliException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
+        concatenateButton.setDisable(true);
+        concatenateButton.setOnAction(event -> {
+            try {
+                concatenationAction();
+                concatenateButton.setDisable(true);
+            } catch (TripoliException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void populateSessionManagerGridPane() {
@@ -165,7 +162,10 @@ public class SessionManagerController implements Initializable {
             AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
             AnalysisManagerController.analysis = analysisSelected;
             listOfSelectedAnalyses.clear();
-            listOfSelectedAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems());
+            listOfSelectedAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems().stream()
+                    .filter(p -> !((Analysis) p).hasMemberAnalyses())
+                    .collect(Collectors.toList()));
+            concatenateButton.setDisable(listOfSelectedAnalyses.size() < 2);
             if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
                 if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
                     File dataFile = new File(analysisSelected.getDataFilePathString());
@@ -175,7 +175,7 @@ public class SessionManagerController implements Initializable {
                         tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
                     }
 
-                    if (!((Analysis)analysis).hasMemberAnalyses()) {
+                    if (!((Analysis) analysis).hasMemberAnalyses()) {
                         AnalysisManagerController.concatenatedAnalysis = null;
                     }
                     MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
@@ -185,12 +185,6 @@ public class SessionManagerController implements Initializable {
             }
         });
         listViewOfAnalyses.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        if (0 < items.size()) {
-            listViewOfAnalyses.getSelectionModel().selectFirst();
-            analysis = listViewOfAnalyses.getSelectionModel().getSelectedItem();
-            listOfSelectedAnalyses.clear();
-            listOfSelectedAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems());
-        }
     }
 
     private void setupListeners() {
@@ -213,15 +207,15 @@ public class SessionManagerController implements Initializable {
         String methodNameForConcat = listOfSelectedAnalyses.get(0).getMethod().getMethodName();
         List<AnalysisInterface> analysesWithSameMethodList = new ArrayList<>();
         for (AnalysisInterface analysis : listOfSelectedAnalyses) {
-            if(analysis.getMethod().getMethodName().equals(methodNameForConcat)
-                && !((Analysis) analysis).hasMemberAnalyses()) {
+            if (analysis.getMethod().getMethodName().equals(methodNameForConcat)) {
+                //&& !((Analysis) analysis).hasMemberAnalyses()) {
                 analysesWithSameMethodList.add(analysis);
             }
         }
         AnalysisInterface[] analysesToConcatenate
                 = analysesWithSameMethodList.stream().toArray(AnalysisInterface[]::new);
 
-        if(analysesToConcatenate.length > 1) {
+        if (analysesToConcatenate.length > 1) {
             AnalysisInterface analysisConcat = Analysis.concatenateAnalysesLite(analysesToConcatenate);
             tripoliSession.getMapOfAnalyses().put(analysisConcat.getAnalysisName(), analysisConcat);
             populateSessionManagerGridPane();
@@ -248,7 +242,7 @@ public class SessionManagerController implements Initializable {
                 boolean isLDRunning = liveDataMenuItem.getText().contains("Stop LiveData");
                 boolean isLDAnalysis = getItem().getAnalysisName().contains("(Live Data)");
 
-                if (isLDAnalysis && isLDRunning){
+                if (isLDAnalysis && isLDRunning) {
                     boolean proceed = TripoliMessageDialog.showChoiceDialog("Live Data is still running. Would you like to stop and delete the analysis?", primaryStageWindow);
                     if (!proceed) return;
                     liveDataMenuItem.fire();
