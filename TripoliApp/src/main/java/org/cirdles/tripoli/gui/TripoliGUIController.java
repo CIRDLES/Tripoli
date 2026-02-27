@@ -467,6 +467,7 @@ public class TripoliGUIController implements Initializable {
 
             if (null != tripoliSession) {
                 SessionManagerController.tripoliSession = tripoliSession;
+                tripoliSession.setSessionFilePathAsString(sessionFileName);
                 tripoliPersistentState.updateSessionListMRU(sessionFile);
 
                 handleExpressionsInSavedSession();
@@ -476,9 +477,6 @@ public class TripoliGUIController implements Initializable {
                 tripoliPersistentState.setMRUSessionFolderPath(sessionFile.getParent());
                 launchSessionManager();
                 saveSessionMenuItem.setDisable(false);
-
-//                squidProjectOriginalHash = squidProject.hashCode();
-//                runSaveMenuDisableCheck = true;
             } else {
                 saveSessionMenuItem.setDisable(true);
                 detectMassSpecContext();

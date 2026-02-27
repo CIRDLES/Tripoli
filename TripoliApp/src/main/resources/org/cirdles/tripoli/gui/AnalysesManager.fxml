@@ -42,6 +42,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.TextFlow?>
 
 <GridPane fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0" prefHeight="640.0" prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" stylesheets="@css/tripoli.css" vgap="10.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.AnalysisManagerController">
@@ -72,7 +73,10 @@
     </HBox>
     <VBox prefHeight="133.0" prefWidth="130.0" GridPane.rowIndex="4" GridPane.rowSpan="2">
         <Label fx:id="metaDataLabel" alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Meta Data:" />
-      <Button fx:id="openConcatenatedButton" mnemonicParsing="false" onAction="#openConcatenatedAction" prefHeight="26.0" prefWidth="131.0" style="-fx-text-fill: red;" text="Open Concatenated" />
+      <Button fx:id="openConcatenatedButton" mnemonicParsing="false" onAction="#openConcatenatedAction" prefHeight="26.0" prefWidth="131.0" style="-fx-text-fill: red; -fx-background-color: white; -fx-border-color: black; -fx-border-width: 2; -fx-border-radius: 2; -fx-background-radius: 2;" text="Open Concatenated">
+         <font>
+            <Font size="12.0" />
+         </font></Button>
     </VBox>
     <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Analysis Name:" GridPane.rowIndex="1" />
     <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Sample &amp; Description:" GridPane.rowIndex="2" />
@@ -458,7 +462,7 @@
           <Label prefHeight="58.0" prefWidth="114.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Analysis Method with Detector Details from Data File:" textAlignment="RIGHT" wrapText="true" />
          <Pane prefHeight="200.0" prefWidth="200.0">
             <children>
-               <Button alignment="TOP_LEFT" layoutX="12.0" layoutY="87.0" mnemonicParsing="false" onAction="#manageSessionAction" style="-fx-text-fill: red;" text="Manage Session" />
+               <Button alignment="TOP_LEFT" layoutX="12.0" layoutY="87.0" mnemonicParsing="false" onAction="#manageSessionAction" style="-fx-text-fill: red; -fx-background-color: white; -fx-background-radius: 2; -fx-border-color: black; -fx-border-radius: 2; -fx-border-width: 2;" text="Manage Session" />
             </children>
          </Pane>
       </children>
