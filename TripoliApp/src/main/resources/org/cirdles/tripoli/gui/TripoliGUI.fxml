@@ -16,13 +16,22 @@
  * limitations under the License.
 -->
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<VBox prefHeight="725.0" prefWidth="1250.0" stylesheets="@css/tripoli.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
+<VBox prefHeight="725.0" prefWidth="1250.0" stylesheets="@css/tripoli.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
     <MenuBar prefHeight="17.0" prefWidth="1234.0" VBox.vgrow="NEVER">
         <Menu mnemonicParsing="false" text="Session">
             <MenuItem fx:id="sessionManagerMenuItem" mnemonicParsing="false" onAction="#sessionManagerMenuItemAction" text="Manage Session" />
@@ -43,9 +52,9 @@
         <Menu fx:id="analysisMenu" mnemonicParsing="false" text="Analysis">
             <MenuItem fx:id="manageAnalysisMenuItem" mnemonicParsing="false" onAction="#manageAnalysisMenuItemAction" text="Manage Analysis" visible="false" />
             <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis" />
-            <MenuItem fx:id="importAnalysisMenuItem" onAction="#importAnalysisAction" mnemonicParsing="false" text="Import Analysis from ogTripoli" />
+            <MenuItem fx:id="importAnalysisMenuItem" mnemonicParsing="false" onAction="#importAnalysisAction" text="Import Analysis from ogTripoli" />
             <MenuItem disable="true" mnemonicParsing="false" text="Export Analysis" />
-            <MenuItem fx:id="processLiveDataMenuItem" onAction="#processLiveData" text="Start LiveData"/>
+            <MenuItem fx:id="processLiveDataMenuItem" onAction="#processLiveData" text="Start LiveData" />
         </Menu>
         <Menu fx:id="settingsMenu" mnemonicParsing="false" text="Settings">
             <MenuItem fx:id="settingsMenuMenuItem" mnemonicParsing="false" onAction="#settingsMenuMenuItemOnAction" text="Settings Menu" />
@@ -73,6 +82,7 @@
         </Menu>
         <Menu mnemonicParsing="false" text="About">
             <MenuItem mnemonicParsing="false" onAction="#showTripoliAbout" text="About Tripoli" />
+         <MenuItem mnemonicParsing="false" onAction="#showTripoliWebsite" text="Tripoli Development Website" />
             <MenuItem mnemonicParsing="false" onAction="#showTripoliGitHubRepo" text="Tripoli GitHub Repository" />
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
