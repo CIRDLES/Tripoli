@@ -150,6 +150,19 @@ public enum FileHandlerUtil {
 
     }
 
+    public static File selectSampleMetaDataFolder(Window ownerWindow) {
+
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select SampleMetaData folder");
+        File initDirectory = new File(tripoliPersistentState.getMRUMethodXMLFolderPath());
+        directoryChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+        try {
+            return directoryChooser.showDialog(ownerWindow);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static File selectPeakShapeResourceFolderForBrowsing(Window ownerWindow) {
         File resourceFile;
 

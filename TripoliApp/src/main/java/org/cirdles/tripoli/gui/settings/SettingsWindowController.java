@@ -24,9 +24,16 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
+import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
+import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectMethodFolder;
+import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectSampleMetaDataFolder;
 
 public class SettingsWindowController implements Initializable {
 
@@ -36,6 +43,8 @@ public class SettingsWindowController implements Initializable {
     public Spinner<Integer> liveDataTimeoutSpinner;
     @FXML
     public ComboBox<MassSpectrometerContextEnum> massSpecComboBox;
+    public TextArea sampleMetaDataFolderTextArea;
+    public Button selectSampleMetaDataFolderButton;
     @FXML
     private TabPane settingsTabPane;
     @FXML
@@ -78,6 +87,9 @@ public class SettingsWindowController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         HBox.setMargin(speciesHeader, new Insets(0, 0, 0, 10));
+
+        sampleMetaDataFolderTextArea.setText(tripoliPersistentState
+                .getTripoliPersistentParameters().getSampleMetaDataFolderPath());
     }
 
     public AnchorPane getRatioColorSelectionAnchorPane() {
@@ -154,5 +166,13 @@ public class SettingsWindowController implements Initializable {
 
     public Tab getPlotTwoControlsTab() {
         return plotTwoControlsTab;
+    }
+
+    public void selectSampleMetaDataFolderButtonAction() {
+        File sampleMetaDataFolder = selectSampleMetaDataFolder(SettingsWindow.stage.getOwner());
+        if (sampleMetaDataFolder == null) return;
+        tripoliPersistentState.getTripoliPersistentParameters()
+                .setSampleMetaDataFolderPath(sampleMetaDataFolder.getAbsolutePath());
+        sampleMetaDataFolderTextArea.setText(sampleMetaDataFolder.getAbsolutePath());
     }
 }

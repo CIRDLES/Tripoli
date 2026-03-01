@@ -37,12 +37,16 @@ public class Parameters implements Serializable {
     private double scalingDotMinSize;
     private double scalingDotMaxSize;
 
+    // LiveWorkFlow
+    private String sampleMetaDataFolderPath;
+
     public Parameters() {
         this.chauvenetRejectionProbability = CHAUVENETS_DEFAULT_REJECT_PROBABILITY;
         this.requiredMinDatumCount = CHAUVENETS_DEFAULT_MIN_DATUM_COUNT;
         this.massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
         this.scalingDotMinSize = SCALING_DOT_DEFAULT_MIN_SIZE;
         this.scalingDotMaxSize = SCALING_DOT_DEFAULT_MAX_SIZE;
+        sampleMetaDataFolderPath = "";
     }
 
     // Copy Constructor
@@ -52,6 +56,7 @@ public class Parameters implements Serializable {
         this.massSpectrometerContext = other.massSpectrometerContext;
         this.scalingDotMinSize = other.getScalingDotMinSize();
         this.scalingDotMaxSize = other.getScalingDotMaxSize();
+        this.sampleMetaDataFolderPath = other.getSampleMetaDataFolderPath();
     }
 
     // Provides a deep copy of this instance
@@ -103,5 +108,16 @@ public class Parameters implements Serializable {
 
     public void setScalingDotMaxSize(double scalingDotMaxSize) {
         this.scalingDotMaxSize = scalingDotMaxSize;
+    }
+
+    public String getSampleMetaDataFolderPath() {
+        if (null == sampleMetaDataFolderPath) {
+            sampleMetaDataFolderPath = "";
+        }
+        return sampleMetaDataFolderPath;
+    }
+
+    public void setSampleMetaDataFolderPath(String sampleMetaDataFolderPath) {
+        this.sampleMetaDataFolderPath = sampleMetaDataFolderPath;
     }
 }

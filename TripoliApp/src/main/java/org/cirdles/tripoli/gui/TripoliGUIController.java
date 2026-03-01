@@ -602,7 +602,6 @@ public class TripoliGUIController implements Initializable {
             try {
                 serializeObjectToFile(tripoliSession, tripoliPersistentState.getMRUSessionFile().getAbsolutePath());
                 Session.setSessionChanged(false);
-//                squidProjectOriginalHash = squidProject.hashCode();
             } catch (TripoliException ex) {
                 TripoliMessageDialog.showWarningDialog(ex.getMessage(), null);
             }
@@ -813,7 +812,7 @@ public class TripoliGUIController implements Initializable {
         String fileName = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
         etReduxFraction.serializeXMLObject(fileName);
         try {
-            saveExportFile(etReduxFraction, null);
+            saveExportFile(etReduxFraction, primaryStage);
         } catch (IOException e) {
 //TODO:            throw new RuntimeException(e);
         } catch (TripoliException e) {

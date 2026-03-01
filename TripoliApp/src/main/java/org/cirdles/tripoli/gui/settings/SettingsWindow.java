@@ -57,7 +57,7 @@ public class SettingsWindow {
 
     private RatioColorSelectionPane ratioColorSelectionPane;
     private SettingsWindowController settingsWindowController;
-    private Stage stage;
+    public static Stage stage;
     private AnalysisInterface analysis;
     private Map<SpeciesRecordInterface, SpeciesColors> originalSpeciesColors;
     private DelegateActionSet repaintRatiosDelegateActionSet;
