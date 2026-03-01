@@ -38,7 +38,8 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
     protected Operation rootOperator;
     protected boolean isRatio = false;
 
-    public ExpressionTree() {}
+    public ExpressionTree() {
+    }
 
     public ExpressionTree(String name, ExpressionTreeInterface leftChildET, ExpressionTreeInterface rightChildET, Operation rootOperator) {
         this.name = name;
@@ -47,35 +48,26 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
         this.rootOperator = rootOperator;
     }
 
-    @Override
-    public Double[][] eval(AnalysisInterface analysis){
-        return rootOperator == null ? null : rootOperator.eval(leftChildET, rightChildET, analysis);
-    }
-
-    public ExpressionTree copy(){
-        return new ExpressionTree(name, leftChildET, rightChildET, rootOperator);
-    }
-
     public static ExpressionTreeInterface buildTree(List<String> parsedRPN) {
         Stack<ExpressionTreeInterface> stack = new Stack<>();
 
         for (String token : parsedRPN) {
             if (OPERATIONS_MAP.containsKey(token.trim())) {
                 Operation operation = OPERATIONS_MAP.get(token);
-                
+
                 if (operation.isSingleArg()) {
                     if (stack.size() < 1) {
                         throw new IllegalArgumentException("Invalid RPN expression: insufficient operands for operator " + token);
                     }
                     ExpressionTreeInterface child = stack.pop();
-                    
+
                     ExpressionTreeInterface node = new ExpressionTree(
                             "",
                             child,
                             null,
                             operation
                     );
-                    
+
                     stack.push(node);
                 } else {
                     if (stack.size() < 2) {
@@ -114,8 +106,9 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
 
     /**
      * Recursively generates string for the expression of the given tree in infix notation
-     * @param node Tree root to be printed
-     * @param analysis AnalysisInterface to be used for evaluation of UserFunctions
+     *
+     * @param node       Tree root to be printed
+     * @param analysis   AnalysisInterface to be used for evaluation of UserFunctions
      * @param showValues if true, then the numerical values of the nodes are printed. Otherwise, the names of the nodes are printed.
      * @return String representing the expression tree in infix notation.
      */
@@ -125,9 +118,9 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
         }
 
         if (node instanceof UserFunctionNode || node instanceof ConstantNode) {
-            if (showValues){
+            if (showValues) {
                 return String.valueOf(node.eval(analysis)[0][0]);
-            } else{
+            } else {
                 if (node instanceof ConstantNode) {
                     return ((ConstantNode) node).getValue().toString();
                 } else {
@@ -154,13 +147,26 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
         return "";
     }
 
+    @Override
+    public Double[][] eval(AnalysisInterface analysis) {
+        return rootOperator == null ? null : rootOperator.eval(leftChildET, rightChildET, analysis);
+    }
+
+    public ExpressionTree copy() {
+        return new ExpressionTree(name, leftChildET, rightChildET, rootOperator);
+    }
+
     private ExpressionTreeInterface getLeft() {
         return this.leftChildET;
     }
+
     private ExpressionTreeInterface getRight() {
         return this.rightChildET;
     }
-    private Operation getOperation() {return this.rootOperator;}
+
+    private Operation getOperation() {
+        return this.rootOperator;
+    }
 
     @Override
     public int getOperationPrecedence() {
@@ -177,11 +183,19 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
     public String getName() {
         return name;
     }
-    @Override
-    public void setName(String name) {this.name = name;}
 
-    public boolean isRatio() {return isRatio;}
-    public void setRatio(boolean isRatio) {this.isRatio = isRatio;}
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isRatio() {
+        return isRatio;
+    }
+
+    public void setRatio(boolean isRatio) {
+        this.isRatio = isRatio;
+    }
 
     public Double[][] eval(String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite) {
         return rootOperator == null ? null : rootOperator.eval(leftChildET, rightChildET, columnHeaders, blocksDataLite);

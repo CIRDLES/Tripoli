@@ -262,7 +262,7 @@ public class MCMCProcess {
         RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
         randomDataGenerator.reSeedSecure();
 
-        DecimalFormat statsFormat = new DecimalFormat("#0.000000",new DecimalFormatSymbols(Locale.ENGLISH));
+        DecimalFormat statsFormat = new DecimalFormat("#0.000000", new DecimalFormatSymbols(Locale.ENGLISH));
 
         int counter = 0;
         SingleBlockModelUpdater singleBlockModelUpdater = new SingleBlockModelUpdater();

@@ -20,7 +20,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
-import javafx.util.StringConverter;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 
 import java.io.File;
@@ -61,7 +60,9 @@ public class TripoliMessageDialog extends Alert {
      */
     public static void showWarningDialog(String message, Window owner) {
         Alert alert = new TripoliMessageDialog(AlertType.WARNING, message, "Tripoli warns you:", owner);
-        alert.setOnCloseRequest(event -> {alert.close();});
+        alert.setOnCloseRequest(event -> {
+            alert.close();
+        });
         alert.showAndWait();
     }
 
@@ -74,7 +75,9 @@ public class TripoliMessageDialog extends Alert {
                 AlertType.INFORMATION,
                 message,
                 "Tripoli informs you:", owner);
-        alert.setOnCloseRequest(event -> {alert.close();});
+        alert.setOnCloseRequest(event -> {
+            alert.close();
+        });
         alert.showAndWait();
     }
 
@@ -187,17 +190,19 @@ public class TripoliMessageDialog extends Alert {
     }
 
     public static boolean showOverwriteReportDialog(String name, Window owner) {
-        try{
+        try {
             Alert dialog = new TripoliMessageDialog(AlertType.CONFIRMATION,
                     "Report : " + name + " already exists.  Do you want to overwrite it?",
-                     "Overwrite Report?",
+                    "Overwrite Report?",
                     owner);
             dialog.getButtonTypes().setAll(ButtonType.NO, ButtonType.YES);
-            dialog.setOnCloseRequest(event -> {dialog.close();});
+            dialog.setOnCloseRequest(event -> {
+                dialog.close();
+            });
             Optional<ButtonType> result = dialog.showAndWait();
 
             return (result.get() == ButtonType.YES);
-        } catch (Exception ignored){
+        } catch (Exception ignored) {
             return false;
         }
     }
@@ -217,7 +222,9 @@ public class TripoliMessageDialog extends Alert {
             ButtonType saveAndOpenButton = new ButtonType("Save and Open", ButtonBar.ButtonData.OK_DONE);
             ButtonType saveButton = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
             dialog.getButtonTypes().setAll(ButtonType.CANCEL, saveButton, saveAndOpenButton);
-            dialog.setOnCloseRequest(event -> {dialog.close();});
+            dialog.setOnCloseRequest(event -> {
+                dialog.close();
+            });
 
             return dialog.showAndWait().get().getText();
 

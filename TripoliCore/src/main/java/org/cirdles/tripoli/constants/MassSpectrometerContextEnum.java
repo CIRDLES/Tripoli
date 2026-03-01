@@ -30,10 +30,10 @@ import java.util.List;
 public enum MassSpectrometerContextEnum {
     OGTRIPOLI("OGTripoli", "unknown",
             "Tripoli tab-delimited output of processed data for:",
-            OgTripoliImporter.class, "extractMassSpecDataFromOGTripoli", 1, true),
+            OgTripoliImporter.class, "extractMassSpecDataFromOGTripoli", 1, false),
     PHOENIX_FULL("Phoenix Full", "Phoenix",
             "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, IsoWorksMethod, FolderPath",
-            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2", 4, true),
+            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2", 4, false),
     PHOENIX_TIMSDP_CASE1("Phoenix TIMSDP", "Phoenix",
             "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, FolderPath, IsoWorksMethod, TFEMode, TFEMonitorPeak",
             PhoenixMassSpec.class, "extractDataFromFileVersion_2_TIMSDP", 1, true),

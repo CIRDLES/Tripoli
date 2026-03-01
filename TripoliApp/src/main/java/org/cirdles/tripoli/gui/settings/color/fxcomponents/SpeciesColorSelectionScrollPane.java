@@ -20,7 +20,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
@@ -31,17 +30,16 @@ import java.util.ArrayList;
 
 public class SpeciesColorSelectionScrollPane extends ScrollPane {
 
+    Analysis analysis;
+    DelegateActionSet delegateActionSet;
+    ArrayList<SpeciesIntensityColorSelectionPane> speciesIntensityColorSelectionPanes;
     @FXML
     private VBox paneVBox;
     @FXML
     private Label title;
 
-    Analysis analysis;
-    DelegateActionSet delegateActionSet;
-    ArrayList<SpeciesIntensityColorSelectionPane> speciesIntensityColorSelectionPanes;
-
     private SpeciesColorSelectionScrollPane(Analysis analysis,
-                                           DelegateActionSet delegateActionSet) {
+                                            DelegateActionSet delegateActionSet) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("SpeciesColorSelectionScrollPane.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -54,7 +52,7 @@ public class SpeciesColorSelectionScrollPane extends ScrollPane {
         this.delegateActionSet = delegateActionSet;
         speciesIntensityColorSelectionPanes = new ArrayList<>();
         if (analysis.getAnalysisMethod() != null && analysis.getAnalysisMethod().getSpeciesList() != null) {
-            for (SpeciesRecordInterface speciesRecordInterface: analysis.getAnalysisMethod().getSpeciesList()) {
+            for (SpeciesRecordInterface speciesRecordInterface : analysis.getAnalysisMethod().getSpeciesList()) {
                 SpeciesIntensityColorSelectionPane pane = new SpeciesIntensityColorSelectionPane(speciesRecordInterface,
                         analysis.getAnalysisMapOfSpeciesToColors(),
                         delegateActionSet,

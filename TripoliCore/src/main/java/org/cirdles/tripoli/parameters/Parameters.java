@@ -17,8 +17,6 @@
 package org.cirdles.tripoli.parameters;
 
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.Serializable;
 
@@ -32,10 +30,13 @@ public class Parameters implements Serializable {
     private double chauvenetRejectionProbability;
     private int requiredMinDatumCount;
     private MassSpectrometerContextEnum massSpectrometerContext;
-    
+
     // Scaling dot size parameters
     private double scalingDotMinSize;
     private double scalingDotMaxSize;
+
+    // LiveWorkFlow
+    private String sampleMetaDataFolderPath;
 
     public Parameters() {
         this.chauvenetRejectionProbability = CHAUVENETS_DEFAULT_REJECT_PROBABILITY;
@@ -43,6 +44,7 @@ public class Parameters implements Serializable {
         this.massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
         this.scalingDotMinSize = SCALING_DOT_DEFAULT_MIN_SIZE;
         this.scalingDotMaxSize = SCALING_DOT_DEFAULT_MAX_SIZE;
+        sampleMetaDataFolderPath = "";
     }
 
     // Copy Constructor
@@ -52,6 +54,7 @@ public class Parameters implements Serializable {
         this.massSpectrometerContext = other.massSpectrometerContext;
         this.scalingDotMinSize = other.getScalingDotMinSize();
         this.scalingDotMaxSize = other.getScalingDotMaxSize();
+        this.sampleMetaDataFolderPath = other.getSampleMetaDataFolderPath();
     }
 
     // Provides a deep copy of this instance
@@ -74,9 +77,11 @@ public class Parameters implements Serializable {
     public void setRequiredMinDatumCount(int requiredMinDatumCount) {
         this.requiredMinDatumCount = requiredMinDatumCount;
     }
+
     public MassSpectrometerContextEnum getMassSpectrometerContext() {
         return massSpectrometerContext;
     }
+
     public void setMassSpectrometerContext(MassSpectrometerContextEnum massSpectrometerContext) {
         this.massSpectrometerContext = massSpectrometerContext;
     }
@@ -103,5 +108,16 @@ public class Parameters implements Serializable {
 
     public void setScalingDotMaxSize(double scalingDotMaxSize) {
         this.scalingDotMaxSize = scalingDotMaxSize;
+    }
+
+    public String getSampleMetaDataFolderPath() {
+        if (null == sampleMetaDataFolderPath) {
+            sampleMetaDataFolderPath = "";
+        }
+        return sampleMetaDataFolderPath;
+    }
+
+    public void setSampleMetaDataFolderPath(String sampleMetaDataFolderPath) {
+        this.sampleMetaDataFolderPath = sampleMetaDataFolderPath;
     }
 }

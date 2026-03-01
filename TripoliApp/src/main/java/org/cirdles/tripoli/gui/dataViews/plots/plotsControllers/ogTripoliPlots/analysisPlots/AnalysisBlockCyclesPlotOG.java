@@ -783,7 +783,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         }
 
         g2d.setLineWidth(1.0);
-        
+
         // right-hand border
         double dataX = mapX(xAxisData[xAxisData.length - 1] + 0.5);
         g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);

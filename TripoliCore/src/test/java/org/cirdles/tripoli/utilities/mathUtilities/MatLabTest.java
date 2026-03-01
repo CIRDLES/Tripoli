@@ -141,9 +141,9 @@ class MatLabTest {
     @Test
     void kronTest() throws IOException {
         String fileDirectoryPrefix = "matLab/kron/";
-        ArrayList<double[][]> aList = read_csv(fileDirectoryPrefix+"kron_matrix_A.txt");
-        ArrayList<double[][]> bList = read_csv(fileDirectoryPrefix+"kron_matrix_B.txt");
-        ArrayList<double[][]> answerList = read_csv(fileDirectoryPrefix+"kron_answers.txt");
+        ArrayList<double[][]> aList = read_csv(fileDirectoryPrefix + "kron_matrix_A.txt");
+        ArrayList<double[][]> bList = read_csv(fileDirectoryPrefix + "kron_matrix_B.txt");
+        ArrayList<double[][]> answerList = read_csv(fileDirectoryPrefix + "kron_answers.txt");
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         Primitive64Store a;
         Primitive64Store b;

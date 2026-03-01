@@ -21,30 +21,30 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 
 import java.util.Map;
-import java.util.stream.IntStream;
 
 public class Exp extends Operation {
-    public Exp(){
+    public Exp() {
         super();
         name = "exponential";
         precedence = 4;
         singleArg = true;
     }
+
     @Override
-    public Exp copy(){
+    public Exp copy() {
         return new Exp();
     }
 
     @Override
-    public Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis){
+    public Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis) {
         Double[][] leftCycle = leftChild.eval(analysis);
         Double[][] retVal = new Double[leftCycle.length][];
 
-        for (int i = 0; i < leftCycle.length; i++){
+        for (int i = 0; i < leftCycle.length; i++) {
             Double[] leftCycleRow = leftCycle[i];
             retVal[i] = new Double[leftCycleRow.length];
 
-            for (int j = 0; j < leftCycleRow.length; j++){
+            for (int j = 0; j < leftCycleRow.length; j++) {
                 retVal[i][j] = StrictMath.exp(leftCycleRow[j]);
             }
         }

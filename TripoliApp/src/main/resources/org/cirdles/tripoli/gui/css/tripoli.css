@@ -30,13 +30,16 @@
 .toggle-button:selected {
     -fx-background-color: blue;
 }
+
 .white-checkbox .box {
     -fx-background-color: white;
     -fx-border-color: #ccc;
 }
+
 .white-checkbox:selected .mark {
     -fx-background-color: black;
 }
+
 .white-checkbox .mark {
     -fx-background-color: transparent;
 }

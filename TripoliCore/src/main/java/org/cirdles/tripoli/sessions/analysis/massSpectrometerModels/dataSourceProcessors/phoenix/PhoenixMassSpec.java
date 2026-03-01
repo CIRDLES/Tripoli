@@ -91,8 +91,8 @@ public enum PhoenixMassSpec {
         String sampleName = ctrlSheet.getCell(3, 7).getContents().trim();
         String methodName = ctrlSheet.getCell(3, 11).getContents().trim();
         int cyclesPerBlock = (int) ((NumberCell) ctrlSheet.getCell(3, 12)).getValue();
-        boolean beamInterpolation = ((BooleanCell)ctrlSheet.getCell(1, 45)).getValue();
-        cyclesPerBlock = cyclesPerBlock + (beamInterpolation? 1 : 0);
+        boolean beamInterpolation = ((BooleanCell) ctrlSheet.getCell(1, 45)).getValue();
+        cyclesPerBlock = cyclesPerBlock + (beamInterpolation ? 1 : 0);
         int totalUsedCycles = (int) ((NumberCell) ctrlSheet.getCell(3, 17)).getValue();
 
         // April 2024 to handle aborted runs, find end of cycles and divide by cyclesperblock
@@ -131,11 +131,11 @@ public enum PhoenixMassSpec {
                 }
             }
             // clean up for missing points in last block due to abort run etc.
-            if (countedLastBlockCycles > 0){
+            if (countedLastBlockCycles > 0) {
                 double[][] cycleDataCopy = new double[countedLastBlockCycles - 1][columnNamesFixedList.size()];
-                for (int cycleNum = 0; cycleNum < countedLastBlockCycles - 1; cycleNum ++){
-                    for (int col = 0; col < cycleData[cycleNum].length; col ++) {
-                        cycleDataCopy[cycleNum][col] =  cycleData[cycleNum][col];
+                for (int cycleNum = 0; cycleNum < countedLastBlockCycles - 1; cycleNum++) {
+                    for (int col = 0; col < cycleData[cycleNum].length; col++) {
+                        cycleDataCopy[cycleNum][col] = cycleData[cycleNum][col];
                     }
                 }
                 cycleData = cycleDataCopy.clone();

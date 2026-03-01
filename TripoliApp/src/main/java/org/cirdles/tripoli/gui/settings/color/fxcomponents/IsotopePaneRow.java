@@ -20,7 +20,8 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -48,7 +49,6 @@ public class IsotopePaneRow extends HBox {
     private ObjectProperty<SpeciesColors> speciesColorsProperty;
     private boolean speciesColorsSet = false;
     private DelegateActionSet delegateActionSet;
-
 
 
     public IsotopePaneRow(SpeciesRecordInterface speciesRecordInterface, Map<SpeciesRecordInterface, SpeciesColors> colorMap, DelegateActionSet delegateActionSet, double height) {
@@ -136,7 +136,7 @@ public class IsotopePaneRow extends HBox {
         Region spacer1 = new Region();
         Region spacer2 = new Region();
         spacer1.setPrefWidth(PADDING);
-        spacer2.setPrefWidth(PADDING*2);
+        spacer2.setPrefWidth(PADDING * 2);
 
         // Add components and spacers to the HBox
         this.getChildren().addAll(
@@ -156,7 +156,7 @@ public class IsotopePaneRow extends HBox {
                 splotch.textObjectProperty().setValue("Click Me");
             }
         });
-        HBox.setMargin(title, new Insets(0,0,0, PADDING));// provides a left margin around the species name
+        HBox.setMargin(title, new Insets(0, 0, 0, PADDING));// provides a left margin around the species name
 
     }
 
