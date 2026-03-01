@@ -21,7 +21,6 @@ import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.utilities.mathUtilities.MathUtilities;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -33,7 +32,7 @@ import java.util.Objects;
 
 import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
 
-public class ReportColumn implements Serializable, Comparable<ReportColumn>{
+public class ReportColumn implements Serializable, Comparable<ReportColumn> {
     private static final long serialVersionUID = 3378567673921898881L;
     public String FIXED_COLUMN_NAME = "Analysis Name";
 
@@ -52,6 +51,7 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
         isUserFunction = false;
         isRatio = false;
     }
+
     public ReportColumn(String title, int positionIndex, boolean isUserFunction, boolean isRatio) {
         columnName = title;
         this.positionIndex = positionIndex;
@@ -59,6 +59,7 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
         this.isUserFunction = isUserFunction;
         this.isRatio = isRatio;
     }
+
     public ReportColumn(ReportColumn otherColumn) {
         columnName = otherColumn.columnName;
         positionIndex = otherColumn.positionIndex;
@@ -69,23 +70,42 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
         isRatio = otherColumn.isRatio;
     }
 
-    public String getColumnName() { return columnName; }
-    public void setColumnName(String columnName) { this.columnName = columnName; }
+    public String getColumnName() {
+        return columnName;
+    }
 
-    public void setVisible(boolean visible) { this.visible = visible; }
-    public boolean isVisible() { return visible; }
+    public void setColumnName(String columnName) {
+        this.columnName = columnName;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public int getPositionIndex() {
+        return positionIndex;
+    }
 
     public void setPositionIndex(int i) {
         positionIndex = i;
     }
-    public int getPositionIndex() { return positionIndex; }
 
-    public boolean isUserFunction() { return isUserFunction; }
-    public boolean isRatio() { return isRatio; }
+    public boolean isUserFunction() {
+        return isUserFunction;
+    }
+
+    public boolean isRatio() {
+        return isRatio;
+    }
 
     /**
      * Use the supplied analysis to extract data for the current column. Handles user function based columns as well as
      * method-defined non-uf columns.
+     *
      * @param analysis the analysis data to be extracted
      * @return The data based on the analysis, a null result represents a misconfigured column
      */
@@ -155,9 +175,9 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
 
     @Override
     public int compareTo(@NotNull ReportColumn column) {
-        if (this.columnName.equals(FIXED_COLUMN_NAME)){
+        if (this.columnName.equals(FIXED_COLUMN_NAME)) {
             return -1;
-        } else if (column.getColumnName().equals(FIXED_COLUMN_NAME)){
+        } else if (column.getColumnName().equals(FIXED_COLUMN_NAME)) {
             return 1;
         }
         return Integer.compare(this.positionIndex, column.getPositionIndex());
@@ -173,6 +193,6 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
 
     @Override
     public int hashCode() {
-        return Objects.hash( positionIndex, visible, columnName);
+        return Objects.hash(positionIndex, visible, columnName);
     }
 }

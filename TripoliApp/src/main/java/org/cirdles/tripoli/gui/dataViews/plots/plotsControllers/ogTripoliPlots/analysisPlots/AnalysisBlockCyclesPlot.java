@@ -58,9 +58,9 @@ import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.gen
  */
 public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlockCyclesPlotI {
     private final AnalysisBlockCyclesRecord analysisBlockCyclesRecord;
-    private AnalysisInterface analysis;
     private final PlotWallPaneInterface parentWallPane;
     private final boolean isRatio;
+    private AnalysisInterface analysis;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
     private double[] oneSigmaForCycles;
     private boolean logScale;
@@ -572,7 +572,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
         int countOfTrailingDigitsForSigFig = 0;
         if (Math.abs(standardError) < 10.0) {
             double rounded = MathUtilities.roundedToSize(standardError, sigFig);
-            DecimalFormat df = new DecimalFormat("#",new DecimalFormatSymbols(Locale.ENGLISH));
+            DecimalFormat df = new DecimalFormat("#", new DecimalFormatSymbols(Locale.ENGLISH));
             df.setMaximumFractionDigits(8);
             String roundedString = df.format(rounded);
             int dotIndex = roundedString.indexOf(".");

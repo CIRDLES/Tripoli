@@ -1,365 +1,394 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Spinner?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.control.Tooltip?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Rectangle?>
-<?import javafx.scene.text.Font?>
-
-<VBox fx:id="vBoxRoot" prefHeight="543.0" prefWidth="536.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.settings.SettingsWindowController">
-   <children>
-      <TabPane fx:id="settingsTabPane" prefWidth="414.0">
-         <tabs>
-            <Tab fx:id="ratiosColorTab" closable="false" text="Ratios Color Control">
-               <content>
-                  <AnchorPane fx:id="ratioColorSelectionAnchorPane" prefHeight="367.0" prefWidth="536.0" />
-               </content>
-            </Tab>
-            <Tab fx:id="intensitiesColorTab" closable="false" text="Intensity/Residuals Color Control">
-               <content>
-                  <AnchorPane fx:id="plotIntensitiesAnchorPaneExp" prefHeight="474.0" prefWidth="536.0">
-                     <children>
-                        <HBox prefHeight="36.0" prefWidth="536.0">
-                           <children>
-                              <Region prefHeight="36.0" prefWidth="137.0" />
-                              <Label alignment="CENTER" prefHeight="35.0" prefWidth="166.0" text="Data Color" textAlignment="JUSTIFY">
-                                 <font>
-                                    <Font name="Consolas Bold" size="24.0" />
-                                 </font>
-                              </Label>
-                              <Region prefHeight="36.0" prefWidth="55.0" />
-                              <Label alignment="CENTER" prefHeight="43.0" prefWidth="146.0" text="Model Color" textAlignment="CENTER">
-                                 <font>
-                                    <Font name="Consolas Bold" size="24.0" />
-                                 </font>
-                              </Label>
-                           </children>
-                        </HBox>
-                        <HBox layoutY="36.0" prefHeight="36.0" prefWidth="536.0">
-                           <children>
-                              <Label fx:id="speciesHeader" graphicTextGap="0.0" prefHeight="36.0" prefWidth="124.0" text="Species">
-                                 <font>
-                                    <Font name="Consolas Bold" size="16.0" />
-                                 </font>
-                                 <opaqueInsets>
-                                    <Insets />
-                                 </opaqueInsets>
-                              </Label>
-                              <Label alignment="CENTER" prefHeight="36.0" prefWidth="100.0" text="Faraday" textAlignment="CENTER">
-                                 <font>
-                                    <Font name="Consolas Bold" size="16.0" />
-                                 </font>
-                              </Label>
-                              <Label alignment="CENTER" layoutX="145.0" layoutY="10.0" prefHeight="36.0" prefWidth="100.0" text="PM" textAlignment="CENTER">
-                                 <font>
-                                    <Font name="Consolas Bold" size="16.0" />
-                                 </font>
-                              </Label>
-                              <Label alignment="CENTER" layoutX="145.0" layoutY="10.0" prefHeight="36.0" prefWidth="100.0" text="Faraday" textAlignment="CENTER">
-                                 <font>
-                                    <Font name="Consolas Bold" size="16.0" />
-                                 </font>
-                              </Label>
-                              <Label alignment="CENTER" layoutX="260.0" layoutY="10.0" prefHeight="36.0" prefWidth="100.0" text="PM" textAlignment="CENTER">
-                                 <font>
-                                    <Font name="Consolas Bold" size="16.0" />
-                                 </font>
-                              </Label>
-                           </children>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                        </HBox>
-                        <ScrollPane layoutY="72.0" prefHeight="368.0" prefWidth="536.0">
-                           <content>
-                              <VBox fx:id="plotIntensitiesVBox" prefHeight="366.0" prefWidth="534.0" />
-                           </content>
-                        </ScrollPane>
-                     </children>
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                  </AnchorPane>
-               </content>
-            </Tab>
-            <Tab fx:id="parametersTab" closable="false" text="Parameter Control">
-               <content>
-                  <AnchorPane fx:id="parameterControlAnchorPane" prefHeight="474.0" prefWidth="536.0">
-                     <children>
-                         <VBox AnchorPane.leftAnchor="0.0">
-                             <HBox alignment="CENTER" prefHeight="64.0" prefWidth="536.0">
-                                <children>
-                                   <Label alignment="CENTER" prefHeight="64.0" prefWidth="538.0" text="Parameter Control" textAlignment="CENTER">
-                                      <font>
-                                         <Font size="36.0" />
-                                      </font>
-                                   </Label>
-                                </children>
-                             </HBox>
-                             <VBox>
-                                <Label prefHeight="38.0" prefWidth="520.0" text="Chauvenet's Criteria" textAlignment="CENTER">
-                                   <font>
-                                      <Font name="Consolas" size="24.0" />
-                                   </font>
-                                   <opaqueInsets>
-                                      <Insets top="-9.0" />
-                                   </opaqueInsets>
-                                </Label>
-                                <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
-                                   <children>
-                                      <Label prefHeight="34.0" prefWidth="239.0" text="Rejection Probability">
-                                         <font>
-                                            <Font size="18.0" />
-                                         </font>
-                                      </Label>
-                                      <Region prefHeight="36.0" prefWidth="78.0" />
-                                      <Spinner fx:id="chauvenetRejectionProbabilitySpinner" prefHeight="25.0" prefWidth="100.0" />
-                                   </children>
-                                 <padding>
-                                    <Insets left="15.0" />
-                                 </padding>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="vBoxRoot" prefHeight="543.0" prefWidth="536.0"
+      xmlns="http://javafx.com/javafx/20.0.1" fx:controller="org.cirdles.tripoli.gui.settings.SettingsWindowController">
+    <children>
+        <TabPane fx:id="settingsTabPane" prefWidth="414.0">
+            <tabs>
+                <Tab fx:id="ratiosColorTab" closable="false" text="Ratios Color Control">
+                    <content>
+                        <AnchorPane fx:id="ratioColorSelectionAnchorPane" prefHeight="367.0" prefWidth="536.0"/>
+                    </content>
+                </Tab>
+                <Tab fx:id="intensitiesColorTab" closable="false" text="Intensity/Residuals Color Control">
+                    <content>
+                        <AnchorPane fx:id="plotIntensitiesAnchorPaneExp" prefHeight="474.0" prefWidth="536.0">
+                            <children>
+                                <HBox prefHeight="36.0" prefWidth="536.0">
+                                    <children>
+                                        <Region prefHeight="36.0" prefWidth="137.0"/>
+                                        <Label alignment="CENTER" prefHeight="35.0" prefWidth="166.0" text="Data Color"
+                                               textAlignment="JUSTIFY">
+                                            <font>
+                                                <Font name="Consolas Bold" size="24.0"/>
+                                            </font>
+                                        </Label>
+                                        <Region prefHeight="36.0" prefWidth="55.0"/>
+                                        <Label alignment="CENTER" prefHeight="43.0" prefWidth="146.0" text="Model Color"
+                                               textAlignment="CENTER">
+                                            <font>
+                                                <Font name="Consolas Bold" size="24.0"/>
+                                            </font>
+                                        </Label>
+                                    </children>
                                 </HBox>
-                                <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
-                                   <children>
-                                      <Label prefHeight="34.0" prefWidth="239.0" text="Minimum Datum Count">
-                                         <font>
-                                            <Font size="18.0" />
-                                         </font>
-                                      </Label>
-                                      <Region prefHeight="36.0" prefWidth="78.0" />
-                                      <Spinner fx:id="chauvenetMinimumDatumCountSpinner" prefHeight="25.0" prefWidth="100.0" />
-                                   </children>
-                                 <padding>
-                                    <Insets left="15.0" />
-                                 </padding>
-                                </HBox>
-                              <padding>
-                                 <Insets bottom="10.0" left="15.0" />
-                              </padding>
-                             </VBox>
-                             <VBox layoutX="10.0" layoutY="194.0">
-                                 <padding>
-                                     <Insets left="15.0" />
-                                 </padding>
-                                 <children>
-                                     <Label layoutX="17.0" layoutY="189.0" prefHeight="38.0" prefWidth="520.0" text="Mass Spectrometer Context" textAlignment="CENTER">
-                                         <font>
-                                             <Font name="Consolas" size="24.0" />
-                                         </font>
-                                         <opaqueInsets>
-                                             <Insets top="-9.0" />
-                                         </opaqueInsets>
-                                     </Label>
-                                     <HBox alignment="CENTER_LEFT" layoutX="17.0" layoutY="227.0" prefHeight="36.0" prefWidth="521.0">
-                                         <children>
-                                             <Label prefHeight="34.0" prefWidth="158.0" text="Current Type">
-                                                 <font>
-                                                     <Font size="18.0" />
-                                                 </font>
-                                             </Label>
-                                             <ComboBox fx:id="massSpecComboBox" prefHeight="25.0" prefWidth="260.0" />
-                                         </children>
-                                         <padding>
-                                             <Insets left="15.0" />
-                                         </padding>
-                                     </HBox>
-                                 </children>
-                             </VBox>
-                           <VBox alignment="CENTER" prefHeight="167.0" prefWidth="536.0" spacing="5.0" style="-fx-background-color: beige; -fx-border-color: black;">
-                              <children>
-                                 <Label prefHeight="38.0" prefWidth="520.0" text="Live Workflow" textAlignment="CENTER">
-                                    <font>
-                                       <Font name="Consolas" size="24.0" />
-                                    </font>
+                                <HBox layoutY="36.0" prefHeight="36.0" prefWidth="536.0">
+                                    <children>
+                                        <Label fx:id="speciesHeader" graphicTextGap="0.0" prefHeight="36.0"
+                                               prefWidth="124.0" text="Species">
+                                            <font>
+                                                <Font name="Consolas Bold" size="16.0"/>
+                                            </font>
+                                            <opaqueInsets>
+                                                <Insets/>
+                                            </opaqueInsets>
+                                        </Label>
+                                        <Label alignment="CENTER" prefHeight="36.0" prefWidth="100.0" text="Faraday"
+                                               textAlignment="CENTER">
+                                            <font>
+                                                <Font name="Consolas Bold" size="16.0"/>
+                                            </font>
+                                        </Label>
+                                        <Label alignment="CENTER" layoutX="145.0" layoutY="10.0" prefHeight="36.0"
+                                               prefWidth="100.0" text="PM" textAlignment="CENTER">
+                                            <font>
+                                                <Font name="Consolas Bold" size="16.0"/>
+                                            </font>
+                                        </Label>
+                                        <Label alignment="CENTER" layoutX="145.0" layoutY="10.0" prefHeight="36.0"
+                                               prefWidth="100.0" text="Faraday" textAlignment="CENTER">
+                                            <font>
+                                                <Font name="Consolas Bold" size="16.0"/>
+                                            </font>
+                                        </Label>
+                                        <Label alignment="CENTER" layoutX="260.0" layoutY="10.0" prefHeight="36.0"
+                                               prefWidth="100.0" text="PM" textAlignment="CENTER">
+                                            <font>
+                                                <Font name="Consolas Bold" size="16.0"/>
+                                            </font>
+                                        </Label>
+                                    </children>
                                     <opaqueInsets>
-                                       <Insets top="-9.0" />
+                                        <Insets/>
                                     </opaqueInsets>
-                                 </Label>
-                                 <Label alignment="CENTER" prefHeight="34.0" prefWidth="379.0" text="Sample Meta Data Folder used by ET_Redux" textAlignment="CENTER">
-                                    <font>
-                                       <Font size="18.0" />
-                                    </font>
-                                 </Label>
-                                 <TextArea fx:id="sampleMetaDataFolderTextArea" prefHeight="46.0" prefWidth="514.0" wrapText="true" />
-                                 <Button fx:id="selectSampleMetaDataFolderButton" mnemonicParsing="false" onAction="#selectSampleMetaDataFolderButtonAction" text="Select SampleMetaData Folder" />
-                              </children>
-                              <padding>
-                                 <Insets left="10.0" right="10.0" />
-                              </padding>
-                           </VBox>
-                         </VBox>
-                     </children></AnchorPane>
-               </content>
-            </Tab>
-            <Tab fx:id="plotTwoControlsTab" closable="false" text="PlotTwo Controls">
-               <content>
-                  <AnchorPane fx:id="plotTwoControlsAnchorPane" prefHeight="474.0" prefWidth="536.0">
-                     <children>
-                         <VBox AnchorPane.leftAnchor="0.0">
-                             <HBox alignment="CENTER" prefHeight="64.0" prefWidth="536.0">
-                                <children>
-                                   <Label alignment="CENTER" prefHeight="64.0" prefWidth="538.0" text="Plot AnyTwo Controls" textAlignment="CENTER">
-                                      <font>
-                                         <Font size="36.0" />
-                                      </font>
-                                   </Label>
-                                </children>
-                             </HBox>
-                             <VBox>
-                                <Label prefHeight="38.0" prefWidth="520.0" text="Scaling Dot Sizes" textAlignment="CENTER">
-                                   <font>
-                                      <Font name="Consolas" size="24.0" />
-                                   </font>
-                                   <opaqueInsets>
-                                      <Insets top="-9.0" />
-                                   </opaqueInsets>
-                                </Label>
-                                <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
-                                   <children>
-                                      <Label prefHeight="34.0" prefWidth="239.0" text="Minimum Dot Size">
-                                         <font>
-                                            <Font size="18.0" />
-                                         </font>
-                                      </Label>
-                                      <Region prefHeight="36.0" prefWidth="78.0" />
-                                      <Spinner fx:id="scalingDotMinSizeSpinner" prefHeight="25.0" prefWidth="100.0" />
-                                   </children>
-                                 <padding>
-                                    <Insets left="15.0" />
-                                 </padding>
                                 </HBox>
-                                <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
-                                   <children>
-                                      <Label prefHeight="34.0" prefWidth="239.0" text="Maximum Dot Size">
-                                         <font>
-                                            <Font size="18.0" />
-                                         </font>
-                                      </Label>
-                                      <Region prefHeight="36.0" prefWidth="78.0" />
-                                      <Spinner fx:id="scalingDotMaxSizeSpinner" prefHeight="25.0" prefWidth="100.0" />
-                                   </children>
-                                 <padding>
-                                    <Insets left="15.0" />
-                                 </padding>
-                                </HBox>
-                              <padding>
-                                 <Insets bottom="10.0" left="15.0" />
-                              </padding>
-                             </VBox>
-                         </VBox>
-                     </children></AnchorPane>
-               </content>
-            </Tab>
-         </tabs>
-      </TabPane>
-      <ToolBar fx:id="saveDefaultsToolbar" prefHeight="30.0" prefWidth="536.0" style="-fx-border-width: .5; -fx-border-color: #888888;">
-         <items>
-            <Label prefHeight="26.0" prefWidth="145.0" text="Save Current Settings:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" layoutX="239.0" layoutY="15.0" stroke="TRANSPARENT" strokeType="INSIDE" width="35.0" />
-            <Button fx:id="saveAnalysisSettingsButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0" text="Analysis" textAlignment="CENTER" textFill="#a45151" wrapText="true">
-               <font>
-                  <Font name="Monospaced Bold" size="12.0" />
-               </font>
-               <tooltip>
-                  <Tooltip text="Save color settings for this analysis.">
-                     <font>
-                        <Font name="Monospaced Bold" size="12.0" />
-                     </font>
-                  </Tooltip>
-               </tooltip>
-            </Button>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT" strokeType="INSIDE" width="35.0" />
-            <Button fx:id="saveAsSessionDefaultsButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0" text="Session" textAlignment="CENTER" textFill="#a45151" wrapText="true">
-               <font>
-                  <Font name="Monospaced Bold" size="12.0" />
-               </font>
-               <tooltip>
-                  <Tooltip text="Save as defaults for this session">
-                     <font>
-                        <Font name="Monospaced Bold" size="12.0" />
-                     </font>
-                  </Tooltip>
-               </tooltip>
-            </Button>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT" strokeType="INSIDE" width="35.0" />
-            <Button fx:id="saveAsUserDefaultsButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0" text="User" textAlignment="CENTER" textFill="#a45151" wrapText="true">
-               <font>
-                  <Font name="Monospaced Bold" size="12.0" />
-               </font>
-               <tooltip>
-                  <Tooltip text="Save as default settings for this user">
-                     <font>
-                        <Font name="Monospaced Bold" size="12.0" />
-                     </font>
-                  </Tooltip>
-               </tooltip>
-            </Button>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT" strokeType="INSIDE" width="9.0" />
-         </items>
-      </ToolBar>
-      <ToolBar fx:id="revertToolbar" layoutX="10.0" layoutY="428.0" prefHeight="40.0" prefWidth="516.0">
-         <items>
-            <Button fx:id="undoAllButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="132.0" text="Undo" textFill="#a45151" wrapText="true">
-               <font>
-                  <Font name="Monospaced Bold" size="12.0" />
-               </font>
-               <tooltip>
-                  <Tooltip text="Cancel all changes and revert to previous settings.">
-                     <font>
-                        <Font name="Monospaced Bold" size="12.0" />
-                     </font>
-                  </Tooltip>
-               </tooltip>
-            </Button>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" layoutX="318.0" layoutY="24.0" stroke="TRANSPARENT" strokeType="INSIDE" width="7.0" />
-            <Label prefHeight="26.0" prefWidth="117.0" text="Restore Defaults: ">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" layoutX="239.0" layoutY="24.0" stroke="TRANSPARENT" strokeType="INSIDE" width="35.0" />
-            <Button fx:id="restoreSessionDefaultsButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0" text="Session" textAlignment="CENTER" textFill="#a45151" wrapText="true">
-               <font>
-                  <Font name="Monospaced Bold" size="12.0" />
-               </font>
-               <tooltip>
-                  <Tooltip text="Restores settings to the session defaults.">
-                     <font>
-                        <Font name="Monospaced Bold" size="12.0" />
-                     </font>
-                  </Tooltip>
-               </tooltip>
-            </Button>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT" strokeType="INSIDE" width="35.0" />
-            <Button fx:id="restoreUserDefaultsButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0" text="User" textAlignment="CENTER" textFill="#a45151" wrapText="true">
-               <font>
-                  <Font name="Monospaced Bold" size="12.0" />
-               </font>
-               <tooltip>
-                  <Tooltip text="Restores settings to the user default settings.">
-                     <font>
-                        <Font name="Monospaced Bold" size="12.0" />
-                     </font>
-                  </Tooltip>
-               </tooltip>
-            </Button>
-         </items>
-      </ToolBar>
-   </children>
+                                <ScrollPane layoutY="72.0" prefHeight="368.0" prefWidth="536.0">
+                                    <content>
+                                        <VBox fx:id="plotIntensitiesVBox" prefHeight="366.0" prefWidth="534.0"/>
+                                    </content>
+                                </ScrollPane>
+                            </children>
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="parametersTab" closable="false" text="Parameter Control">
+                    <content>
+                        <AnchorPane fx:id="parameterControlAnchorPane" prefHeight="474.0" prefWidth="536.0">
+                            <children>
+                                <VBox AnchorPane.leftAnchor="0.0">
+                                    <HBox alignment="CENTER" prefHeight="64.0" prefWidth="536.0">
+                                        <children>
+                                            <Label alignment="CENTER" prefHeight="64.0" prefWidth="538.0"
+                                                   text="Parameter Control" textAlignment="CENTER">
+                                                <font>
+                                                    <Font size="36.0"/>
+                                                </font>
+                                            </Label>
+                                        </children>
+                                    </HBox>
+                                    <VBox>
+                                        <Label prefHeight="38.0" prefWidth="520.0" text="Chauvenet's Criteria"
+                                               textAlignment="CENTER">
+                                            <font>
+                                                <Font name="Consolas" size="24.0"/>
+                                            </font>
+                                            <opaqueInsets>
+                                                <Insets top="-9.0"/>
+                                            </opaqueInsets>
+                                        </Label>
+                                        <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
+                                            <children>
+                                                <Label prefHeight="34.0" prefWidth="239.0" text="Rejection Probability">
+                                                    <font>
+                                                        <Font size="18.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Region prefHeight="36.0" prefWidth="78.0"/>
+                                                <Spinner fx:id="chauvenetRejectionProbabilitySpinner" prefHeight="25.0"
+                                                         prefWidth="100.0"/>
+                                            </children>
+                                            <padding>
+                                                <Insets left="15.0"/>
+                                            </padding>
+                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
+                                            <children>
+                                                <Label prefHeight="34.0" prefWidth="239.0" text="Minimum Datum Count">
+                                                    <font>
+                                                        <Font size="18.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Region prefHeight="36.0" prefWidth="78.0"/>
+                                                <Spinner fx:id="chauvenetMinimumDatumCountSpinner" prefHeight="25.0"
+                                                         prefWidth="100.0"/>
+                                            </children>
+                                            <padding>
+                                                <Insets left="15.0"/>
+                                            </padding>
+                                        </HBox>
+                                        <padding>
+                                            <Insets bottom="10.0" left="15.0"/>
+                                        </padding>
+                                    </VBox>
+                                    <VBox layoutX="10.0" layoutY="194.0">
+                                        <padding>
+                                            <Insets left="15.0"/>
+                                        </padding>
+                                        <children>
+                                            <Label layoutX="17.0" layoutY="189.0" prefHeight="38.0" prefWidth="520.0"
+                                                   text="Mass Spectrometer Context" textAlignment="CENTER">
+                                                <font>
+                                                    <Font name="Consolas" size="24.0"/>
+                                                </font>
+                                                <opaqueInsets>
+                                                    <Insets top="-9.0"/>
+                                                </opaqueInsets>
+                                            </Label>
+                                            <HBox alignment="CENTER_LEFT" layoutX="17.0" layoutY="227.0"
+                                                  prefHeight="36.0" prefWidth="521.0">
+                                                <children>
+                                                    <Label prefHeight="34.0" prefWidth="158.0" text="Current Type">
+                                                        <font>
+                                                            <Font size="18.0"/>
+                                                        </font>
+                                                    </Label>
+                                                    <ComboBox fx:id="massSpecComboBox" prefHeight="25.0"
+                                                              prefWidth="260.0"/>
+                                                </children>
+                                                <padding>
+                                                    <Insets left="15.0"/>
+                                                </padding>
+                                            </HBox>
+                                        </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" prefHeight="167.0" prefWidth="536.0" spacing="5.0"
+                                          style="-fx-background-color: beige; -fx-border-color: black;">
+                                        <children>
+                                            <Label prefHeight="38.0" prefWidth="520.0" text="Live Workflow"
+                                                   textAlignment="CENTER">
+                                                <font>
+                                                    <Font name="Consolas" size="24.0"/>
+                                                </font>
+                                                <opaqueInsets>
+                                                    <Insets top="-9.0"/>
+                                                </opaqueInsets>
+                                            </Label>
+                                            <Label alignment="CENTER" prefHeight="34.0" prefWidth="379.0"
+                                                   text="Sample Meta Data Folder used by ET_Redux"
+                                                   textAlignment="CENTER">
+                                                <font>
+                                                    <Font size="18.0"/>
+                                                </font>
+                                            </Label>
+                                            <TextArea fx:id="sampleMetaDataFolderTextArea" prefHeight="46.0"
+                                                      prefWidth="514.0" wrapText="true"/>
+                                            <Button fx:id="selectSampleMetaDataFolderButton" mnemonicParsing="false"
+                                                    onAction="#selectSampleMetaDataFolderButtonAction"
+                                                    text="Select SampleMetaData Folder"/>
+                                        </children>
+                                        <padding>
+                                            <Insets left="10.0" right="10.0"/>
+                                        </padding>
+                                    </VBox>
+                                </VBox>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="plotTwoControlsTab" closable="false" text="PlotTwo Controls">
+                    <content>
+                        <AnchorPane fx:id="plotTwoControlsAnchorPane" prefHeight="474.0" prefWidth="536.0">
+                            <children>
+                                <VBox AnchorPane.leftAnchor="0.0">
+                                    <HBox alignment="CENTER" prefHeight="64.0" prefWidth="536.0">
+                                        <children>
+                                            <Label alignment="CENTER" prefHeight="64.0" prefWidth="538.0"
+                                                   text="Plot AnyTwo Controls" textAlignment="CENTER">
+                                                <font>
+                                                    <Font size="36.0"/>
+                                                </font>
+                                            </Label>
+                                        </children>
+                                    </HBox>
+                                    <VBox>
+                                        <Label prefHeight="38.0" prefWidth="520.0" text="Scaling Dot Sizes"
+                                               textAlignment="CENTER">
+                                            <font>
+                                                <Font name="Consolas" size="24.0"/>
+                                            </font>
+                                            <opaqueInsets>
+                                                <Insets top="-9.0"/>
+                                            </opaqueInsets>
+                                        </Label>
+                                        <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
+                                            <children>
+                                                <Label prefHeight="34.0" prefWidth="239.0" text="Minimum Dot Size">
+                                                    <font>
+                                                        <Font size="18.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Region prefHeight="36.0" prefWidth="78.0"/>
+                                                <Spinner fx:id="scalingDotMinSizeSpinner" prefHeight="25.0"
+                                                         prefWidth="100.0"/>
+                                            </children>
+                                            <padding>
+                                                <Insets left="15.0"/>
+                                            </padding>
+                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
+                                            <children>
+                                                <Label prefHeight="34.0" prefWidth="239.0" text="Maximum Dot Size">
+                                                    <font>
+                                                        <Font size="18.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Region prefHeight="36.0" prefWidth="78.0"/>
+                                                <Spinner fx:id="scalingDotMaxSizeSpinner" prefHeight="25.0"
+                                                         prefWidth="100.0"/>
+                                            </children>
+                                            <padding>
+                                                <Insets left="15.0"/>
+                                            </padding>
+                                        </HBox>
+                                        <padding>
+                                            <Insets bottom="10.0" left="15.0"/>
+                                        </padding>
+                                    </VBox>
+                                </VBox>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+        <ToolBar fx:id="saveDefaultsToolbar" prefHeight="30.0" prefWidth="536.0"
+                 style="-fx-border-width: .5; -fx-border-color: #888888;">
+            <items>
+                <Label prefHeight="26.0" prefWidth="145.0" text="Save Current Settings:">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Label>
+                <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" layoutX="239.0" layoutY="15.0"
+                           stroke="TRANSPARENT" strokeType="INSIDE" width="35.0"/>
+                <Button fx:id="saveAnalysisSettingsButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0"
+                        text="Analysis" textAlignment="CENTER" textFill="#a45151" wrapText="true">
+                    <font>
+                        <Font name="Monospaced Bold" size="12.0"/>
+                    </font>
+                    <tooltip>
+                        <Tooltip text="Save color settings for this analysis.">
+                            <font>
+                                <Font name="Monospaced Bold" size="12.0"/>
+                            </font>
+                        </Tooltip>
+                    </tooltip>
+                </Button>
+                <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT"
+                           strokeType="INSIDE" width="35.0"/>
+                <Button fx:id="saveAsSessionDefaultsButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0"
+                        text="Session" textAlignment="CENTER" textFill="#a45151" wrapText="true">
+                    <font>
+                        <Font name="Monospaced Bold" size="12.0"/>
+                    </font>
+                    <tooltip>
+                        <Tooltip text="Save as defaults for this session">
+                            <font>
+                                <Font name="Monospaced Bold" size="12.0"/>
+                            </font>
+                        </Tooltip>
+                    </tooltip>
+                </Button>
+                <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT"
+                           strokeType="INSIDE" width="35.0"/>
+                <Button fx:id="saveAsUserDefaultsButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0"
+                        text="User" textAlignment="CENTER" textFill="#a45151" wrapText="true">
+                    <font>
+                        <Font name="Monospaced Bold" size="12.0"/>
+                    </font>
+                    <tooltip>
+                        <Tooltip text="Save as default settings for this user">
+                            <font>
+                                <Font name="Monospaced Bold" size="12.0"/>
+                            </font>
+                        </Tooltip>
+                    </tooltip>
+                </Button>
+                <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT"
+                           strokeType="INSIDE" width="9.0"/>
+            </items>
+        </ToolBar>
+        <ToolBar fx:id="revertToolbar" layoutX="10.0" layoutY="428.0" prefHeight="40.0" prefWidth="516.0">
+            <items>
+                <Button fx:id="undoAllButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="132.0" text="Undo"
+                        textFill="#a45151" wrapText="true">
+                    <font>
+                        <Font name="Monospaced Bold" size="12.0"/>
+                    </font>
+                    <tooltip>
+                        <Tooltip text="Cancel all changes and revert to previous settings.">
+                            <font>
+                                <Font name="Monospaced Bold" size="12.0"/>
+                            </font>
+                        </Tooltip>
+                    </tooltip>
+                </Button>
+                <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" layoutX="318.0" layoutY="24.0"
+                           stroke="TRANSPARENT" strokeType="INSIDE" width="7.0"/>
+                <Label prefHeight="26.0" prefWidth="117.0" text="Restore Defaults: ">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Label>
+                <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" layoutX="239.0" layoutY="24.0"
+                           stroke="TRANSPARENT" strokeType="INSIDE" width="35.0"/>
+                <Button fx:id="restoreSessionDefaultsButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0"
+                        text="Session" textAlignment="CENTER" textFill="#a45151" wrapText="true">
+                    <font>
+                        <Font name="Monospaced Bold" size="12.0"/>
+                    </font>
+                    <tooltip>
+                        <Tooltip text="Restores settings to the session defaults.">
+                            <font>
+                                <Font name="Monospaced Bold" size="12.0"/>
+                            </font>
+                        </Tooltip>
+                    </tooltip>
+                </Button>
+                <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT"
+                           strokeType="INSIDE" width="35.0"/>
+                <Button fx:id="restoreUserDefaultsButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0"
+                        text="User" textAlignment="CENTER" textFill="#a45151" wrapText="true">
+                    <font>
+                        <Font name="Monospaced Bold" size="12.0"/>
+                    </font>
+                    <tooltip>
+                        <Tooltip text="Restores settings to the user default settings.">
+                            <font>
+                                <Font name="Monospaced Bold" size="12.0"/>
+                            </font>
+                        </Tooltip>
+                    </tooltip>
+                </Button>
+            </items>
+        </ToolBar>
+    </children>
 </VBox>

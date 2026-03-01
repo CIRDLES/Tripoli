@@ -17,8 +17,6 @@
 package org.cirdles.tripoli.parameters;
 
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.Serializable;
 
@@ -32,7 +30,7 @@ public class Parameters implements Serializable {
     private double chauvenetRejectionProbability;
     private int requiredMinDatumCount;
     private MassSpectrometerContextEnum massSpectrometerContext;
-    
+
     // Scaling dot size parameters
     private double scalingDotMinSize;
     private double scalingDotMaxSize;
@@ -79,9 +77,11 @@ public class Parameters implements Serializable {
     public void setRequiredMinDatumCount(int requiredMinDatumCount) {
         this.requiredMinDatumCount = requiredMinDatumCount;
     }
+
     public MassSpectrometerContextEnum getMassSpectrometerContext() {
         return massSpectrometerContext;
     }
+
     public void setMassSpectrometerContext(MassSpectrometerContextEnum massSpectrometerContext) {
         this.massSpectrometerContext = massSpectrometerContext;
     }

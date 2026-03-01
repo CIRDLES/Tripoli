@@ -55,7 +55,7 @@ public class UserFunctionNode extends ExpressionTree {
 
         Double[][] retVal = new Double[cycleRecordMap.size()][];
         cycleRecordMap.forEach((k, v) ->
-                retVal[k-1] = Arrays.stream(v.cycleMeansData())
+                retVal[k - 1] = Arrays.stream(v.cycleMeansData())
                         .boxed()
                         .toArray(Double[]::new)
         );
@@ -66,7 +66,7 @@ public class UserFunctionNode extends ExpressionTree {
     @Override
     public Double[][] eval(String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite) {
 
-        if (value.contains("[")){
+        if (value.contains("[")) {
             this.value = value.substring(1, value.length() - 1);
         }
 
@@ -77,22 +77,22 @@ public class UserFunctionNode extends ExpressionTree {
                 break;
             }
         }
-        
+
         Double[][] retVal = new Double[blocksDataLite.size()][];
-        
+
         for (Integer blockID : blocksDataLite.keySet()) {
             double[][] blockData = blocksDataLite.get(blockID).cycleData();
-            retVal[blockID-1] = new Double[blockData.length];
-            
+            retVal[blockID - 1] = new Double[blockData.length];
+
             for (int i = 0; i < blockData.length; i++) {
                 if (columnIndex < blockData[i].length) {
-                    retVal[blockID-1][i] = blockData[i][columnIndex];
+                    retVal[blockID - 1][i] = blockData[i][columnIndex];
                 } else {
-                    retVal[blockID-1][i] = 0.0;
+                    retVal[blockID - 1][i] = 0.0;
                 }
             }
         }
-        
+
         return retVal;
     }
 
@@ -100,11 +100,13 @@ public class UserFunctionNode extends ExpressionTree {
     public String getName() {
         return name;
     }
+
     public void setName(String newName) {
         name = newName;
     }
+
     public String getValue() {
-        if (!value.contains("[")){
+        if (!value.contains("[")) {
             return "[" + value + "]";
         } else {
             return value;

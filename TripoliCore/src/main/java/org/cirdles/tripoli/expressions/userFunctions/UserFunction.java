@@ -180,6 +180,7 @@ public class UserFunction implements Comparable, Serializable {
     public int getColumnIndex() {
         return columnIndex;
     }
+
     public void setColumnIndex(int columnIndex) {
         this.columnIndex = columnIndex;
     }
@@ -192,7 +193,9 @@ public class UserFunction implements Comparable, Serializable {
         this.treatAsIsotopicRatio = treatAsIsotopicRatio;
     }
 
-    public boolean isTreatAsCustomExpression() {return treatAsCustomExpression;}
+    public boolean isTreatAsCustomExpression() {
+        return treatAsCustomExpression;
+    }
 
     public void setTreatAsCustomExpression(boolean treatAsCustomExpression) {
         this.treatAsCustomExpression = treatAsCustomExpression;

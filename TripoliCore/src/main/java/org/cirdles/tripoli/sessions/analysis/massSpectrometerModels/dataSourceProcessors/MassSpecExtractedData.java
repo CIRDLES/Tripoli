@@ -90,8 +90,10 @@ public class MassSpecExtractedData implements Serializable {
         for (String[] headerStrings : headerData) {
             switch (headerStrings[0].trim().toUpperCase()) {
                 // All
-                case "METHODNAME" -> methodName = headerStrings[1].trim().substring(0, headerStrings[1].lastIndexOf('.'));
-                case "METHOD NAME" -> methodName = headerStrings[1].trim().substring(0, headerStrings[1].lastIndexOf('.'));
+                case "METHODNAME" ->
+                        methodName = headerStrings[1].trim().substring(0, headerStrings[1].lastIndexOf('.'));
+                case "METHOD NAME" ->
+                        methodName = headerStrings[1].trim().substring(0, headerStrings[1].lastIndexOf('.'));
 
                 // OG Tripoli
                 case "INPUTFILE" -> filename = headerStrings[1].trim();
@@ -122,7 +124,9 @@ public class MassSpecExtractedData implements Serializable {
                 case "SAMPLE NAME" -> sampleName = headerStrings[1].trim();
                 case "ANALYSIS FILE NAME" -> {
                     filename = headerStrings[1].trim();
-                    if (methodName.isEmpty()) {methodName = headerStrings[1].trim();}
+                    if (methodName.isEmpty()) {
+                        methodName = headerStrings[1].trim();
+                    }
                 }
                 case "NUMBER OF MEASUREMENTS PER BLOCK" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
             }
@@ -159,7 +163,7 @@ public class MassSpecExtractedData implements Serializable {
 
         // No cycle data. Use method default or 10 if none
         if (cyclesPerBlock == 0) {
-            if (TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().containsKey(methodName)){
+            if (TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().containsKey(methodName)) {
                 cyclesPerBlock = TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().get(methodName).getCyclesPerBlock();
             } else {
                 cyclesPerBlock = 10;
@@ -286,20 +290,21 @@ public class MassSpecExtractedData implements Serializable {
      * Checks if the expression already exists in the cycle data headers. If it does, will replace the data with a new evaluation
      * of the expression tree. Otherwise, expands the cycle data table to add a new column populated with the evaluated
      * data for the expression and populates a new column header with the expression name.
+     *
      * @param customExpressionTree valid expression tree with name set to expected header name
      */
-    public void populateCycleDataForCustomExpression(ExpressionTreeInterface customExpressionTree){
+    public void populateCycleDataForCustomExpression(ExpressionTreeInterface customExpressionTree) {
         Double[][] expressionData = customExpressionTree.eval(columnHeaders, blocksDataLite);
 
         String newColumnHeader = customExpressionTree.getName().split(" \\( = ")[0];
         int columnIndex = Arrays.asList(columnHeaders).indexOf(newColumnHeader);
 
         for (Integer blockID : blocksDataLite.keySet()) {
-            blocksDataLite.put(blockID, blocksDataLite.get(blockID).populateColumnForCustomExpression(expressionData[blockID-1], columnIndex));
+            blocksDataLite.put(blockID, blocksDataLite.get(blockID).populateColumnForCustomExpression(expressionData[blockID - 1], columnIndex));
         }
 
         if (columnIndex == -1) {
-            String[] columnHeadersExpanded = new String[columnHeaders.length+1];
+            String[] columnHeadersExpanded = new String[columnHeaders.length + 1];
             System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);
             columnHeadersExpanded[columnHeaders.length] = newColumnHeader;
             columnHeaders = columnHeadersExpanded;
@@ -307,7 +312,7 @@ public class MassSpecExtractedData implements Serializable {
 
     }
 
-    public void removeCycleDataForDeletedExpression(ExpressionTreeInterface customExpressionTree){
+    public void removeCycleDataForDeletedExpression(ExpressionTreeInterface customExpressionTree) {
         int columnIndex = Arrays.asList(columnHeaders).indexOf(customExpressionTree.getName().split(" \\( = ")[0]);
 
         for (Integer blockID : blocksDataLite.keySet()) {

@@ -143,7 +143,7 @@ public abstract class AbstractMatrixModel implements Serializable {
 
         retVal.append("\n");
 
-        NumberFormat formatter = new DecimalFormat("0.000000000E00",new DecimalFormatSymbols(Locale.ENGLISH));
+        NumberFormat formatter = new DecimalFormat("0.000000000E00", new DecimalFormatSymbols(Locale.ENGLISH));
 
         for (int row = 0; row < rows.size(); row++) {
             retVal.append(String.format(formatCell, rows.get(row)));

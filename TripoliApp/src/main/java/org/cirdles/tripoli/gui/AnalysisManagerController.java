@@ -358,6 +358,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         mcmc2Button.setDisable(false);
+
         // March 2024 implement drag n drop of files ===================================================================
         analysisManagerGridPane.setOnDragOver(event -> {
             event.acceptTransferModes(TransferMode.MOVE);
@@ -416,6 +417,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         exportToClipBoardButton.setMaxHeight(35);
 
         exportToETReduxButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
+        exportToETReduxButton.setDisable(((Analysis)analysis).hasMemberAnalyses());
         reviewSculptData.setDisable(
                 analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty()
                         && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());

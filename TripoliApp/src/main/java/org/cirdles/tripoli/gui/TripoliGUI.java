@@ -34,7 +34,6 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Locale;
 
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_STARTING_YELLOW;
 
@@ -58,7 +57,7 @@ public class TripoliGUI extends Application {
 
     public static void updateStageTitle(MassSpectrometerContextEnum massSpecContext) {
         String fileSpec = "Tripoli [Session File: NONE] ";
-        String sessionName = primaryStage.getTitle().substring(primaryStage.getTitle().indexOf(':')+2, primaryStage.getTitle().indexOf("]"));
+        String sessionName = primaryStage.getTitle().substring(primaryStage.getTitle().indexOf(':') + 2, primaryStage.getTitle().indexOf("]"));
         //fileSpec.replace("NONE", sessionName);
         String massSpecSpec = " [Mass Spectrometer: UNKNOWN]";
         massSpecSpec = massSpecContext != null ? massSpecSpec.replace("UNKNOWN", massSpecContext.toString()) : massSpecSpec;

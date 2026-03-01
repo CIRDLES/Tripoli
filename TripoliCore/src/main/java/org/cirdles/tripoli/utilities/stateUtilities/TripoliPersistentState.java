@@ -17,7 +17,6 @@
  */
 package org.cirdles.tripoli.utilities.stateUtilities;
 
-import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
@@ -193,6 +192,10 @@ public class TripoliPersistentState implements Serializable {
         return ratiosColors;
     }
 
+    public void setBlockCyclesPlotColors(RatiosColors ratiosColors) {
+        this.ratiosColors = ratiosColors;
+    }
+
     public String getTwoSigmaHexColorString() {
         return getBlockCyclesPlotColors().twoSigmaShade();
     }
@@ -207,10 +210,6 @@ public class TripoliPersistentState implements Serializable {
 
     public String getMeanHexColorString() {
         return getBlockCyclesPlotColors().meanColor();
-    }
-
-    public void setBlockCyclesPlotColors(RatiosColors ratiosColors) {
-        this.ratiosColors = ratiosColors;
     }
 
     public void updateTripoliPersistentState() {

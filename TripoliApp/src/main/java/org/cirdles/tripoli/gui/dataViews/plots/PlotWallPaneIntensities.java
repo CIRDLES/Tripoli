@@ -29,9 +29,9 @@ import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.SettingsButton;
 import org.cirdles.tripoli.settings.plots.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionInterface;
@@ -88,6 +88,13 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         }
     }
 
+    public static void clearDelegates() {
+        delegateActionSet.clear();
+    }
+
+    public static DelegateActionSet getDelegateActionSet() {
+        return delegateActionSet;
+    }
 
     public void close() {
         removeDelegateAction.act();
@@ -132,6 +139,15 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     /**
      *
      */
+    // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+    // @Override
+    // public void updateStatusOfCycleCheckBox() {
+    //
+    // }
+
+    /**
+     *
+     */
     @Override
     public void toggleShowStatsAllPlots() {
         // not used
@@ -144,15 +160,6 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     public void repeatLayoutStyle() {
 
     }
-
-    /**
-     *
-     */
-    // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
-    // @Override
-    // public void updateStatusOfCycleCheckBox() {
-    //
-    // }
 
     /**
      *
@@ -339,9 +346,6 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
     }
 
-    public static void clearDelegates() {
-        delegateActionSet.clear();
-    }
     public void buildScaleControlsToolbar() {
         scaleControlsToolbar = new ToolBar();
         scaleControlsToolbar.setPrefHeight(toolBarHeight);
@@ -457,7 +461,6 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         scaleControlsToolbar.getItems().remove(targetHBox);
     }
 
-
     private void rebuildPlot(boolean reScaleX, boolean reScaleY) {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
@@ -493,9 +496,5 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     @Override
     public void setToolBarCount(int toolBarCount) {
         this.toolBarCount = toolBarCount;
-    }
-
-    public static DelegateActionSet getDelegateActionSet() {
-        return delegateActionSet;
     }
 }

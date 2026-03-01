@@ -74,7 +74,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     private double zoomBoxX;
     private double zoomBoxY;
     private boolean ignoreRejects;
-    
+
     private AnalysisTwoUserFunctionsPlot(
             AnalysisInterface analysis,
             Rectangle bounds,
@@ -148,7 +148,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 xDataLength += entry.getValue().cycleMeansData().length;
             }
             xAxisData = new double[xDataLength];
-            
+
             // Populate x-axis data from xAxisUserFunction
             boolean doInvertX = xAxisUserFunction.isInverted() && xAxisUserFunction.isTreatAsIsotopicRatio();
             for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecordX.entrySet()) {
@@ -244,7 +244,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             xAxisName = xAxisUserFunction.getCustomExpression().getName();
         }
         plotAxisLabelX = xAxisName;
-        
+
         String yAxisName = userFunction.showCorrectName();
         if (userFunction.isTreatAsCustomExpression()) {
             yAxisName = userFunction.getCustomExpression().getName();
@@ -359,7 +359,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         double[] minMax = getDataMinMaxX();
         double dataMinX = minMax[0];
         double dataMaxX = minMax[1];
-        
+
         // Adjust displayOffsetX to keep display within data bounds
         if (getDisplayMaxX() > dataMaxX) {
             displayOffsetX -= (getDisplayMaxX() - dataMaxX);
@@ -373,17 +373,17 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     public void adjustZoomSelf() {
         double effectiveZoomChunkX = zoomFlagsXY[0] ? zoomChunkX : 0.0;
         double effectiveZoomChunkY = zoomFlagsXY[1] ? zoomChunkY : 0.0;
-        
+
         // Find the actual min/max x-axis values in the data
         double[] minMax = getDataMinMaxX();
         double dataMinX = minMax[0];
         double dataMaxX = minMax[1];
-        
+
         // Apply zoom to x-axis
         minX = Math.max(dataMinX, minX - effectiveZoomChunkX);
         maxX = Math.min(dataMaxX, maxX + effectiveZoomChunkX);
         reCalcDisplayOffsetX();
-        
+
         // Apply zoom to y-axis
         minY += -effectiveZoomChunkY;
         maxY -= -effectiveZoomChunkY;
@@ -600,6 +600,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     /**
      * Formats intensity value for display in legend.
      * Uses scientific notation for very large/small values, otherwise decimal.
+     *
      * @param value The intensity value to format
      * @return Formatted string representation
      */
@@ -616,6 +617,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     /**
      * Calculates point size based on intensity value.
      * Normalizes intensity to a range defined by parameters (or TripoliConstants defaults).
+     *
      * @param intensityValue The intensity value for the point
      * @return The point size (radius) in pixels, or default size if intensity not available
      */
@@ -627,13 +629,13 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             }
             return TripoliConstants.SCALING_DOT_DEFAULT_MIN_SIZE;
         }
-        
+
         // Normalize intensity value to 0-1 range
         double normalized = (intensityValue - minIntensity) / (maxIntensity - minIntensity);
-        
+
         // Clamp to [0, 1] range
         normalized = Math.max(0.0, Math.min(1.0, normalized));
-        
+
         // Map to parameter-defined range (falling back to TripoliConstants defaults)
         double minSize = TripoliConstants.SCALING_DOT_DEFAULT_MIN_SIZE;
         double maxSize = TripoliConstants.SCALING_DOT_DEFAULT_MAX_SIZE;
@@ -673,7 +675,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     public void plotData(GraphicsContext g2d) {
         int cyclesPerBlock = mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
         int cycleCount = 0;
-        
+
         // Use viridis color palette based on time index
         int totalDataPoints = xAxisData.length;
 
@@ -683,30 +685,30 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             if (blockID > mapBlockIdToBlockCyclesRecord.size()) {
                 blockID = mapBlockIdToBlockCyclesRecord.size();
             }
-            
+
             if (pointInPlot(xAxisData[i], yAxisData[i]) && (xAxisData[i] != 0.0) && (yAxisData[i] != 0.0)) {
                 // Check rejection status for both x and y user functions
                 boolean yIncluded = true;
                 boolean xIncluded = true;
                 int cycleIndex = cycleCount % cyclesPerBlock;
-                
+
                 // Check y-axis user function (main user function)
-                if (blockID <= mapBlockIdToBlockCyclesRecord.size() && 
-                    mapBlockIdToBlockCyclesRecord.get(blockID) != null &&
-                    cycleIndex < mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded().length) {
+                if (blockID <= mapBlockIdToBlockCyclesRecord.size() &&
+                        mapBlockIdToBlockCyclesRecord.get(blockID) != null &&
+                        cycleIndex < mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded().length) {
                     yIncluded = mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded()[cycleIndex];
                 }
-                
+
                 // Check x-axis user function
-                if (blockID <= mapBlockIdToBlockCyclesRecordX.size() && 
-                    mapBlockIdToBlockCyclesRecordX.get(blockID) != null &&
-                    cycleIndex < mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded().length) {
+                if (blockID <= mapBlockIdToBlockCyclesRecordX.size() &&
+                        mapBlockIdToBlockCyclesRecordX.get(blockID) != null &&
+                        cycleIndex < mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded().length) {
                     xIncluded = mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded()[cycleIndex];
                 }
-                
+
                 double dataX = mapX(xAxisData[i]);
                 double dataY = mapY(yAxisData[i]);
-                
+
                 // Calculate point size based on intensity if available
                 // Get default size from parameters (minimum of range)
                 double pointSize = 2.0; // Fallback default
@@ -717,7 +719,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                     pointSize = calculatePointSize(intensityData[i]);
                 }
                 double halfSize = pointSize / 2.0;
-                
+
                 // Determine marker type and color based on rejection status
                 if (!xIncluded && !yIncluded) {
                     // Both rejected: red square
@@ -787,7 +789,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             // Reset Y-axis user function
             mapBlockIdToBlockCyclesRecord.put(i + 1, mapBlockIdToBlockCyclesRecord.get(i + 1).resetAllDataIncluded());
             analysis.getMapOfBlockIdToRawDataLiteOne().put(i + 1, analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).resetAllDataIncluded(userFunction));
-            
+
             // Reset X-axis user function
             if (mapBlockIdToBlockCyclesRecordX != null && mapBlockIdToBlockCyclesRecordX.containsKey(i + 1)) {
                 mapBlockIdToBlockCyclesRecordX.put(i + 1, mapBlockIdToBlockCyclesRecordX.get(i + 1).resetAllDataIncluded());
@@ -813,7 +815,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     private int determineSculptBlock(double mouseX) {
         // Convert mouse X coordinate to x-axis value (user function value)
         double mouseXValue = convertMouseXToValue(mouseX);
-        
+
         // Find the closest data point index
         int closestIndex = 0;
         double minDistance = Double.MAX_VALUE;
@@ -824,11 +826,11 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 closestIndex = i;
             }
         }
-        
+
         // Calculate block ID from data index
         int cyclesPerBlock = mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
         int blockID = (closestIndex / cyclesPerBlock) + 1;
-        
+
         // Ensure block ID is within valid range
         if (blockID > mapBlockIdToBlockCyclesRecord.size()) {
             blockID = mapBlockIdToBlockCyclesRecord.size();
@@ -836,7 +838,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         if (blockID < 1) {
             blockID = 1;
         }
-        
+
         return blockID;
     }
 
@@ -877,13 +879,13 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 int countOfCycles = mapBlockIdToBlockCyclesRecord.get(sculptBlockID).cyclesIncluded().length;
                 int startIndex = countOfPreviousBlockIncludedData;
                 int endIndex = Math.min(startIndex + countOfCycles - 1, xAxisData.length - 1);
-                
+
                 // Find min/max x-axis values for this block
                 minX = Double.MAX_VALUE;
                 maxX = -Double.MAX_VALUE;
                 minY = Double.MAX_VALUE;
                 maxY = -Double.MAX_VALUE;
-                
+
                 for (int i = startIndex; i <= endIndex; i++) {
                     if (i < xAxisData.length && xAxisData[i] != 0.0) {
                         minX = min(minX, xAxisData[i]);
@@ -894,7 +896,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                         maxY = max(maxY, yAxisData[i]);
                     }
                 }
-                
+
                 // Add margins
                 double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
                 if (xMarginStretch == 0.0 && (maxX - minX) > 0) {
@@ -902,7 +904,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 }
                 minX -= xMarginStretch;
                 maxX += xMarginStretch;
-                
+
                 double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.05);
                 if (yMarginStretch == 0.0 && (maxY - minY) > 0) {
                     yMarginStretch = (maxY - minY) / 100.0;
@@ -984,7 +986,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                             mapBlockIdToBlockCyclesRecord.get(sculptBlockID).toggleBlockIncluded());
                     analysis.getMapOfBlockIdToRawDataLiteOne().put(sculptBlockID,
                             analysis.getMapOfBlockIdToRawDataLiteOne().get(sculptBlockID).toggleAllDataIncludedUserFunction(userFunction));
-                    
+
                     // Also toggle X-axis user function
                     if (mapBlockIdToBlockCyclesRecordX.get(sculptBlockID) != null) {
                         mapBlockIdToBlockCyclesRecordX.put(sculptBlockID,
@@ -1059,8 +1061,8 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 for (int i = 0; i < xAxisData.length && i < yAxisData.length; i++) {
                     // Check if point is within selection box (both X and Y coordinates)
                     if (xAxisData[i] >= xValueLeft && xAxisData[i] <= xValueRight &&
-                        yAxisData[i] >= yValueBottom && yAxisData[i] <= yValueTop &&
-                        xAxisData[i] != 0.0 && yAxisData[i] != 0.0) {
+                            yAxisData[i] >= yValueBottom && yAxisData[i] <= yValueTop &&
+                            xAxisData[i] != 0.0 && yAxisData[i] != 0.0) {
                         selectedIndices.add(i);
                     }
                 }
@@ -1077,7 +1079,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 // Calculate majority status from selected points
                 List<Boolean> statusListY = new ArrayList<>();
                 List<Boolean> statusListX = new ArrayList<>();
-                
+
                 for (int idx : selectedIndices) {
                     int blockID = (idx / expectedCyclesCount) + 1;
                     if (blockID > mapBlockIdToBlockCyclesRecord.size()) {
@@ -1087,17 +1089,17 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                         blockID = 1;
                     }
                     int cycleIndex = idx % expectedCyclesCount;
-                    
+
                     // Get Y-axis status
                     if (mapBlockIdToBlockCyclesRecord.get(blockID) != null &&
-                        cycleIndex < mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded().length) {
+                            cycleIndex < mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded().length) {
                         statusListY.add(mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded()[cycleIndex]);
                     }
-                    
+
                     // Get X-axis status
-                    if (blockID <= mapBlockIdToBlockCyclesRecordX.size() && 
-                        mapBlockIdToBlockCyclesRecordX.get(blockID) != null &&
-                        cycleIndex < mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded().length) {
+                    if (blockID <= mapBlockIdToBlockCyclesRecordX.size() &&
+                            mapBlockIdToBlockCyclesRecordX.get(blockID) != null &&
+                            cycleIndex < mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded().length) {
                         statusListX.add(mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded()[cycleIndex]);
                     }
                 }
@@ -1108,7 +1110,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                     if (b) countIncludedY++;
                 }
                 boolean majorityIncludedY = countIncludedY > statusListY.size() / 2;
-                
+
                 int countIncludedX = 0;
                 for (Boolean b : statusListX) {
                     if (b) countIncludedX++;
@@ -1125,10 +1127,10 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                         blockID = 1;
                     }
                     int cycleIndex = idx % expectedCyclesCount;
-                    
+
                     // Update Y-axis user function
                     if (mapBlockIdToBlockCyclesRecord.get(blockID) != null &&
-                        cycleIndex < mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded().length) {
+                            cycleIndex < mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded().length) {
                         boolean[] cyclesIncludedY = mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded().clone();
                         cyclesIncludedY[cycleIndex] = !majorityIncludedY;
                         mapBlockIdToBlockCyclesRecord.put(blockID,
@@ -1136,11 +1138,11 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                         analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID,
                                 analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).updateIncludedCycles(userFunction, cyclesIncludedY));
                     }
-                    
+
                     // Update X-axis user function
-                    if (blockID <= mapBlockIdToBlockCyclesRecordX.size() && 
-                        mapBlockIdToBlockCyclesRecordX.get(blockID) != null &&
-                        cycleIndex < mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded().length) {
+                    if (blockID <= mapBlockIdToBlockCyclesRecordX.size() &&
+                            mapBlockIdToBlockCyclesRecordX.get(blockID) != null &&
+                            cycleIndex < mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded().length) {
                         boolean[] cyclesIncludedX = mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded().clone();
                         cyclesIncludedX[cycleIndex] = !majorityIncludedX;
                         mapBlockIdToBlockCyclesRecordX.put(blockID,
@@ -1258,7 +1260,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                     }
                     maxY += yMarginStretch;
                     minY -= yMarginStretch;
-                    
+
                     displayOffsetX = 0.0;
                     displayOffsetY = 0.0;
 

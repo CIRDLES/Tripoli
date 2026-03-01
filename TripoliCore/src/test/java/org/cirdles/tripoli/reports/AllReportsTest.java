@@ -37,9 +37,34 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AllReportsTest {
+    // Parameterized Test Source
+    public static Stream<String> generateFilepaths() throws URISyntaxException {
+        System.out.println("🗃️ Generating file paths...");
+
+        String dataFilesDir = "/org/cirdles/tripoli/core/reporting/dataFiles/";
+        Path dataFilesDirPath = Paths.get(Objects.requireNonNull(Tripoli.class.getResource(dataFilesDir)).toURI());
+
+        try {
+            // Recursively visits all files within dataFilesDirPath
+            Stream<Path> pathStream = Files.walk(dataFilesDirPath);
+            System.out.println("✅ File paths generated successfully!");
+            // Filters out oracles generated at build and converts paths into usable filepaths for .getResource()
+            return pathStream
+                    .filter(Files::isRegularFile)
+                    .filter(p -> !p.getFileName().toString().startsWith("New Session-"))
+                    .map(Path::toString)
+                    .map(p -> p.replace("\\", "/"))
+                    .map(p -> p.substring(p.indexOf("/org/")));
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+            return Stream.empty();
+        }
+    }
+
     /**
      * Uses a filepath to generate a full report and then asserts it to a premade Oracle made with the same analysis name
      *
@@ -86,7 +111,8 @@ public class AllReportsTest {
                 // Deserialize the report to test against the Oracle and the Oracle itself
                 actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(actualReportPath)).toURI()), "UTF-8").replaceAll("\\r\\n|\\r|\\n", "\\n");
 
-                expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8").replaceAll("\\r\\n|\\r|\\n", "\\n");;
+                expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8").replaceAll("\\r\\n|\\r|\\n", "\\n");
+                ;
             } catch (NullPointerException | IOException e3) {
                 assertNotNull(actualReport,
                         "Report to test not found for file " + dataFile.getName() + " at: " + actualReportPath);
@@ -98,6 +124,8 @@ public class AllReportsTest {
 
         return new String[]{expectedReport, actualReport};
     }
+
+    //####################################################################################################################//
 
     /**
      * Uses a filepath to generate a short report and then asserts it to a premade Oracle made with the same analysis name
@@ -136,32 +164,6 @@ public class AllReportsTest {
         }
 
         return new String[]{expectedReport, actualReport};
-    }
-
-    //####################################################################################################################//
-
-    // Parameterized Test Source
-    public static Stream<String> generateFilepaths() throws URISyntaxException {
-        System.out.println("🗃️ Generating file paths...");
-
-        String dataFilesDir = "/org/cirdles/tripoli/core/reporting/dataFiles/";
-        Path dataFilesDirPath = Paths.get(Objects.requireNonNull(Tripoli.class.getResource(dataFilesDir)).toURI());
-
-        try {
-            // Recursively visits all files within dataFilesDirPath
-            Stream<Path> pathStream = Files.walk(dataFilesDirPath);
-            System.out.println("✅ File paths generated successfully!");
-            // Filters out oracles generated at build and converts paths into usable filepaths for .getResource()
-            return pathStream
-                    .filter(Files::isRegularFile)
-                    .filter(p -> !p.getFileName().toString().startsWith("New Session-"))
-                    .map(Path::toString)
-                    .map(p -> p.replace("\\", "/"))
-                    .map(p -> p.substring(p.indexOf("/org/")));
-        } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
-            return Stream.empty();
-        }
     }
 
     @ParameterizedTest

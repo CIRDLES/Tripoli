@@ -24,7 +24,7 @@ import java.io.Serializable;
  */
 public class PlotTwo implements Serializable {
     private static final long serialVersionUID = -2288545158821633069L;
-    
+
     private String xAxisUserFunctionName;
     private String yAxisUserFunctionName;
     private String intensityUserFunctionName;

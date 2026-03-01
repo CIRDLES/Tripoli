@@ -53,6 +53,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.SPACES_100;
 public class AnalysisMethod implements Serializable {
     @Serial
     private static final long serialVersionUID = -642166785514147638L;
+    private static List<Report> reportList;
     private final MassSpectrometerContextEnum massSpectrometerContext;
     public Map<String, Boolean> mapOfRatioNamesToInvertedFlag;
     private String methodName;
@@ -64,7 +65,6 @@ public class AnalysisMethod implements Serializable {
     private BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
     private List<UserFunction> userFunctionsModel;
     private boolean useLinearKnots;
-    private static List<Report> reportList;
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
         this(methodName, massSpectrometerContext, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
@@ -85,14 +85,6 @@ public class AnalysisMethod implements Serializable {
 
     public static AnalysisMethod initializeAnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
         return new AnalysisMethod(methodName, massSpectrometerContext);
-    }
-
-    public List<UserFunction> createUserFunctions(){
-        List<UserFunction> userFunctions = new ArrayList<>();
-        for (UserFunction uf : userFunctionsModel){
-            userFunctions.add(uf.copy());
-        }
-        return userFunctions;
     }
 
     public static AnalysisMethod createAnalysisMethodFromCase1(
@@ -133,7 +125,7 @@ public class AnalysisMethod implements Serializable {
             } else {
                 userFunction.setTreatAsIsotopicRatio(false);
                 userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE);
-                if (userFunction.getName().contains("Cycle") || userFunction.getName().contains("Time")){
+                if (userFunction.getName().contains("Cycle") || userFunction.getName().contains("Time")) {
                     userFunction.setDisplayed(false);
                 }
             }
@@ -321,6 +313,14 @@ public class AnalysisMethod implements Serializable {
 //        }
 
         return retVal;
+    }
+
+    public List<UserFunction> createUserFunctions() {
+        List<UserFunction> userFunctions = new ArrayList<>();
+        for (UserFunction uf : userFunctionsModel) {
+            userFunctions.add(uf.copy());
+        }
+        return userFunctions;
     }
 
     public boolean isUseLinearKnots() {
@@ -533,10 +533,12 @@ public class AnalysisMethod implements Serializable {
 
         Collections.sort(derivedIsotopicRatiosList, (ratio1, ratio2) -> ratio1.getNumerator().compareTo(ratio2.getNumerator()));
     }
+
     public List<Report> getReports() {
         if (null == reportList) {
             reportList = new ArrayList<>();
         }
-        return reportList; }
+        return reportList;
+    }
 
 }

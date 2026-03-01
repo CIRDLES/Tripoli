@@ -55,9 +55,10 @@ import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
 
 public class SettingsWindow {
 
+    private static SettingsWindow instance;
     private RatioColorSelectionPane ratioColorSelectionPane;
     private SettingsWindowController settingsWindowController;
-    public static Stage stage;
+    private Stage stage;
     private AnalysisInterface analysis;
     private Map<SpeciesRecordInterface, SpeciesColors> originalSpeciesColors;
     private DelegateActionSet repaintRatiosDelegateActionSet;
@@ -65,11 +66,7 @@ public class SettingsWindow {
     private ArrayList<IsotopePaneRow> isotopePaneRows;
     private SpeciesColorSelectionScrollPane speciesColorSelectionScrollPane;
     private Parameters originalParameters;
-
-
     private SpeciesIntensityColorSelectionScrollPane speciesIntensityColorSelectionScrollPane;
-
-    private static SettingsWindow instance;
 
 
     private SettingsWindow(Window owner, DelegateActionSet delegateActionSet, AnalysisInterface analysis) {
@@ -86,10 +83,10 @@ public class SettingsWindow {
             this.stage.setTitle("Settings");
 
             owner.xProperty().addListener((observable, oldValue, newValue) -> {
-                stage.setX(stage.getX() + newValue.doubleValue()- oldValue.doubleValue());
+                stage.setX(stage.getX() + newValue.doubleValue() - oldValue.doubleValue());
             });
             owner.yProperty().addListener((observable, oldValue, newValue) -> {
-                stage.setY(stage.getY() + newValue.doubleValue()- oldValue.doubleValue());
+                stage.setY(stage.getY() + newValue.doubleValue() - oldValue.doubleValue());
             });
             this.originalParameters = analysis.getParameters().copy();
             this.originalSpeciesColors = new TripoliSpeciesColorMap(
@@ -162,7 +159,7 @@ public class SettingsWindow {
                     }
             );
             initParameterTextFields();
-            
+
             // Hide Intensity/Residuals Color Control tab for case 1
             if (analysis.getAnalysisCaseNumber() == 1) {
                 settingsWindowController.getSettingsTabPane().getTabs().remove(
@@ -173,10 +170,86 @@ public class SettingsWindow {
             e.printStackTrace();
         }
     }
+
+    public static SettingsWindow requestSettingsWindow(
+            Window owner,
+            DelegateActionSet delegateActionSet,
+            AnalysisInterface analysis,
+            SettingsRequestType requestType) {
+        if (instance == null) {
+            instance = new SettingsWindow(owner, delegateActionSet, analysis);
+        } else if (!instance.stage.getOwner().equals(owner) ||
+                !analysis.equals(instance.analysis) ||
+                !delegateActionSet.equals(instance.repaintRatiosDelegateActionSet)) {
+            instance.close();
+            instance = new SettingsWindow(owner, delegateActionSet, analysis);
+        }
+        instance.settingsWindowController.getSettingsTabPane().requestFocus();
+
+        // Hide Intensity/Residuals Color Control tab for case 1
+        if (analysis.getAnalysisCaseNumber() == 1) {
+            instance.settingsWindowController.getSettingsTabPane().getTabs().remove(
+                    instance.settingsWindowController.getIntensitiesColorTab()
+            );
+        }
+
+        switch (SettingsRequestType.valueOf(requestType.name())) {
+            case RATIOS -> {
+                instance.settingsWindowController.getSettingsTabPane().getSelectionModel().select(
+                        instance.settingsWindowController.getRatiosColorTab()
+                );
+            }
+            case INTENSITIES -> {
+                // Only select if tab exists (not case 1)
+                if (instance.settingsWindowController.getSettingsTabPane().getTabs().contains(
+                        instance.settingsWindowController.getIntensitiesColorTab())) {
+                    instance.settingsWindowController.getSettingsTabPane().getSelectionModel().select(
+                            instance.settingsWindowController.getIntensitiesColorTab()
+                    );
+                } else {
+                    // Fallback to ratios tab if intensities tab is hidden
+                    instance.settingsWindowController.getSettingsTabPane().getSelectionModel().select(
+                            instance.settingsWindowController.getRatiosColorTab()
+                    );
+                }
+            }
+            case MENU_ITEM -> {
+                instance.settingsWindowController.getSettingsTabPane().getSelectionModel().select(
+                        instance.settingsWindowController.getParameterControlTab()
+                );
+                if (instance.analysis.getAnalysisMethod() == null || instance.repaintRatiosDelegateActionSet.isEmpty()) {
+                    instance.settingsWindowController.getSettingsTabPane().getTabs().remove(
+                            instance.settingsWindowController.getRatiosColorTab()
+                    );
+                    // Only remove intensities tab if it exists
+                    instance.settingsWindowController.getSettingsTabPane().getTabs().remove(
+                            instance.settingsWindowController.getIntensitiesColorTab()
+                    );
+                }
+            }
+        }
+        return instance;
+    }
+
+    /**
+     * Allows callers to evaluate whether a scene exists in memory.
+     *
+     * @return An `Optional` wrapper for the current scene, or `Optional.empty()`
+     */
+    public static Optional<Scene> getCurrentScene() {
+        Optional<Scene> optionalScene = Optional.empty();
+        if (instance != null &&
+                instance.getStage() != null &&
+                instance.getStage().getScene() != null) {
+            optionalScene = Optional.of(instance.getStage().getScene());
+        }
+        return optionalScene;
+    }
+
     private void handleLiveDataMenuHidden() {
         MenuItem liveDataMenuItem = ((MenuBar) TripoliGUI.primaryStage.getScene()
                 .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(4);
-                liveDataMenuItem.setVisible(analysis.getParameters().getMassSpectrometerContext().getMassSpectrometerName().equals("Phoenix"));
+        liveDataMenuItem.setVisible(analysis.getParameters().getMassSpectrometerContext().getMassSpectrometerName().equals("Phoenix"));
     }
 
     private void initParameterTextFields() {
@@ -228,7 +301,7 @@ public class SettingsWindow {
 
     private void initProbabilitySpinner() {
         Spinner<Double> probabilitySpinner = settingsWindowController.getChauvenetRejectionProbabilitySpinner();
-        probabilitySpinner.setValueFactory( new SpinnerValueFactory.DoubleSpinnerValueFactory(
+        probabilitySpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(
                 0.0,
                 1.0,
                 analysis.getParameters().getChauvenetRejectionProbability(), 0.05));
@@ -261,13 +334,13 @@ public class SettingsWindow {
             }
         });
         probabilitySpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-           analysis.getParameters().setChauvenetRejectionProbability(newValue);
+            analysis.getParameters().setChauvenetRejectionProbability(newValue);
         });
     }
 
     private void initDatumCountSpinner() {
         Spinner<Integer> datumCountSpinner = settingsWindowController.getChauvenetMinimumDatumCountSpinner();
-        datumCountSpinner.setValueFactory( new SpinnerValueFactory.IntegerSpinnerValueFactory(
+        datumCountSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(
                 20,
                 300,
                 analysis.getParameters().getRequiredMinDatumCount(),
@@ -287,7 +360,7 @@ public class SettingsWindow {
                 if (value == null) {
                     return "";
                 }
-                return String.format("%d",value);
+                return String.format("%d", value);
             }
 
             @Override
@@ -307,11 +380,11 @@ public class SettingsWindow {
     private void initScalingDotSizeSpinners() {
         Spinner<Double> minSizeSpinner = settingsWindowController.getScalingDotMinSizeSpinner();
         Spinner<Double> maxSizeSpinner = settingsWindowController.getScalingDotMaxSizeSpinner();
-        
+
         // Get current values, using system defaults if uninitialized (0.0 indicates old serialized Parameters)
         double currentMin = analysis.getParameters().getScalingDotMinSize();
         double currentMax = analysis.getParameters().getScalingDotMaxSize();
-        
+
         // If values are 0.0, they're likely from old serialization - use system defaults
         if (currentMin == 0.0 && currentMax == 0.0) {
             currentMin = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MIN_SIZE;
@@ -319,7 +392,7 @@ public class SettingsWindow {
             analysis.getParameters().setScalingDotMinSize(currentMin);
             analysis.getParameters().setScalingDotMaxSize(currentMax);
         }
-        
+
         // Initialize min size spinner (range 2-50, default 5)
         // Max value of min spinner will be dynamically adjusted based on current max value
         SpinnerValueFactory.DoubleSpinnerValueFactory minValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(
@@ -328,10 +401,10 @@ public class SettingsWindow {
                 currentMin,
                 1.0);
         minSizeSpinner.setValueFactory(minValueFactory);
-        
+
         // Set initial max for min spinner to current max value
         minValueFactory.setMax(currentMax);
-        
+
         minSizeSpinner.addEventFilter(KeyEvent.KEY_TYPED, event -> {
             String input = event.getCharacter();
             if (!input.matches("[0-9.]") || (input.equals(".") && minSizeSpinner.getEditor().getText().contains("."))) {
@@ -375,7 +448,7 @@ public class SettingsWindow {
                 }
             }
         });
-        
+
         // Initialize max size spinner (range 2-50, default 20)
         // Min value of max spinner will be dynamically adjusted based on current min value
         SpinnerValueFactory.DoubleSpinnerValueFactory maxValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(
@@ -384,10 +457,10 @@ public class SettingsWindow {
                 currentMax,
                 1.0);
         maxSizeSpinner.setValueFactory(maxValueFactory);
-        
+
         // Set initial min for max spinner to current min value
         maxValueFactory.setMin(currentMin);
-        
+
         maxSizeSpinner.addEventFilter(KeyEvent.KEY_TYPED, event -> {
             String input = event.getCharacter();
             if (!input.matches("[0-9.]") || (input.equals(".") && maxSizeSpinner.getEditor().getText().contains("."))) {
@@ -433,7 +506,7 @@ public class SettingsWindow {
                 }
             }
         });
-        
+
         // Also update max spinner's min when min changes
         minSizeSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -442,69 +515,9 @@ public class SettingsWindow {
         });
     }
 
-    public static SettingsWindow requestSettingsWindow(
-            Window owner,
-            DelegateActionSet delegateActionSet,
-            AnalysisInterface analysis,
-            SettingsRequestType requestType) {
-        if (instance == null) {
-            instance = new SettingsWindow(owner, delegateActionSet, analysis);
-        }
-        else if (!instance.stage.getOwner().equals(owner) ||
-                !analysis.equals(instance.analysis) ||
-                !delegateActionSet.equals(instance.repaintRatiosDelegateActionSet)) {
-            instance.close();
-            instance = new SettingsWindow(owner, delegateActionSet, analysis);
-        }
-        instance.settingsWindowController.getSettingsTabPane().requestFocus();
-        
-        // Hide Intensity/Residuals Color Control tab for case 1
-        if (analysis.getAnalysisCaseNumber() == 1) {
-                instance.settingsWindowController.getSettingsTabPane().getTabs().remove(
-                        instance.settingsWindowController.getIntensitiesColorTab()
-            );
-        }
-        
-        switch (SettingsRequestType.valueOf(requestType.name())) {
-            case RATIOS -> {
-                instance.settingsWindowController.getSettingsTabPane().getSelectionModel().select(
-                        instance.settingsWindowController.getRatiosColorTab()
-                );
-            }
-            case INTENSITIES -> {
-                // Only select if tab exists (not case 1)
-                if (instance.settingsWindowController.getSettingsTabPane().getTabs().contains(
-                        instance.settingsWindowController.getIntensitiesColorTab())) {
-                    instance.settingsWindowController.getSettingsTabPane().getSelectionModel().select(
-                            instance.settingsWindowController.getIntensitiesColorTab()
-                    );
-                } else {
-                    // Fallback to ratios tab if intensities tab is hidden
-                    instance.settingsWindowController.getSettingsTabPane().getSelectionModel().select(
-                            instance.settingsWindowController.getRatiosColorTab()
-                    );
-                }
-            }
-            case MENU_ITEM -> {
-                instance.settingsWindowController.getSettingsTabPane().getSelectionModel().select(
-                        instance.settingsWindowController.getParameterControlTab()
-                );
-                if (instance.analysis.getAnalysisMethod() == null || instance.repaintRatiosDelegateActionSet.isEmpty()) {
-                    instance.settingsWindowController.getSettingsTabPane().getTabs().remove(
-                            instance.settingsWindowController.getRatiosColorTab()
-                    );
-                    // Only remove intensities tab if it exists
-                    instance.settingsWindowController.getSettingsTabPane().getTabs().remove(
-                            instance.settingsWindowController.getIntensitiesColorTab()
-                    );
-                }
-            }
-        }
-        return instance;
+    public Stage getStage() {
+        return stage;
     }
-
-    public Stage getStage() {return stage;}
-
 
     private void centerOverOwner() {
         Window owner = stage.getOwner();
@@ -559,7 +572,7 @@ public class SettingsWindow {
             }
         });
         settingsWindowController.getSaveAsUserDefaultsButton().setOnAction(e -> {
-            try{
+            try {
                 TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
                 tripoliPersistentState.getTripoliPersistentParameters().setMassSpectrometerContext(
                         analysis.getParameters().getMassSpectrometerContext());
@@ -596,27 +609,27 @@ public class SettingsWindow {
             // Get values from session defaults
             double minSize = currentSession.getSessionDefaultParameters().getScalingDotMinSize();
             double maxSize = currentSession.getSessionDefaultParameters().getScalingDotMaxSize();
-            
+
             // If both are 0.0, they're likely from old serialization - use system defaults
             if (minSize == 0.0 && maxSize == 0.0) {
                 minSize = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MIN_SIZE;
                 maxSize = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MAX_SIZE;
             }
-            
+
             // Update analysis parameters
             analysis.getParameters().setScalingDotMinSize(minSize);
             analysis.getParameters().setScalingDotMaxSize(maxSize);
-            
+
             // Update spinner value factories - need to update ranges first
-            SpinnerValueFactory.DoubleSpinnerValueFactory minValueFactory = 
+            SpinnerValueFactory.DoubleSpinnerValueFactory minValueFactory =
                     (SpinnerValueFactory.DoubleSpinnerValueFactory) settingsWindowController.getScalingDotMinSizeSpinner().getValueFactory();
-            SpinnerValueFactory.DoubleSpinnerValueFactory maxValueFactory = 
+            SpinnerValueFactory.DoubleSpinnerValueFactory maxValueFactory =
                     (SpinnerValueFactory.DoubleSpinnerValueFactory) settingsWindowController.getScalingDotMaxSizeSpinner().getValueFactory();
-            
+
             // Update ranges to allow the new values
             minValueFactory.setMax(maxSize);
             maxValueFactory.setMin(minSize);
-            
+
             // Now set the values using the spinner's value factory (same pattern as other parameters)
             settingsWindowController.getScalingDotMinSizeSpinner().getValueFactory().setValue(minSize);
             settingsWindowController.getScalingDotMaxSizeSpinner().getValueFactory().setValue(maxSize);
@@ -631,7 +644,7 @@ public class SettingsWindow {
             updateRatioColorSelectionPane();
         });
         settingsWindowController.getRestoreUserDefaultsButton().setOnAction(e -> {
-            try{
+            try {
                 TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
                 analysis.getParameters().setRequiredMinDatumCount(
                         tripoliPersistentState.getTripoliPersistentParameters().getRequiredMinDatumCount()
@@ -648,21 +661,21 @@ public class SettingsWindow {
                 // Get values from persistent state, use system defaults if uninitialized (backward compatibility)
                 double minSize = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MIN_SIZE;
                 double maxSize = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MAX_SIZE;
-                
+
                 // Update analysis parameters
                 analysis.getParameters().setScalingDotMinSize(minSize);
                 analysis.getParameters().setScalingDotMaxSize(maxSize);
-                
+
                 // Update spinner value factories - need to update ranges first
-                SpinnerValueFactory.DoubleSpinnerValueFactory minValueFactory = 
+                SpinnerValueFactory.DoubleSpinnerValueFactory minValueFactory =
                         (SpinnerValueFactory.DoubleSpinnerValueFactory) settingsWindowController.getScalingDotMinSizeSpinner().getValueFactory();
-                SpinnerValueFactory.DoubleSpinnerValueFactory maxValueFactory = 
+                SpinnerValueFactory.DoubleSpinnerValueFactory maxValueFactory =
                         (SpinnerValueFactory.DoubleSpinnerValueFactory) settingsWindowController.getScalingDotMaxSizeSpinner().getValueFactory();
-                
+
                 // Update ranges to allow the new values
                 minValueFactory.setMax(maxSize);
                 maxValueFactory.setMin(minSize);
-                
+
                 // Now set the values using the spinner's value factory (same pattern as other parameters)
                 settingsWindowController.getScalingDotMinSizeSpinner().getValueFactory().setValue(minSize);
                 settingsWindowController.getScalingDotMaxSizeSpinner().getValueFactory().setValue(maxSize);
@@ -690,30 +703,30 @@ public class SettingsWindow {
             analysis.getParameters().setRequiredMinDatumCount(originalParameters.getRequiredMinDatumCount());
             double minSize = originalParameters.getScalingDotMinSize();
             double maxSize = originalParameters.getScalingDotMaxSize();
-            
+
             // If both are 0.0, they're likely from old serialization - use system defaults
             if (minSize == 0.0 && maxSize == 0.0) {
                 minSize = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MIN_SIZE;
                 maxSize = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MAX_SIZE;
             }
-            
+
             analysis.getParameters().setScalingDotMinSize(minSize);
             analysis.getParameters().setScalingDotMaxSize(maxSize);
             settingsWindowController.getChauvenetRejectionProbabilitySpinner().getValueFactory().setValue(
                     originalParameters.getChauvenetRejectionProbability());
             settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
                     originalParameters.getRequiredMinDatumCount());
-            
+
             // Update spinner value factories - need to update ranges first
-            SpinnerValueFactory.DoubleSpinnerValueFactory minValueFactory = 
+            SpinnerValueFactory.DoubleSpinnerValueFactory minValueFactory =
                     (SpinnerValueFactory.DoubleSpinnerValueFactory) settingsWindowController.getScalingDotMinSizeSpinner().getValueFactory();
-            SpinnerValueFactory.DoubleSpinnerValueFactory maxValueFactory = 
+            SpinnerValueFactory.DoubleSpinnerValueFactory maxValueFactory =
                     (SpinnerValueFactory.DoubleSpinnerValueFactory) settingsWindowController.getScalingDotMaxSizeSpinner().getValueFactory();
-            
+
             // Update ranges to allow the new values
             minValueFactory.setMax(maxSize);
             maxValueFactory.setMin(minSize);
-            
+
             // Now set the values using the spinner's value factory (same pattern as other parameters)
             settingsWindowController.getScalingDotMinSizeSpinner().getValueFactory().setValue(minSize);
             settingsWindowController.getScalingDotMaxSizeSpinner().getValueFactory().setValue(maxSize);
@@ -723,7 +736,7 @@ public class SettingsWindow {
             ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().putAll(
                     originalSpeciesColors
             );
-            for(IsotopePaneRow row : isotopePaneRows) {
+            for (IsotopePaneRow row : isotopePaneRows) {
                 row.speciesColorsProperty().set(originalSpeciesColors.get(row.getSpeciesRecord()));
             }
             repaintRatiosDelegateActionSet.executeDelegateActions();
@@ -737,26 +750,12 @@ public class SettingsWindow {
                 SpeciesIntensityColorSelectionPane::updateColorProperties);
     }
 
-    /**
-     * Allows callers to evaluate whether a scene exists in memory.
-     * @return An `Optional` wrapper for the current scene, or `Optional.empty()`
-     */
-    public static Optional<Scene> getCurrentScene() {
-        Optional<Scene> optionalScene = Optional.empty();
-        if (instance != null &&
-                instance.getStage() != null &&
-                instance.getStage().getScene() != null) {
-            optionalScene = Optional.of(instance.getStage().getScene());
-        }
-        return optionalScene;
-    }
-
     public void close() {
         instance = null;
         stage.close();
     }
 
-    public void show(){
+    public void show() {
         stage.show();
         centerOverOwner();
     }

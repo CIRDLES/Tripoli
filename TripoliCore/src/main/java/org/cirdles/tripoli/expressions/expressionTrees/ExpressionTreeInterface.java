@@ -25,10 +25,12 @@ import java.util.Map;
 public interface ExpressionTreeInterface {
 
     Double[][] eval(AnalysisInterface analysis);
+
     Double[][] eval(String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite);
 
     int getOperationPrecedence();
 
     String getName();
+
     void setName(String newName);
 }

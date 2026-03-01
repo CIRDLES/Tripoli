@@ -24,7 +24,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
 
 import java.io.File;
 import java.net.URL;
@@ -32,7 +31,6 @@ import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
-import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectMethodFolder;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectSampleMetaDataFolder;
 
 public class SettingsWindowController implements Initializable {
@@ -169,7 +167,7 @@ public class SettingsWindowController implements Initializable {
     }
 
     public void selectSampleMetaDataFolderButtonAction() {
-        File sampleMetaDataFolder = selectSampleMetaDataFolder(SettingsWindow.stage.getOwner());
+        File sampleMetaDataFolder = selectSampleMetaDataFolder(primaryStageWindow);
         if (sampleMetaDataFolder == null) return;
         tripoliPersistentState.getTripoliPersistentParameters()
                 .setSampleMetaDataFolderPath(sampleMetaDataFolder.getAbsolutePath());

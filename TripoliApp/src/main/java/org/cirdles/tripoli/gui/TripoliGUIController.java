@@ -32,10 +32,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.cirdles.tripoli.sessions.analysis.Analysis;
-import org.cirdles.tripoli.sessions.analysis.imports.OgTripoliImporter;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
-import org.cirdles.tripoli.utilities.file.FileWatcher;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
@@ -50,30 +46,40 @@ import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.gui.utilities.events.SaveCurrentSessionEvent;
 import org.cirdles.tripoli.gui.utilities.events.SaveSessionAsEvent;
+import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.imports.OgTripoliImporter;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.file.FileWatcher;
 import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.Nullable;
-import org.cirdles.tripoli.reports.Report;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
+import java.util.List;
+import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.ogTripoliPreviewPlotsWindow;
+import static org.cirdles.tripoli.gui.SessionManagerController.listOfSelectedAnalyses;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
@@ -82,7 +88,6 @@ import static org.cirdles.tripoli.sessions.SessionBuiltinFactory.TRIPOLI_DEMONST
 import static org.cirdles.tripoli.sessions.analysis.AnalysisInterface.initializeNewAnalysis;
 import static org.cirdles.tripoli.utilities.comparators.LiveDataEntryComparator.blockCycleComparator;
 import static org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer.serializeObjectToFile;
-import static org.cirdles.tripoli.gui.SessionManagerController.listOfSelectedAnalyses;
 
 /**
  * @author James F. Bowring
@@ -126,6 +131,13 @@ public class TripoliGUIController implements Initializable {
     public MenuItem processLiveDataMenuItem;
     @FXML
     public MenuItem importAnalysisMenuItem;
+    Thread liveDataLogThread;
+    FileWatcher liveDataLogWatcher;
+    Thread liveDataFinishFileThread;
+    FileWatcher liveDataFinishFileWatcher;
+    Thread liveDataStatusThread;
+    FileWatcher liveDataStatusWatcher;
+    PhoenixLiveData phoenixLiveData;
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
     @FXML // URL location of the FXML file that was given to the FXMLLoader
@@ -152,14 +164,6 @@ public class TripoliGUIController implements Initializable {
     private MenuItem settingsMenuMenuItem;
     @FXML
     private AnchorPane splashAnchor;
-    Thread liveDataLogThread;
-    FileWatcher liveDataLogWatcher;
-    Thread liveDataFinishFileThread;
-    FileWatcher liveDataFinishFileWatcher;
-    Thread liveDataStatusThread;
-    FileWatcher liveDataStatusWatcher;
-    PhoenixLiveData phoenixLiveData;
-
 
     public static void quit() {
         try {
@@ -173,6 +177,111 @@ public class TripoliGUIController implements Initializable {
         System.exit(0);
     }
 
+    public static void handleExpressionsInSavedSession() {
+        List<AnalysisInterface> listOfAnalyses = tripoliSession.getMapOfAnalyses().values().stream().toList();
+
+        StringBuilder expressionDiffReport = new StringBuilder();
+        String headerLeft = "[" + tripoliSession.getSessionName() + "]";
+        String headerRight = "Method Defaults";
+        expressionDiffReport.append(String.format("%-" + 60 + "s%s%n", headerLeft, headerRight));
+
+        boolean expressionMismatch = false;
+        boolean proceed = true;
+
+        for (AnalysisInterface analysisSingleton : listOfAnalyses) {
+            List<UserFunction> customExpressionsInAnalysis = analysisSingleton.getUserFunctions().stream()
+                    .filter(UserFunction::isTreatAsCustomExpression)
+                    .toList();
+
+            String methodName = analysisSingleton.getMassSpecExtractedData().getHeader().methodName();
+
+            AnalysisMethodPersistance analysisMethodPersistance =
+                    tripoliPersistentState.getMapMethodNamesToDefaults().get(methodName);
+
+            if (analysisMethodPersistance == null) {
+                proceed = false;
+                expressionDiffReport.append("No method definition found for method: ")
+                        .append(methodName)
+                        .append("\n\n");
+                continue;
+            }
+
+            List<UserFunction> customExpressionsInMethod = analysisMethodPersistance.getExpressionUserFunctionList();
+
+            boolean foundMismatch = false;
+
+            // Mismatch: in analysis but not in method
+            for (UserFunction customExpression : customExpressionsInAnalysis) {
+                boolean foundInMethod = customExpressionsInMethod.stream()
+                        .anyMatch(methodExpr -> methodExpr.getName().equals(customExpression.getName()));
+                if (!foundInMethod) {
+                    foundMismatch = true;
+                    break;
+                }
+            }
+
+            // Mismatch: in method but not in analysis
+            for (UserFunction methodExpression : customExpressionsInMethod) {
+                boolean foundInAnalysis = customExpressionsInAnalysis.stream()
+                        .anyMatch(analysisExpr -> analysisExpr.getName().equals(methodExpression.getName()));
+                if (!foundInAnalysis) {
+                    foundMismatch = true;
+                    break;
+                }
+            }
+
+            if (foundMismatch) {
+                expressionMismatch = true;
+
+                String secondLineLeft = "[" + analysisSingleton.getAnalysisName() + "] Custom Expressions";
+
+                expressionDiffReport.append(String.format("%-" + 60 + "s%n", secondLineLeft));
+
+                int maxRows = Math.max(customExpressionsInMethod.size(), customExpressionsInAnalysis.size());
+                for (int i = 0; i < maxRows; i++) {
+                    String sessionExpr = i < customExpressionsInAnalysis.size()
+                            ? customExpressionsInAnalysis.get(i).getName()
+                            : "";
+                    String methodExpr = i < customExpressionsInMethod.size()
+                            ? customExpressionsInMethod.get(i).getName()
+                            : "";
+
+
+                    expressionDiffReport.append(String.format("%-" + 60 + "s%s%n", sessionExpr, methodExpr));
+                }
+
+                expressionDiffReport.append("\n\n");
+            }
+        }
+
+        if (expressionMismatch) {
+            proceed = TripoliMessageDialog.showSessionDiffDialog(
+                    String.valueOf(expressionDiffReport), primaryStageWindow);
+        }
+
+        if (proceed) {
+            for (AnalysisInterface analysisSingleton : listOfAnalyses) {
+                List<UserFunction> functionsToRemove = analysisSingleton.getUserFunctions().stream()
+                        .filter(UserFunction::isTreatAsCustomExpression)
+                        .toList();
+
+                analysisSingleton.getUserFunctions().removeAll(functionsToRemove);
+
+                AnalysisMethodPersistance analysisMethodPersistance =
+                        tripoliPersistentState.getMapMethodNamesToDefaults().get(analysisSingleton.getMassSpecExtractedData().getHeader().methodName());
+
+                List<UserFunction> customExpressionInAnalysisMethod = analysisMethodPersistance.getExpressionUserFunctionList();
+
+                analysisSingleton.getUserFunctions().addAll(customExpressionInAnalysisMethod);
+
+                tripoliSession.setExpressionRefreshed(true);
+            }
+        } else {
+            tripoliSession.setExpressionRefreshed(false);
+        }
+
+    }
+
     /**
      * @param location  The location used to resolve relative paths for the root object, or
      *                  {@code null} if the location is not known.
@@ -183,19 +292,19 @@ public class TripoliGUIController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         primaryStage.getScene().addEventFilter(SaveSessionAsEvent.SAVE_SESSION_AS_EVENT_EVENT_TYPE,
                 saveSessionAsEvent -> {
-                    try{
+                    try {
                         saveSessionAsMenuItemAction();
-                    } catch ( TripoliException ex) {
+                    } catch (TripoliException ex) {
                         ex.printStackTrace();
                     } finally {
                         saveSessionAsEvent.consume();
                     }
-        });
+                });
         primaryStage.getScene().addEventFilter(SaveCurrentSessionEvent.SAVE_CURRENT_SESSION_EVENT,
                 saveCurrentSessionEvent -> {
-                saveSessionMenuItemAction();
-                saveCurrentSessionEvent.consume();
-        });
+                    saveSessionMenuItemAction();
+                    saveCurrentSessionEvent.consume();
+                });
         versionLabel.setText("v" + Tripoli.VERSION);
         versionBuildDate.setText(Tripoli.RELEASE_DATE);
         MCMCPlotsWindow = new MCMCPlotsWindow(primaryStage, null);
@@ -407,13 +516,17 @@ public class TripoliGUIController implements Initializable {
 
         Report fullReport = Report.createFullReport("Full Report", analysis);
         MenuItem menuItem = new MenuItem(fullReport.getReportName());
-        menuItem.setOnAction((ActionEvent t) -> {openCustomReport(fullReport);});
+        menuItem.setOnAction((ActionEvent t) -> {
+            openCustomReport(fullReport);
+        });
         customReportMenu.getItems().add(0, menuItem);
 
         for (Report report : reportTreeList) {
             customReportMenu.getItems().add(1, new SeparatorMenuItem());
             menuItem = new MenuItem(report.getReportName());
-            menuItem.setOnAction((ActionEvent t) -> {openCustomReport(report);});
+            menuItem.setOnAction((ActionEvent t) -> {
+                openCustomReport(report);
+            });
             customReportMenu.getItems().add(menuItem);
         }
     }
@@ -427,7 +540,7 @@ public class TripoliGUIController implements Initializable {
 
         if (listOfSelectedAnalyses.stream()
                 .allMatch(analysis ->
-                        analysis.getMethod().getMethodName().equals(referenceMethodName))){
+                        analysis.getMethod().getMethodName().equals(referenceMethodName))) {
             ReportBuilderController.loadReportBuilder(report, listOfSelectedAnalyses);
         } else {
             TripoliMessageDialog.showWarningDialog("All selected analyses must have the same method name.", primaryStage);
@@ -483,111 +596,6 @@ public class TripoliGUIController implements Initializable {
                 throw new IOException();
             }
         }
-    }
-
-    public static void handleExpressionsInSavedSession() {
-        List<AnalysisInterface> listOfAnalyses = tripoliSession.getMapOfAnalyses().values().stream().toList();
-
-        StringBuilder expressionDiffReport = new StringBuilder();
-        String headerLeft = "[" + tripoliSession.getSessionName() + "]";
-        String headerRight = "Method Defaults";
-        expressionDiffReport.append(String.format("%-" + 60 + "s%s%n", headerLeft, headerRight));
-
-        boolean expressionMismatch = false;
-        boolean proceed = true;
-
-        for (AnalysisInterface analysisSingleton : listOfAnalyses) {
-            List<UserFunction> customExpressionsInAnalysis = analysisSingleton.getUserFunctions().stream()
-                    .filter(UserFunction::isTreatAsCustomExpression)
-                    .toList();
-
-            String methodName = analysisSingleton.getMassSpecExtractedData().getHeader().methodName();
-
-            AnalysisMethodPersistance analysisMethodPersistance =
-                    tripoliPersistentState.getMapMethodNamesToDefaults().get(methodName);
-
-            if (analysisMethodPersistance == null) {
-                proceed = false;
-                expressionDiffReport.append("No method definition found for method: ")
-                        .append(methodName)
-                        .append("\n\n");
-                continue;
-            }
-
-            List<UserFunction> customExpressionsInMethod = analysisMethodPersistance.getExpressionUserFunctionList();
-
-            boolean foundMismatch = false;
-
-            // Mismatch: in analysis but not in method
-            for (UserFunction customExpression : customExpressionsInAnalysis) {
-                boolean foundInMethod = customExpressionsInMethod.stream()
-                        .anyMatch(methodExpr -> methodExpr.getName().equals(customExpression.getName()));
-                if (!foundInMethod) {
-                    foundMismatch = true;
-                    break;
-                }
-            }
-
-            // Mismatch: in method but not in analysis
-            for (UserFunction methodExpression : customExpressionsInMethod) {
-                boolean foundInAnalysis = customExpressionsInAnalysis.stream()
-                        .anyMatch(analysisExpr -> analysisExpr.getName().equals(methodExpression.getName()));
-                if (!foundInAnalysis) {
-                    foundMismatch = true;
-                    break;
-                }
-            }
-
-            if (foundMismatch) {
-                expressionMismatch = true;
-
-                String secondLineLeft = "[" + analysisSingleton.getAnalysisName() + "] Custom Expressions";
-
-                expressionDiffReport.append(String.format("%-" + 60 + "s%n", secondLineLeft));
-
-                int maxRows = Math.max(customExpressionsInMethod.size(), customExpressionsInAnalysis.size());
-                for (int i = 0; i < maxRows; i++) {
-                    String sessionExpr = i < customExpressionsInAnalysis.size()
-                            ? customExpressionsInAnalysis.get(i).getName()
-                            : "";
-                    String methodExpr = i < customExpressionsInMethod.size()
-                            ? customExpressionsInMethod.get(i).getName()
-                            : "";
-
-
-                    expressionDiffReport.append(String.format("%-" + 60 + "s%s%n", sessionExpr, methodExpr));
-                }
-
-                expressionDiffReport.append("\n\n");
-            }
-        }
-
-        if (expressionMismatch){
-            proceed = TripoliMessageDialog.showSessionDiffDialog(
-                    String.valueOf(expressionDiffReport), primaryStageWindow);
-        }
-
-        if (proceed) {
-            for (AnalysisInterface analysisSingleton : listOfAnalyses) {
-                List<UserFunction> functionsToRemove = analysisSingleton.getUserFunctions().stream()
-                        .filter(UserFunction::isTreatAsCustomExpression)
-                        .toList();
-
-                analysisSingleton.getUserFunctions().removeAll(functionsToRemove);
-
-                AnalysisMethodPersistance analysisMethodPersistance =
-                        tripoliPersistentState.getMapMethodNamesToDefaults().get(analysisSingleton.getMassSpecExtractedData().getHeader().methodName());
-
-                List<UserFunction> customExpressionInAnalysisMethod = analysisMethodPersistance.getExpressionUserFunctionList();
-
-                analysisSingleton.getUserFunctions().addAll(customExpressionInAnalysisMethod);
-
-                tripoliSession.setExpressionRefreshed(true);
-            }
-        } else {
-            tripoliSession.setExpressionRefreshed(false);
-        }
-
     }
 
     public void openDemonstrationSessionMenuItemAction() throws IOException, TripoliException {
@@ -686,7 +694,7 @@ public class TripoliGUIController implements Initializable {
         if (analysis != null) {
             removeAllManagers();
 
-            if(((Analysis)analysis).hasMemberAnalyses()) {
+            if (((Analysis) analysis).hasMemberAnalyses()) {
                 ((Analysis) analysis).updateConcatenatedAnalysis();
             }
 
@@ -841,12 +849,12 @@ public class TripoliGUIController implements Initializable {
     public void processLiveData() throws IOException, TripoliException {
         // Handles halting the processing. Two active cases are either:
         // Logs & Finish watchers are running OR Status watcher is running
-        if (liveDataLogThread != null && liveDataLogThread.isAlive()){
+        if (liveDataLogThread != null && liveDataLogThread.isAlive()) {
             liveDataLogWatcher.stop();
             liveDataFinishFileWatcher.stop();
             processLiveDataMenuItem.textProperty().set("Start LiveData");
             return;
-        } else if (liveDataStatusThread != null && liveDataStatusThread.isAlive()){
+        } else if (liveDataStatusThread != null && liveDataStatusThread.isAlive()) {
             liveDataStatusWatcher.stop();
             processLiveDataMenuItem.textProperty().set("Start LiveData");
             return;
@@ -861,11 +869,11 @@ public class TripoliGUIController implements Initializable {
                 if (methodFolder == null) return; // User cancelled, bail
                 liveDataFolderPath = PhoenixLiveData.getLiveDataFolderPath(methodFolder);
                 // Handle data file folder
-            } else if (new File (Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent() + File.separator + "LiveDataStatus.txt").exists()) {
+            } else if (new File(Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent() + File.separator + "LiveDataStatus.txt").exists()) {
                 Path mruDataFolderPath = Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent();
                 liveDataFolderPath = PhoenixLiveData.getLiveDataFolderPath(mruDataFolderPath.toFile());
                 // Handle root folder
-            } else if (new File (Path.of(tripoliPersistentState.getMRUDataFileFolderPath()) + File.separator + "LiveDataStatus.txt").exists()){
+            } else if (new File(Path.of(tripoliPersistentState.getMRUDataFileFolderPath()) + File.separator + "LiveDataStatus.txt").exists()) {
                 Path mruDataFolderPath = Path.of(tripoliPersistentState.getMRUDataFileFolderPath());
                 liveDataFolderPath = PhoenixLiveData.getLiveDataFolderPath(mruDataFolderPath.toFile());
             } else {
@@ -899,7 +907,8 @@ public class TripoliGUIController implements Initializable {
                 .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
         menuItemSessionManager.fire();
     }
-    private void removeAnalysisFromSession(AnalysisInterface analysisToRemove){
+
+    private void removeAnalysisFromSession(AnalysisInterface analysisToRemove) {
         if (tripoliSession == null) {
             return;
         }
@@ -912,6 +921,7 @@ public class TripoliGUIController implements Initializable {
     /**
      * Resets the analysis data used in live data to allow the plots data to recalculate with every update. Calls the plots window
      * on the first update.
+     *
      * @param liveDataAnalysis The analysis that holds the livedata points
      */
     public void onLiveDataUpdated(AnalysisInterface liveDataAnalysis) {
@@ -968,6 +978,7 @@ public class TripoliGUIController implements Initializable {
 
         }
     }
+
     private void waitForLiveDataStatusUpdate(Path parentFolder) throws IOException {
         liveDataStatusWatcher = new FileWatcher(parentFolder, (filePath, kind) -> {
             if (kind == StandardWatchEventKinds.ENTRY_MODIFY &&
@@ -997,6 +1008,7 @@ public class TripoliGUIController implements Initializable {
         liveDataStatusThread.setDaemon(true);
         liveDataStatusThread.start();
     }
+
     private void processLiveDataOnNewFolder(Path liveDataFolderPath) throws TripoliException {
         phoenixLiveData = new PhoenixLiveData();
         ogTripoliPreviewPlotsWindow = null;
