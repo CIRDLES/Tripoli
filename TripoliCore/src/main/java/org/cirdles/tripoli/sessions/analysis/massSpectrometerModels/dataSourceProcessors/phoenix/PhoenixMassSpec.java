@@ -53,7 +53,6 @@ public enum PhoenixMassSpec {
         int cycleCount;
         int countOfHeaderLines = 16;
 
-
         try {
             WorkbookSettings workbookSettings = new WorkbookSettings();
             workbookSettings.setSuppressWarnings(true);
@@ -81,7 +80,7 @@ public enum PhoenixMassSpec {
             date = DateUtils.parseDate(analysisStartTime,
                     new String[]{"yyyy-MM-dd hh:mm:ss", "dd/MM-yyyy", "E d MMMM yyyy hh:mm:ss", "MM/dd/yyyy hh:mm:ss", "dd.MM.yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "y/m/d"});
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e);
         }
         if (date != null) {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

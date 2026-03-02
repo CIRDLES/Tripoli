@@ -249,18 +249,16 @@ public enum FileHandlerUtil {
     public static void saveExportFile(ETReduxFraction etReduxFraction, Window ownerWindow)
             throws IOException, TripoliException {
 
-        DirectoryChooser dirChooser = new DirectoryChooser();
-        dirChooser.setTitle("Select Export Folder");
-        File userHome = new File(File.separator + TripoliPersistentState.getExistingPersistentState().getMRUExportFolderPath());
-        dirChooser.setInitialDirectory(userHome.isDirectory() ? userHome : null);
-        File directory = dirChooser.showDialog(ownerWindow);
-        if (null != directory) {
-            TripoliPersistentState.getExistingPersistentState().setMRUExportFolderPath(directory.getPath());
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Fraction '.xml' file");
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("ET_Redux Fraction files", "*.xml"));
+        File initDirectory = new File(tripoliPersistentState.getMRUSessionFolderPath());
+        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+        String fileName = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
+        fileChooser.setInitialFileName(fileName);
+        File fractionFileNew = fileChooser.showSaveDialog(ownerWindow);
 
-            String fileName = directory + File.separator +
-                    etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
-            etReduxFraction.serializeXMLObject(fileName);
-        }
+        etReduxFraction.serializeXMLObject(fractionFileNew.getAbsolutePath());
     }
 
     public static File selectImportFile(Window ownerWindow) throws TripoliException {

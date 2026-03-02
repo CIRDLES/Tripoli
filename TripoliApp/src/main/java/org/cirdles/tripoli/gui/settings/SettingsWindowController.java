@@ -171,6 +171,7 @@ public class SettingsWindowController implements Initializable {
         if (sampleMetaDataFolder == null) return;
         tripoliPersistentState.getTripoliPersistentParameters()
                 .setSampleMetaDataFolderPath(sampleMetaDataFolder.getAbsolutePath());
+        tripoliPersistentState.updateTripoliPersistentState();
         sampleMetaDataFolderTextArea.setText(sampleMetaDataFolder.getAbsolutePath());
     }
 }
