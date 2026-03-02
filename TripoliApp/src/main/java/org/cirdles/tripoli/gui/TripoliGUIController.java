@@ -634,8 +634,6 @@ public class TripoliGUIController implements Initializable {
                 detectMassSpecContext();
                 buildSessionMenuMRU();
                 launchSessionManager();
-//                runSaveMenuDisableCheck = true;
-//                squidProjectOriginalHash = squidProject.hashCode();
             }
 
         } catch (IOException ex) {

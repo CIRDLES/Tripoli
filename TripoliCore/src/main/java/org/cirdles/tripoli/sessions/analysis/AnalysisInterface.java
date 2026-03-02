@@ -81,7 +81,7 @@ public interface AnalysisInterface {
                     retVal = MassSpectrometerContextEnum.PHOENIX_IONVANTAGE_XLS;
                 }
             } catch (BiffException e) {
-                throw new RuntimeException(e);
+                //throw new RuntimeException(e);
             }
 
         } else {

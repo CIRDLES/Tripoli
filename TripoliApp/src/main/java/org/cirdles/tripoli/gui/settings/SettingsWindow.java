@@ -574,6 +574,8 @@ public class SettingsWindow {
         settingsWindowController.getSaveAsUserDefaultsButton().setOnAction(e -> {
             try {
                 TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+                tripoliPersistentState.getTripoliPersistentParameters()
+                        .setSampleMetaDataFolderPath(analysis.getParameters().getSampleMetaDataFolderPath());
                 tripoliPersistentState.getTripoliPersistentParameters().setMassSpectrometerContext(
                         analysis.getParameters().getMassSpectrometerContext());
                 tripoliPersistentState.getTripoliPersistentParameters().setChauvenetRejectionProbability(

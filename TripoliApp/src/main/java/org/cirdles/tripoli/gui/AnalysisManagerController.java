@@ -417,7 +417,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         exportToClipBoardButton.setMaxHeight(35);
 
         exportToETReduxButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
-        exportToETReduxButton.setDisable(((Analysis)analysis).hasMemberAnalyses());
+        exportToETReduxButton.setDisable(((Analysis) analysis).hasMemberAnalyses());
         reviewSculptData.setDisable(
                 analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty()
                         && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());
@@ -1963,7 +1963,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             try {
                 previewAndSculptDataAction();
             } catch (TripoliException e) {
-                throw new RuntimeException(e);
+               // throw new RuntimeException(e);
             }
             processingToolBar.setDisable(null == analysis.getAnalysisMethod());
             exportToETReduxButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
@@ -2199,48 +2199,75 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         analysis.getAnalysisMethod().toggleKnotsMethod();
     }
 
-    public void exportToETReduxButtonAction() {
+    public void exportToETReduxButtonAction() throws TripoliException {
         AllBlockInitForDataLiteOne.initBlockModels(analysis);
         ETReduxFraction etReduxFraction = analysis.prepareFractionForETReduxExport();
 
-        TripoliPersistentState tripoliPersistentState;
-        try {
-            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
-            String sampleMetaDataFolderPath =
-                    tripoliPersistentState.getTripoliPersistentParameters().getSampleMetaDataFolderPath();
-            Path directoryPath = Paths.get(sampleMetaDataFolderPath);
-            try {
-                Files.createDirectories(directoryPath);
-                List<Path> xmlFiles;
-                try (Stream<Path> walk = Files.walk(directoryPath)) {
-                    xmlFiles = walk
-                            .filter(Files::isRegularFile)
-                            .filter(p -> p.toString().toLowerCase().endsWith(".xml"))
-                            .collect(Collectors.toList());
-                }
-                // should be only one file
-                File sampleMetaDataFile = xmlFiles.get(0).toFile();
-                SampleMetaData sampleMetaData = SampleMetaDataUnmarshaller.unmarshall(sampleMetaDataFile.getAbsolutePath());
-                if (sampleMetaData.getSampleName().compareToIgnoreCase(analysis.getAnalysisSampleName()) != 0) {
-                    boolean result = TripoliMessageDialog.showChoiceDialog(
-                            "The sample name in the data file does not match the sample name in the sample metadata file.\n\n"
-                                    + "The sample name in the data file is: "
-                                    + analysis.getAnalysisSampleName()
-                                    + "\n\nThe sample name in the sample metadata file is: "
-                                    + sampleMetaData.getSampleName()
-                                    + "\n\nConfirm to save to another folder.", TripoliGUI.primaryStage);
-                    if (result) {
-                        exportToFile(etReduxFraction);
-                    } else {
-                        return;
-                    }
-                }
+        TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
 
+        // save for live workflow
+        if (null != tripoliSession) {
+            try {
+                if (null == tripoliPersistentState.getMRUSessionFile()) {
+                    File sessionFile = saveSessionFile(tripoliSession, primaryStageWindow);
+                    tripoliPersistentState.updateSessionListMRU(sessionFile);
+                } else {
+                    serializeObjectToFile(tripoliSession, tripoliPersistentState.getMRUSessionFile().getAbsolutePath());
+                }
+                Session.setSessionChanged(false);
+            } catch (TripoliException | IOException ex) {
+                TripoliMessageDialog.showWarningDialog(ex.getMessage(), null);
+            }
+        }
+        String sampleMetaDataFolderPath =
+                tripoliPersistentState.getTripoliPersistentParameters().getSampleMetaDataFolderPath();
+        if (sampleMetaDataFolderPath.isBlank()) {
+            TripoliMessageDialog.showWarningDialog(
+                    "Please set SampleMetaDataFolder in Settings.",
+                    TripoliGUI.primaryStage);
+            return;
+        }
+        Path directoryPath = Paths.get(sampleMetaDataFolderPath);
+        try {
+            Files.createDirectories(directoryPath);
+            List<Path> xmlFiles;
+            try (Stream<Path> walk = Files.walk(directoryPath)) {
+                xmlFiles = walk
+                        .filter(Files::isRegularFile)
+                        .filter(p -> p.toString().toLowerCase().endsWith(".xml"))
+                        .collect(Collectors.toList());
+            }
+            // should be only one file
+            if (xmlFiles.isEmpty()) {
+                TripoliMessageDialog.showWarningDialog(
+                        "There is no SampleMetaData .xml file present",
+                        TripoliGUI.primaryStage);
+                return;
+            }
+            File sampleMetaDataFile = xmlFiles.get(0).toFile();
+            SampleMetaData sampleMetaData = SampleMetaDataUnmarshaller.unmarshall(sampleMetaDataFile.getAbsolutePath());
+            boolean result = false;
+            if (sampleMetaData.getSampleName().compareToIgnoreCase(analysis.getAnalysisSampleName()) != 0) {
+                result = TripoliMessageDialog.showChoiceDialog(
+                        "The sample name in the data file does not match the sample name in the sample metadata file.\n\n"
+                                + "The sample name in the data file is: "
+                                + analysis.getAnalysisSampleName()
+                                + "\n\nThe sample name in the sample metadata file is: "
+                                + sampleMetaData.getSampleName()
+                                + "\n\nConfirm to save to another folder.", TripoliGUI.primaryStage);
+                if (result) {
+                    exportToFile(etReduxFraction);
+                } else {
+                    return;
+                }
+            }
+
+            String aliquotName = "";
+            String fractionMame = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_"
+                    + etReduxFraction.getEtReduxExportType() + ".xml";
+            if (!result) {
                 // locate fraction
                 boolean found = false;
-                String aliquotName = "";
-                String fractionMame = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_"
-                        + etReduxFraction.getEtReduxExportType() + ".xml";
                 for (FractionMetaData fm : sampleMetaData.getFractionsMetaData()) {
                     if (fm.getFractionXMLUPbReduxFileName_U().compareToIgnoreCase(fractionMame) == 0) {
                         found = true;
@@ -2255,7 +2282,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 }
 
                 if (!found) {
-                    boolean result = TripoliMessageDialog.showChoiceDialog(
+                    result = TripoliMessageDialog.showChoiceDialog(
                             "The fraction name in the data file does not match any fraction names in the sample metadata file.\n\n"
                                     + "The fraction name in the data file is: "
                                     + fractionMame
@@ -2266,28 +2293,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         return;
                     }
                 }
-
-                // save for live workflow
-                if (null != tripoliSession) {
-                    try {
-                        serializeObjectToFile(tripoliSession, tripoliPersistentState.getMRUSessionFile().getAbsolutePath());
-                        Session.setSessionChanged(false);
-                    } catch (TripoliException ex) {
-                        TripoliMessageDialog.showWarningDialog(ex.getMessage(), null);
-                    }
-                }
-                String sampleAnalysisFolderPath = sampleMetaData.getSampleAnalysisFolderPath();
-                String exportFileName =
-                        sampleAnalysisFolderPath + File.separator + aliquotName + File.separator + fractionMame;
-                etReduxFraction.serializeXMLObject(exportFileName);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JAXBException e) {
-                throw new RuntimeException(e);
             }
-        } catch (TripoliException e) {
-            exportToFile(etReduxFraction);
+            String sampleAnalysisFolderPath = sampleMetaData.getSampleAnalysisFolderPath();
+            String exportFileName =
+                    sampleAnalysisFolderPath + File.separator + aliquotName + File.separator + fractionMame;
+            etReduxFraction.serializeXMLObject(exportFileName);
+        } catch (IOException | JAXBException e) {
+            e.printStackTrace();
         }
     }
 
@@ -2296,10 +2308,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         etReduxFraction.serializeXMLObject(fileName);
         try {
             saveExportFile(etReduxFraction, primaryStage);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (TripoliException e) {
-            throw new RuntimeException(e);
+        } catch (IOException | TripoliException e) {
+            //throw new RuntimeException(e);
         }
     }
 
