@@ -257,6 +257,7 @@ public class SettingsWindow {
         initDatumCountSpinner();
         initMassSpecCombo();
         initScalingDotSizeSpinners();
+        initSampleMetaDataFolderTextArea();
     }
 
     private void initMassSpecCombo() {
@@ -296,6 +297,14 @@ public class SettingsWindow {
                 TripoliGUI.updateStageTitle(newValue);
                 handleLiveDataMenuHidden();
             }
+        });
+    }
+
+    private void initSampleMetaDataFolderTextArea(){
+        TextArea  sampleMetaDataFolderTextArea = settingsWindowController.getSampleMetaDataFolderTextArea();
+        sampleMetaDataFolderTextArea.setText(analysis.getParameters().getSampleMetaDataFolderPath());
+        sampleMetaDataFolderTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
+            analysis.getParameters().setSampleMetaDataFolderPath(newValue);
         });
     }
 
@@ -549,31 +558,35 @@ public class SettingsWindow {
         });
         settingsWindowController.getSaveAsSessionDefaultsButton().setOnAction(e -> {
             Session currentSession = ((Analysis) analysis).getParentSession();
-            currentSession.getSessionDefaultParameters().setMassSpectrometerContext(
-                    analysis.getParameters().getMassSpectrometerContext());
-            currentSession.getSessionDefaultParameters().setRequiredMinDatumCount(
-                    analysis.getParameters().getRequiredMinDatumCount());
-            currentSession.getSessionDefaultParameters().setChauvenetRejectionProbability(
-                    analysis.getParameters().getChauvenetRejectionProbability()
-            );
-            currentSession.getSessionDefaultParameters().setScalingDotMinSize(
-                    analysis.getParameters().getScalingDotMinSize());
-            currentSession.getSessionDefaultParameters().setScalingDotMaxSize(
-                    analysis.getParameters().getScalingDotMaxSize());
-            currentSession.setBlockCyclesPlotColors(analysis.getRatioColors());
-            currentSession.getSessionDefaultMapOfSpeciesToColors().
-                    putAll(((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
-            if (TripoliGUIController.sessionFileName != null) {
-                SaveCurrentSessionEvent saveCurrentSessionEvent = new SaveCurrentSessionEvent();
-                fireEvent(primaryStage.getScene(), saveCurrentSessionEvent);
-            } else {
-                SaveSessionAsEvent saveSessionAsEvent = new SaveSessionAsEvent();
-                fireEvent(primaryStage.getScene(), saveSessionAsEvent);
+            if (null != currentSession) {
+                currentSession.getSessionDefaultParameters().setMassSpectrometerContext(
+                        analysis.getParameters().getMassSpectrometerContext());
+                currentSession.getSessionDefaultParameters().setRequiredMinDatumCount(
+                        analysis.getParameters().getRequiredMinDatumCount());
+                currentSession.getSessionDefaultParameters().setChauvenetRejectionProbability(
+                        analysis.getParameters().getChauvenetRejectionProbability()
+                );
+                currentSession.getSessionDefaultParameters().setScalingDotMinSize(
+                        analysis.getParameters().getScalingDotMinSize());
+                currentSession.getSessionDefaultParameters().setScalingDotMaxSize(
+                        analysis.getParameters().getScalingDotMaxSize());
+                currentSession.setBlockCyclesPlotColors(analysis.getRatioColors());
+                currentSession.getSessionDefaultMapOfSpeciesToColors().
+                        putAll(((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
+                if (TripoliGUIController.sessionFileName != null) {
+                    SaveCurrentSessionEvent saveCurrentSessionEvent = new SaveCurrentSessionEvent();
+                    fireEvent(primaryStage.getScene(), saveCurrentSessionEvent);
+                } else {
+                    SaveSessionAsEvent saveSessionAsEvent = new SaveSessionAsEvent();
+                    fireEvent(primaryStage.getScene(), saveSessionAsEvent);
+                }
             }
         });
         settingsWindowController.getSaveAsUserDefaultsButton().setOnAction(e -> {
+            TripoliPersistentState tripoliPersistentState;
             try {
-                TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+                tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+
                 tripoliPersistentState.getTripoliPersistentParameters()
                         .setSampleMetaDataFolderPath(analysis.getParameters().getSampleMetaDataFolderPath());
                 tripoliPersistentState.getTripoliPersistentParameters().setMassSpectrometerContext(
@@ -596,6 +609,7 @@ public class SettingsWindow {
         });
         settingsWindowController.getRestoreSessionDefaultsButton().setOnAction(e -> {
             Session currentSession = ((Analysis) analysis).getParentSession();
+            if (null != currentSession) {
             analysis.getParameters().setChauvenetRejectionProbability(
                     currentSession.getSessionDefaultParameters().getChauvenetRejectionProbability()
             );
@@ -644,7 +658,7 @@ public class SettingsWindow {
             });
             repaintRatiosDelegateActionSet.executeDelegateActions();
             updateRatioColorSelectionPane();
-        });
+        }});
         settingsWindowController.getRestoreUserDefaultsButton().setOnAction(e -> {
             try {
                 TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
