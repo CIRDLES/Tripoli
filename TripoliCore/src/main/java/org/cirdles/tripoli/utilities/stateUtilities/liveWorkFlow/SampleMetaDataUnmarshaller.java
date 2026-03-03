@@ -20,9 +20,11 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 import jakarta.xml.bind.JAXBException;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.Reader;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 /**
  * @author James F. Bowring
@@ -30,11 +32,30 @@ import java.io.Reader;
 public class SampleMetaDataUnmarshaller {
 
     public static SampleMetaData unmarshall(String sampleMetaDataFilePath) throws JAXBException, FileNotFoundException {
+        String networkSource = sampleMetaDataFilePath;
+        String localDestination = "copiedSampleMetaDataFile.xml";
+        Path sourcePath = Paths.get(networkSource);
+        Path destinationPath = Paths.get(localDestination);
+        try {
+            Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("SampleMetaDataFile XML file copied successfully!");
+        } catch (IOException e) {
+            System.err.println("Failed to copy the XML file: " + e.getMessage());
+            e.printStackTrace();
+        }
+
         XStream xstream = new XStream();
         xstream.addPermission(AnyTypePermission.ANY);
         xstream.alias("SampleMetaData", SampleMetaData.class);
         xstream.alias("FractionMetaData", FractionMetaData.class);
-        Reader fileReader = new FileReader(sampleMetaDataFilePath);
+        Reader fileReader = new FileReader(localDestination);
         return (SampleMetaData) xstream.fromXML(fileReader);
     }
+
+    public static void main(String[] args) throws JAXBException, FileNotFoundException {
+        SampleMetaData sampleMetaData =
+                unmarshall("/Users/bowring/Downloads/LiveWorkflowReproduction/SampleMetaData/23-PP-8.xml");
+        System.out.println(sampleMetaData.getSampleName());
+    }
+
 }
