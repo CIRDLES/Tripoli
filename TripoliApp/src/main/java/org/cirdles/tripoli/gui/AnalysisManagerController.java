@@ -245,6 +245,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Button treatAsRatioButton;
     @FXML
     public Tab customExpressionsTab;
+    public TextField liveWorkFlowStatusText;
     Text insertIndicator = new Text("|");
     @FXML
     private ListView<AnalysisInterface> memberAnalysesListView = new ListView<>();
@@ -497,6 +498,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         defaultCyclesPerBlockSpinner.setValueFactory(valueFactory);
 
         defaultCyclesPerBlockSpinner.setEditable(false);
+
+
+        liveWorkFlowStatusText.setVisible(false);
+        exportToETReduxButton.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                liveWorkFlowStatusText.setVisible(false);
+                liveWorkFlowStatusText.setText("");
+            } else {
+                liveWorkFlowStatusText.setVisible(true);
+            }
+        });
     }
 
     private void populateAnalysisManagerGridPane(int caseNumber) {
@@ -2298,6 +2310,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             String exportFileName =
                     sampleAnalysisFolderPath + File.separator + aliquotName + File.separator + fractionMame;
             etReduxFraction.serializeXMLObject(exportFileName);
+            liveWorkFlowStatusText.setText("LiveWorkFlow Exported to " + exportFileName);
         } catch (IOException | JAXBException e) {
             e.printStackTrace();
         }

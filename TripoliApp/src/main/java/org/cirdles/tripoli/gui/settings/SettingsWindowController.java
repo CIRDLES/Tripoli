@@ -166,12 +166,11 @@ public class SettingsWindowController implements Initializable {
         return plotTwoControlsTab;
     }
 
+    public TextArea getSampleMetaDataFolderTextArea() {return sampleMetaDataFolderTextArea;}
+
     public void selectSampleMetaDataFolderButtonAction() {
         File sampleMetaDataFolder = selectSampleMetaDataFolder(primaryStageWindow);
         if (sampleMetaDataFolder == null) return;
-        tripoliPersistentState.getTripoliPersistentParameters()
-                .setSampleMetaDataFolderPath(sampleMetaDataFolder.getAbsolutePath());
-        tripoliPersistentState.updateTripoliPersistentState();
         sampleMetaDataFolderTextArea.setText(sampleMetaDataFolder.getAbsolutePath());
     }
 }
