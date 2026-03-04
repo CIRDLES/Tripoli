@@ -22,7 +22,9 @@ import com.thoughtworks.xstream.security.AnyTypePermission;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,14 +40,15 @@ public interface XMLSerializerInterface {
      */
     default void serializeXMLObject(String filename) {
         OutputStreamWriter outFile = null;
+        String tempLocalFile = "tempLocalFile.xml";
         try {
             XStream xstream = new XStream(new DomDriver());
             xstream.addPermission(AnyTypePermission.ANY);
             customizeXstream(xstream);
             String xml = xstream.toXML(this).trim();
             xml = customizeXML(xml).trim();
-
-            outFile = new OutputStreamWriter(new FileOutputStream(filename), StandardCharsets.UTF_8);
+            // march 2026 write local, then copy to solve network issues
+            outFile = new OutputStreamWriter(new FileOutputStream(tempLocalFile), StandardCharsets.UTF_8);
             try (PrintWriter out = new PrintWriter(outFile)) {
                 // Write xml to file
                 out.println(xml);
@@ -57,6 +60,10 @@ public interface XMLSerializerInterface {
             try {
                 if (outFile != null) {
                     outFile.close();
+                    Path sourcePath = Paths.get(tempLocalFile);
+                    Path destinationPath = Paths.get(filename);
+                    Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+
                 }
             } catch (IOException ex) {
                 Logger.getLogger(XMLSerializerInterface.class.getName()).log(Level.SEVERE, null, ex);

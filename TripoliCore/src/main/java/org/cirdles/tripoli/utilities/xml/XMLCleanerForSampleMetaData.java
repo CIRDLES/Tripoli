@@ -7,6 +7,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -14,8 +15,9 @@ public class XMLCleanerForSampleMetaData {
     public static File cleanXML(String fileName) throws IOException {
         File cleanedFile = new File("output_cleaned.xml");
         try {
-            byte[] encoded = Files.readAllBytes(Paths.get(fileName));
-            String xmlContent = new String(encoded, java.nio.charset.StandardCharsets.UTF_8);
+
+            String xmlContent = Files.readString(Paths.get(fileName), StandardCharsets.UTF_8);
+            System.out.println("File successfully read into a String.");
             int indexOfSample = xmlContent.indexOf("<sampleName>");
             xmlContent = "<SampleMetaData>\n" + xmlContent.substring(indexOfSample);
             xmlContent = xmlContent.replaceAll("\n", "");
