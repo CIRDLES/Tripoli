@@ -19,6 +19,7 @@ package org.cirdles.tripoli.utilities.stateUtilities.liveWorkFlow;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 import jakarta.xml.bind.JAXBException;
+import org.cirdles.tripoli.utilities.xml.XMLCleanerForSampleMetaData;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -31,7 +32,7 @@ import java.nio.file.StandardCopyOption;
  */
 public class SampleMetaDataUnmarshaller {
 
-    public static SampleMetaData unmarshall(String sampleMetaDataFilePath) throws JAXBException, FileNotFoundException {
+    public static SampleMetaData unmarshall(String sampleMetaDataFilePath) throws JAXBException, IOException {
         String networkSource = sampleMetaDataFilePath;
         String localDestination = "copiedSampleMetaDataFile.xml";
         Path sourcePath = Paths.get(networkSource);
@@ -44,18 +45,20 @@ public class SampleMetaDataUnmarshaller {
             e.printStackTrace();
         }
 
+        File cleanedLocal = XMLCleanerForSampleMetaData.cleanXML(localDestination);
+
         XStream xstream = new XStream();
         xstream.addPermission(AnyTypePermission.ANY);
         xstream.alias("SampleMetaData", SampleMetaData.class);
         xstream.alias("FractionMetaData", FractionMetaData.class);
-        Reader fileReader = new FileReader(localDestination);
+        Reader fileReader = new FileReader(cleanedLocal.getAbsoluteFile());
         return (SampleMetaData) xstream.fromXML(fileReader);
     }
 
-    public static void main(String[] args) throws JAXBException, FileNotFoundException {
+  /*  public static void main(String[] args) throws JAXBException, FileNotFoundException {
         SampleMetaData sampleMetaData =
                 unmarshall("/Users/bowring/Downloads/LiveWorkflowReproduction/SampleMetaData/23-PP-8.xml");
         System.out.println(sampleMetaData.getSampleName());
-    }
+    }*/
 
 }
