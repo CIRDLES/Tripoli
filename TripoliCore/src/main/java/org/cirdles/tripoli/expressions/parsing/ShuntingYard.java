@@ -273,7 +273,9 @@ public class ShuntingYard {
         NUMERIC_INPUT,
         FORMATTER;
 
-        TokenTypes() {}
+        TokenTypes() {
+        }
+
         public static TokenTypes getType(String token) {
             TokenTypes retVal = NAMED_CONSTANT;
 

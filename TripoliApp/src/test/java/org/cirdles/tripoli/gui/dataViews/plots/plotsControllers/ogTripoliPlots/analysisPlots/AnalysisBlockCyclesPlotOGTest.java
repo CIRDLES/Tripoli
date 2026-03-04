@@ -18,6 +18,7 @@ public class AnalysisBlockCyclesPlotOGTest {
      * A modified version of calcSigmaPctsCM from AnalysisBlockCyclesPlotOG
      * for testing purposes.
      * geometricMeanStatsRecord determined from observing values with the debugger with NBS981 230024b-154.TIMSDP.
+     *
      * @return
      */
     private HashMap<String, Double> calcSigmaPctsCM() {
@@ -88,6 +89,7 @@ public class AnalysisBlockCyclesPlotOGTest {
      * A modified version of calcPlotStatsCM from AnalysisBlockCyclesPlotOG
      * for testing purposes.
      * mean, stdDev, and stdErr determined from observing values with the debugger with NBS981 230024b-154.TIMSDP.
+     *
      * @return
      */
     private HashMap<String, Double> calcPlotStatsCM() {

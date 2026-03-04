@@ -27,15 +27,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 public class SpeciesColorSelectionRow extends HBox {
+    private final ObjectProperty<Color> colorProperty;
+    private final ObjectProperty<String> textProperty;
+    private final ObjectProperty<Font> fontProperty;
     private ColorPickerSplotch colorPickerSplotch;
     private Label rowLabel;
     private Region center;
     private Region right;
-
-    private final ObjectProperty<Color> colorProperty;
-    private final ObjectProperty<String> textProperty;
-
-    private final ObjectProperty<Font> fontProperty;
 
 
     public SpeciesColorSelectionRow() {
@@ -60,7 +58,7 @@ public class SpeciesColorSelectionRow extends HBox {
         colorProperty.bindBidirectional(colorPickerSplotch.colorProperty());
         rowLabel.prefHeightProperty().bind(prefHeightProperty());
         colorPickerSplotch.prefHeightProperty().bind(prefHeightProperty());
-        this.getChildren().addAll(rowLabel,center, colorPickerSplotch);
+        this.getChildren().addAll(rowLabel, center, colorPickerSplotch);
         HBox.setMargin(colorPickerSplotch, new Insets(5, 5, 5, 5));
         setPrefHeight(40);//  TODO: remove when setting default
         borderProperty().setValue(
@@ -69,14 +67,13 @@ public class SpeciesColorSelectionRow extends HBox {
                                 Color.BLACK,
                                 BorderStrokeStyle.SOLID,
                                 CornerRadii.EMPTY,
-                                new BorderWidths(1, 0,0,0))));
+                                new BorderWidths(1, 0, 0, 0))));
     }
 
     public SpeciesColorSelectionRow(double prefHeight) {
         this();
         this.setPrefHeight(prefHeight);
     }
-
 
 
     public ColorPickerSplotch getColorPickerSplotch() {
@@ -91,24 +88,24 @@ public class SpeciesColorSelectionRow extends HBox {
         return colorProperty.get();
     }
 
-    public ObjectProperty<Color> colorObjectProperty() {
-        return colorProperty;
-    }
-
     public void setColorProperty(Color colorProperty) {
         this.colorProperty.set(colorProperty);
+    }
+
+    public ObjectProperty<Color> colorObjectProperty() {
+        return colorProperty;
     }
 
     public String getTextProperty() {
         return textProperty.get();
     }
 
-    public ObjectProperty<String> textObjectProperty() {
-        return textProperty;
-    }
-
     public void setTextProperty(String textProperty) {
         this.textProperty.set(textProperty);
+    }
+
+    public ObjectProperty<String> textObjectProperty() {
+        return textProperty;
     }
 
     public ObjectProperty<Font> fontProperty() {

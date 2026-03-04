@@ -39,7 +39,7 @@ public class FormatterForSigFigN {
         if (Math.abs(standardError) < 10.0 && Math.abs(standardError) > 0.0) {
             double rounded = MathUtilities.roundedToSize(standardError, sigFig);
             String pattern = generatePattern(rounded, sigFig);
-            DecimalFormat df = new DecimalFormat(pattern,new DecimalFormatSymbols(Locale.ENGLISH));
+            DecimalFormat df = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
             df.setMaximumFractionDigits(8);
             String roundedString = df.format(rounded);
             int scale = roundedString.split("\\.")[1].length();
@@ -51,6 +51,7 @@ public class FormatterForSigFigN {
     /**
      * Generates a DecimalFormat pattern that allows for a certain amount of trailing zeros specified by
      * the amount of significant figures
+     *
      * @param rounded
      * @return String pattern to be used in DecimalFormat
      */
@@ -107,7 +108,7 @@ public class FormatterForSigFigN {
         int lastSigFigPosition;
         if (stdErr == 0.0) {
             lastSigFigPosition = 0;
-        } else{
+        } else {
             lastSigFigPosition = (int) (floor(log10(stdErr)) - (countOfSigFigs - 1));
         }
         BigDecimal roundedMean = new BigDecimal(mean).setScale(-lastSigFigPosition, RoundingMode.HALF_UP);

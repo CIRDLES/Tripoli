@@ -238,7 +238,7 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
 
         Matrix rhos = dInvert.times(sCov).times(dInvert);
         // poll every cell of rhos to make sure it is in range [-1,1] or report it
-        NumberFormat formatter = new DecimalFormat("###0.000",new DecimalFormatSymbols(Locale.ENGLISH));
+        NumberFormat formatter = new DecimalFormat("###0.000", new DecimalFormatSymbols(Locale.ENGLISH));
 
         for (int i = 0; i < rhos.getRowDimension() - 1; i++) {
             for (int j = i + 1; j < rhos.getColumnDimension(); j++) {

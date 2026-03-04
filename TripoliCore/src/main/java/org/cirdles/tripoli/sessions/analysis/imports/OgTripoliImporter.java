@@ -25,10 +25,15 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourcePr
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class OgTripoliImporter {
 
@@ -191,13 +196,13 @@ public class OgTripoliImporter {
             // Apply isotopic flags
             List<UserFunction> ufModels = tripoliAnalysis.getAnalysisMethod().getUserFunctionsModel();
             for (UserFunction ufm : ufModels) {
-                if (ufm.isTreatAsIsotopicRatio()){
+                if (ufm.isTreatAsIsotopicRatio()) {
                     ufModels.get(ufm.getColumnIndex()).setTreatAsIsotopicRatio(true);
                 }
-                if(ufm.getName().contains("Cycle")){
+                if (ufm.getName().contains("Cycle")) {
                     ufModels.get(ufm.getColumnIndex()).setDisplayed(false);
                 }
-                if(ufm.getName().contains("Time")){
+                if (ufm.getName().contains("Time")) {
                     ufModels.get(ufm.getColumnIndex()).setDisplayed(false);
                 }
             }
@@ -207,5 +212,9 @@ public class OgTripoliImporter {
         } catch (IOException | TripoliException ignored) {
             return null;
         }
+    }
+
+    public static MassSpecExtractedData extractMassSpecDataFromOGTripoli(Path inputFilePath) throws TripoliException, IOException {
+        return Objects.requireNonNull(importTripolizedData(inputFilePath.toFile())).getMassSpecExtractedData();
     }
 }

@@ -7,9 +7,11 @@
     -fx-font-size: 14px;
     -fx-text-fill: black;
 }
+
 .list-view-container VBox {
-    -fx-background-color:LINEN;
+    -fx-background-color: LINEN;
 }
+
 .list-view-content {
     -fx-font-weight: normal;
 }

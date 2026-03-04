@@ -18,7 +18,6 @@ package org.cirdles.tripoli.gui.constants;
 
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NonNls;
-import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX_COLORS;
 
 /**
  * @author James F. Bowring

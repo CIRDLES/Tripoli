@@ -20,6 +20,7 @@ import com.google.common.primitives.Booleans;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.constants.TripoliConstants;
@@ -187,10 +188,21 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     public static AnalysisInterface concatenateAnalysesLite(
             AnalysisInterface[] analyses) throws TripoliException {
         // use case 1 assume for now that these are two or more sequential runs with all the same metadata
-        // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
+        List<String> analysisNames = new ArrayList<>();
+        for (AnalysisInterface analysis : analyses) {
+            analysisNames.add(analysis.getAnalysisName());
+        }
+
+        String prefix = StringUtils.getCommonPrefix(analysisNames.toArray(new String[0]));
+        String concatenatedName = prefix + "{";
+        for (String fileName : analysisNames) {
+            String suffix = fileName.replace(prefix, "");
+            concatenatedName += suffix + "; ";
+        }
+        concatenatedName = concatenatedName.substring(0, concatenatedName.length() - 2) + "}";
 
         Analysis analysisConcat = new Analysis(
-                "Concatenated Analysis",
+                "Concatenated " + concatenatedName,
                 analyses[0].getAnalysisMethod(),
                 analyses[0].getAnalysisSampleName());
         analysisConcat.setMemberAnalyses(analyses);
@@ -556,10 +568,13 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return new AllBlockInitForMCMC.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, null, cycleCount, false, 4);
     }
 
-    public final String prettyPrintAnalysisSummary() {
-        return analysisName +
-                SPACES_150.substring(0, 50 - analysisName.length()) +
-                analysisStartTime + SPACES_150.substring(0, 50) +
+    public final String prettyPrintAnalysisSummary(int trimNameSize) {
+        String analysisNameTrimmed =
+                analysisName.substring(0, Math.min(analysisName.length(), trimNameSize - 5))
+                        + ((analysisName.length() > trimNameSize - 5) ? "..." : "");
+        return analysisNameTrimmed +
+                SPACES_150.substring(0, trimNameSize - analysisNameTrimmed.length()) +
+                analysisStartTime + SPACES_150.substring(0, 10) +
                 (null == analysisMethod ? "NO Method" : analysisMethod.prettyPrintMethodSummary(false));
     }
 

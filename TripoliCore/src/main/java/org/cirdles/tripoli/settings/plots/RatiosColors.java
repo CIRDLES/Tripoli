@@ -30,6 +30,17 @@ public record RatiosColors(
         String dataAntiColor
 ) implements Serializable {
 
+    public static RatiosColors defaultBlockCyclesPlotColors() {
+        return new RatiosColors(
+                OGTRIPOLI_ONESIGMA_HEX,
+                OGTRIPOLI_TWOSIGMA_HEX,
+                OGTRIPOLI_TWOSTDERR_HEX,
+                OGTRIPOLI_MEAN_HEX,
+                OGTRIPOLI_DATA_HEX,
+                OGTRIPOLI_ANTI_DATA_HEX
+        );
+    }
+
     public String get(RatiosPlotColorFlavor plotColorFlavor) {
         StringBuilder result = new StringBuilder();
         switch (plotColorFlavor) {
@@ -41,17 +52,6 @@ public record RatiosColors(
             case REJECTED_COLOR -> result.append(dataAntiColor);
         }
         return result.toString();
-    }
-
-    public static RatiosColors defaultBlockCyclesPlotColors() {
-        return new RatiosColors(
-                OGTRIPOLI_ONESIGMA_HEX,
-                OGTRIPOLI_TWOSIGMA_HEX,
-                OGTRIPOLI_TWOSTDERR_HEX,
-                OGTRIPOLI_MEAN_HEX,
-                OGTRIPOLI_DATA_HEX,
-                OGTRIPOLI_ANTI_DATA_HEX
-        );
     }
 
     public RatiosColors altered(RatiosPlotColorFlavor flavor, String hexColor) {

@@ -108,12 +108,16 @@ public class Session implements Serializable {
         return sessionChanged;
     }
 
+    public static void setSessionChanged(boolean mySessionChanged) {
+        sessionChanged = mySessionChanged;
+    }
+
     public RatiosColors getBlockCyclesPlotColors() {
         return ratiosColors;
     }
 
-    public static void setSessionChanged(boolean mySessionChanged) {
-        sessionChanged = mySessionChanged;
+    public void setBlockCyclesPlotColors(RatiosColors ratiosColors) {
+        this.ratiosColors = ratiosColors;
     }
 
     public void addAnalysis(AnalysisInterface analysis) {
@@ -154,7 +158,6 @@ public class Session implements Serializable {
         return mapOfAnalyses;
     }
 
-
     public String getSessionNotes() {
         return sessionNotes;
     }
@@ -174,16 +177,13 @@ public class Session implements Serializable {
     public boolean isExpressionRefreshed() {
         return expressionRefreshed;
     }
+
     public void setExpressionRefreshed(boolean expressionRefreshed) {
         this.expressionRefreshed = expressionRefreshed;
     }
 
     public Parameters getSessionDefaultParameters() {
         return sessionDefaultParameters;
-    }
-
-    public void setBlockCyclesPlotColors(RatiosColors ratiosColors) {
-        this.ratiosColors = ratiosColors;
     }
 
     /**

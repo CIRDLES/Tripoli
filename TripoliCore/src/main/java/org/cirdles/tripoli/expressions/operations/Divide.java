@@ -21,15 +21,15 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 
 import java.util.Map;
-import java.util.stream.IntStream;
 
 public class Divide extends Operation {
     public Divide() {
         name = "divide";
         precedence = 3;
     }
+
     @Override
-    public Divide copy(){
+    public Divide copy() {
         return new Divide();
     }
 

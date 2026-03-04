@@ -32,6 +32,7 @@ module Tripoli.TripoliCore {
     requires jxl;
     requires org.antlr.antlr4.runtime;
     requires javafx.graphics;
+    requires org.checkerframework.checker.qual;
 
 
     exports org.cirdles.tripoli;
@@ -84,4 +85,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.expressions.constants;
     exports org.cirdles.tripoli.utilities.comparators;
     exports org.cirdles.tripoli.sessions.analysis.imports;
+    exports org.cirdles.tripoli.utilities.stateUtilities.liveWorkFlow;
 }

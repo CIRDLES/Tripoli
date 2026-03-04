@@ -15,11 +15,17 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,7 +49,33 @@ public class ExpressionTreeTest {
         treeEvalOracle = csvToMatrix();
     }
 
-    private List<String> buildInfixList(){
+    private static Double[][] csvToMatrix() throws IOException {
+        ResourceExtractor tripoliExtractor = new ResourceExtractor(ExpressionTreeTest.class);
+        File filename = tripoliExtractor.extractResourceAsFile("/org/cirdles/tripoli/core/expressions/NBS981_210325b-392_ExpressionEval.txt");
+
+        ArrayList<Double[]> oracleArray = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                oracleArray.add(convertCSVLineToArray(line));
+            }
+        }
+        Double[][] retVal = new Double[oracleArray.size()][];
+        for (int i = 0; i < oracleArray.size(); i++) {
+            retVal[i] = oracleArray.get(i);
+        }
+
+        return retVal;
+    }
+
+    private static Double[] convertCSVLineToArray(String csvLine) {
+        return Arrays.stream(csvLine.split(","))
+                .map(Double::parseDouble)
+                .toArray(Double[]::new);
+    }
+
+    private List<String> buildInfixList() {
         List<UserFunction> ufList = analysis.getUserFunctions();
         List<String> infixList = new ArrayList<>();
 
@@ -77,7 +109,7 @@ public class ExpressionTreeTest {
                 new UserFunctionNode(ufList.get(0).getName()),
                 new UserFunctionNode(ufList.get(1).getName()),
                 new Add()
-                );
+        );
         ExpressionTree tree2 = new ExpressionTree(
                 "Nested Tree",
                 tree,
@@ -105,31 +137,5 @@ public class ExpressionTreeTest {
             assertArrayEquals(treeEvalOracle[i], tree.eval(analysis)[i]);
         }
 
-    }
-
-    private static Double[][] csvToMatrix() throws IOException {
-        ResourceExtractor tripoliExtractor = new ResourceExtractor(ExpressionTreeTest.class);
-        File filename = tripoliExtractor.extractResourceAsFile("/org/cirdles/tripoli/core/expressions/NBS981_210325b-392_ExpressionEval.txt");
-
-        ArrayList<Double[]> oracleArray = new ArrayList<>();
-
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                oracleArray.add(convertCSVLineToArray(line));
-            }
-        }
-        Double[][] retVal = new Double[oracleArray.size()][];
-        for (int i = 0; i < oracleArray.size(); i++) {
-            retVal[i] = oracleArray.get(i);
-        }
-
-        return retVal;
-    }
-
-    private static Double[] convertCSVLineToArray(String csvLine) {
-        return Arrays.stream(csvLine.split(","))
-                .map(Double::parseDouble)
-                .toArray(Double[]::new);
     }
 }

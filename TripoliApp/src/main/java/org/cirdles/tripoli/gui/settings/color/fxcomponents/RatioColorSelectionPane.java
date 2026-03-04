@@ -22,23 +22,21 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import org.cirdles.tripoli.constants.TripoliConstants;
-import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 
-import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
-import static org.cirdles.tripoli.constants.TripoliConstants.RatiosPlotColorFlavor;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import static org.cirdles.tripoli.constants.TripoliConstants.RatiosPlotColorFlavor;
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColorToHex;
 
 public class RatioColorSelectionPane extends ScrollPane implements Initializable {
 
@@ -62,7 +60,7 @@ public class RatioColorSelectionPane extends ScrollPane implements Initializable
         this.ratioColorsProperty = new SimpleObjectProperty<>(analysis.getRatioColors());
         ratioColorRowList = new ArrayList<>();
         if (analysis.getRatioColors() != null) {
-            for (RatiosPlotColorFlavor flavor : RatiosPlotColorFlavor.values()){
+            for (RatiosPlotColorFlavor flavor : RatiosPlotColorFlavor.values()) {
                 RatioColorRow ratioColorRow = new RatioColorRow(analysis.getRatioColors(), flavor);
                 ratioColorRow.setPrefHeight(35);
                 Region region = new Region();

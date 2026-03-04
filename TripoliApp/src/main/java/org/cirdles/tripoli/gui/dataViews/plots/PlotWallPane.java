@@ -18,6 +18,7 @@ package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -26,6 +27,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
+import org.cirdles.tripoli.gui.AnalysisManagerController;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
@@ -54,6 +56,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
     public static final double gridCellDim = 2.0;
+    private static final DelegateActionSet repaintDelegateActionSet = new DelegateActionSet();
     public static double menuOffset = 30.0;
     private final String iD;
     private final boolean[] zoomFlagsXY = new boolean[2];
@@ -64,7 +67,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private int toolBarCount;
     private boolean logScale;
     private boolean blockMode;
-    private static final DelegateActionSet repaintDelegateActionSet = new DelegateActionSet();
     // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
     // ChangeListener<Boolean> cycleCBChangeListener = (observable, oldValue, newValue) -> {
     //     blockMode = !newValue;
@@ -103,6 +105,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         } else {
             return new PlotWallPane(iD, analysis, mcmcPlotsController, analysisManagerCallbackI);
         }
+    }
+
+    public static DelegateActionSet getRepaintDelegateActionSet() {
+        return repaintDelegateActionSet;
     }
 
     public void setZoomedTripoliPlotPane(TripoliPlotPane zoomedPlot) {
@@ -421,7 +427,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         scaleControlsToolbar.getItems().add(resetAllDataButton);
 
         toggleSculptingModeButton = new Button("Toggle ALL Sculpting Mode");
-        toggleSculptingModeButton.setDisable(((Analysis)analysis).hasMemberAnalyses());
+        toggleSculptingModeButton.setDisable(((Analysis) analysis).hasMemberAnalyses());
         toggleSculptingModeButton.setFont(commandFont);
         toggleSculptingModeButton.setStyle(toggleSculptingModeButton.getStyle() + ";-fx-text-fill: RED;");
         toggleSculptingModeButton.setOnAction(event -> {
@@ -513,6 +519,20 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                     resetZoom();
                 });
 
+        CheckBox showBlockLinesCB = new CheckBox("Show Block Lines");
+        showBlockLinesCB.setPadding(new Insets(0, 0, 0, 10));
+        showBlockLinesCB.setSelected(AnalysisManagerController.showBlockDelimiters);
+        showBlockLinesCB.setOnAction(event -> {
+            if (showBlockLinesCB.isSelected()) {
+                AnalysisManagerController.showBlockDelimiters = true;
+                rebuildPlot(false, false);
+            } else {
+                AnalysisManagerController.showBlockDelimiters = false;
+                rebuildPlot(false, false);
+            }
+        });
+
+        scaleControlsToolbar.getItems().add(showBlockLinesCB);
 
         getChildren().add(scaleControlsToolbar);
     }
@@ -597,24 +617,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
     }
 
-    public void synchronizeBlockToggle(int blockID) {
-        ObservableList<Node> children = getChildren();
-        boolean included = false;
-        for (Node child : children) {
-            if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlotI childPlot = (AnalysisBlockCyclesPlotI) ((TripoliPlotPane) child).getPlot();
-                if (childPlot.getMapBlockIdToBlockCyclesRecord().get(blockID) != null) {
-                    childPlot.getMapBlockIdToBlockCyclesRecord().put(
-                            blockID,
-                            childPlot.getMapBlockIdToBlockCyclesRecord().get(blockID).toggleBlockIncluded());
-                    childPlot.repaint();
-                    included = childPlot.getMapBlockIdToBlockCyclesRecord().get(blockID).blockIncluded();
-                }
-            }
-        }
-        analysisManagerCallbackI.callBackSetBlockIncludedStatus(blockID, included);
-    }
-
     // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
     // public void updateStatusOfCycleCheckBox() {
     //     ObservableList<Node> children = getChildren();
@@ -636,8 +638,22 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     //     cycleCB.selectedProperty().addListener(cycleCBChangeListener);
     // }
 
-    public static DelegateActionSet getRepaintDelegateActionSet() {
-        return repaintDelegateActionSet;
+    public void synchronizeBlockToggle(int blockID) {
+        ObservableList<Node> children = getChildren();
+        boolean included = false;
+        for (Node child : children) {
+            if (child instanceof TripoliPlotPane) {
+                AnalysisBlockCyclesPlotI childPlot = (AnalysisBlockCyclesPlotI) ((TripoliPlotPane) child).getPlot();
+                if (childPlot.getMapBlockIdToBlockCyclesRecord().get(blockID) != null) {
+                    childPlot.getMapBlockIdToBlockCyclesRecord().put(
+                            blockID,
+                            childPlot.getMapBlockIdToBlockCyclesRecord().get(blockID).toggleBlockIncluded());
+                    childPlot.repaint();
+                    included = childPlot.getMapBlockIdToBlockCyclesRecord().get(blockID).blockIncluded();
+                }
+            }
+        }
+        analysisManagerCallbackI.callBackSetBlockIncludedStatus(blockID, included);
     }
 
     // Control visibility of analysis-related scale controls (log-scale) for Plot2 windows.

@@ -45,10 +45,10 @@ public class ConstantNode extends ExpressionTree {
 
         for (Integer blockID : blocksDataLite.keySet()) {
             double[][] blockData = blocksDataLite.get(blockID).cycleData();
-            retVal[blockID-1] = new Double[blockData.length];
+            retVal[blockID - 1] = new Double[blockData.length];
 
             for (int i = 0; i < blockData.length; i++) {
-                retVal[blockID-1][i] = value;
+                retVal[blockID - 1][i] = value;
             }
         }
 
@@ -60,9 +60,18 @@ public class ConstantNode extends ExpressionTree {
     public int getOperationPrecedence() {
         return 0;
     }
+
     @Override
-    public String getName() {return name;}
+    public String getName() {
+        return name;
+    }
+
     @Override
-    public void setName(String newName) {name = newName;}
-    public Double getValue() {return value;}
+    public void setName(String newName) {
+        name = newName;
+    }
+
+    public Double getValue() {
+        return value;
+    }
 }

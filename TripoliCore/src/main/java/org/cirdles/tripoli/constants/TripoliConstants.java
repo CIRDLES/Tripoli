@@ -77,22 +77,22 @@ public enum TripoliConstants {
     public static final String PLOT_TAB_CONVERGE = "Converge";
     public static final String PLOT_TAB_CONVERGE_INTENSITY = "Converge Intensity";
 
-//    public static final FixedLengthCircularQueue<String> TRIPOLI_DEFAULT_HEX_COLORS =
+    //    public static final FixedLengthCircularQueue<String> TRIPOLI_DEFAULT_HEX_COLORS =
 //            new FixedLengthCircularQueue<>(new String[]{
 //                    "#12bceb", "#095c73", "#ff0000", "#7fffd4", "#ffcf62", "#ac8c42", "#ff0000",
 //                    "#7fffd4", "#9e6fb1", "#4d3656", "#ff0000", "#7fffd4", "#baff78", "#6e9747", "#ff0000",
 //                    "#7fffd4", "#ffa056", "#b2703c", "#ff0000", "#7fffd4"});
     public static final FixedLengthCircularQueue<String> TRIPOLI_DEFAULT_HEX_COLORS =
             new FixedLengthCircularQueue<>(new String[]{
-                    "#12bceb" ,"#095c73" ,"#ed4213" ,"#f6a38b" ,"#ffcf62" ,"#ac8c42" ,"#002f9d" ,
-                    "#5272bd" ,"#9e6fb1" ,"#4d3656" ,"#608f4d" ,"#b1c9a9" ,"#baff78" ,"#6e9747" ,
-                    "#440087" ,"#9167b7" ,"#ffa056" ,"#b2703c" ,"#005ea9" ,"#4c8fc3" });
+                    "#12bceb", "#095c73", "#ed4213", "#f6a38b", "#ffcf62", "#ac8c42", "#002f9d",
+                    "#5272bd", "#9e6fb1", "#4d3656", "#608f4d", "#b1c9a9", "#baff78", "#6e9747",
+                    "#440087", "#9167b7", "#ffa056", "#b2703c", "#005ea9", "#4c8fc3"});
 
     // Chauvenet's parameter defaults
     public static final double CHAUVENETS_DEFAULT_REJECT_PROBABILITY = 0.5;
     public static final int CHAUVENETS_DEFAULT_MIN_DATUM_COUNT = 20;
     // END Chauvenet's parameter defaults
-    
+
     public static final double SCALING_DOT_DEFAULT_MIN_SIZE = 5.0;
     public static final double SCALING_DOT_DEFAULT_MAX_SIZE = 20.0;
 
@@ -125,9 +125,13 @@ public enum TripoliConstants {
 
         private final String name;
 
-        RatiosPlotColorFlavor(String name) {this.name = name;}
+        RatiosPlotColorFlavor(String name) {
+            this.name = name;
+        }
 
-        public String getName() {return this.name;}
+        public String getName() {
+            return this.name;
+        }
     }
 
     public enum IntensityUnits {

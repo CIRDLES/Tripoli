@@ -43,26 +43,27 @@ public class FileWatcher implements Runnable {
     /**
      * If set, the watcher will signal the callback if no events occur for the specified number of seconds. The signal
      * returned event will have a null path and kind. This represents an idle state.
+     *
      * @param seconds Number of seconds to wait before signaling the callback.
      */
-    public void setTimeoutSeconds(long seconds){
-        timeoutSeconds = seconds*1000;
+    public void setTimeoutSeconds(long seconds) {
+        timeoutSeconds = seconds * 1000;
     }
 
     /**
      * Resets the timeout interval. This is useful if the timeout is called and the user does not
      * wish to halt the service.
      */
-    public void resetTimeout(){
+    public void resetTimeout() {
         lastEventTime = System.currentTimeMillis();
     }
 
-    public Path getPath(){
+    public Path getPath() {
         return pathToWatch;
     }
 
     public void processExistingFiles() {
-        try{
+        try {
             List<Path> existingFiles = FileUtilities.listRegularFiles(pathToWatch);
             for (Path entry : existingFiles) {
                 callback.onFileEvent(entry, ENTRY_CREATE);
@@ -71,6 +72,7 @@ public class FileWatcher implements Runnable {
             e.printStackTrace();
         }
     }
+
     public void processExistingFiles(Comparator<Path> comparator) {
         try {
             List<Path> existingFiles = FileUtilities.listRegularFiles(pathToWatch);

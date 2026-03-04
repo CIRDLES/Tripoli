@@ -19,16 +19,15 @@ package org.cirdles.tripoli.gui.settings.color.fxcomponents;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
-import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import static org.cirdles.tripoli.constants.TripoliConstants.RatiosPlotColorFlavor;
-
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.settings.plots.RatiosColors;
+
+import static org.cirdles.tripoli.constants.TripoliConstants.RatiosPlotColorFlavor;
 
 public class RatioColorRow extends HBox {
     private static final double TITLE_WIDTH = 260;
@@ -40,7 +39,7 @@ public class RatioColorRow extends HBox {
     private final ObjectProperty<Color> colorObjectProperty;
 
 
-    public RatioColorRow (
+    public RatioColorRow(
             RatiosColors ratiosColors,
             RatiosPlotColorFlavor plotColorFlavor
     ) {

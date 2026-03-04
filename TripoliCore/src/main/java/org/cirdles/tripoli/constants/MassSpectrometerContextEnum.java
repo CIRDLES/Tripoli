@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.cirdles.tripoli.constants;
 
+import org.cirdles.tripoli.sessions.analysis.imports.OgTripoliImporter;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.neptune.NeptuneMassSpec;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.nu.NuMassSpec;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixMassSpec;
@@ -29,11 +29,11 @@ import java.util.List;
  */
 public enum MassSpectrometerContextEnum {
     OGTRIPOLI("OGTripoli", "unknown",
-            "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, IsoWorksMethod, FolderPath",
-            null, null, 1, true),
+            "Tripoli tab-delimited output of processed data for:",
+            OgTripoliImporter.class, "extractMassSpecDataFromOGTripoli", 1, false),
     PHOENIX_FULL("Phoenix Full", "Phoenix",
             "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, IsoWorksMethod, FolderPath",
-            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2", 4, true),
+            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2", 4, false),
     PHOENIX_TIMSDP_CASE1("Phoenix TIMSDP", "Phoenix",
             "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, FolderPath, IsoWorksMethod, TFEMode, TFEMonitorPeak",
             PhoenixMassSpec.class, "extractDataFromFileVersion_2_TIMSDP", 1, true),

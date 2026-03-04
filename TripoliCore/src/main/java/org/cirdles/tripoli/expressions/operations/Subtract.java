@@ -21,31 +21,31 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 
 import java.util.Map;
-import java.util.stream.IntStream;
 
 public class Subtract extends Operation {
-    public Subtract(){
+    public Subtract() {
         super();
         name = "subtract";
         precedence = 2;
     }
+
     @Override
-    public Subtract copy(){
+    public Subtract copy() {
         return new Subtract();
     }
 
     @Override
-    public Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis){
+    public Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis) {
         Double[][] leftCycle = leftChild.eval(analysis);
         Double[][] rightCycle = rightChild.eval(analysis);
         Double[][] retVal = new Double[leftCycle.length][];
 
-        for (int i = 0; i < leftCycle.length; i++){
+        for (int i = 0; i < leftCycle.length; i++) {
             Double[] leftCycleRow = leftCycle[i];
             Double[] rightCycleRow = rightCycle[i];
             retVal[i] = new Double[leftCycleRow.length];
 
-            for (int j = 0; j < leftCycleRow.length; j++){
+            for (int j = 0; j < leftCycleRow.length; j++) {
                 retVal[i][j] = leftCycleRow[j] - rightCycleRow[j];
             }
         }

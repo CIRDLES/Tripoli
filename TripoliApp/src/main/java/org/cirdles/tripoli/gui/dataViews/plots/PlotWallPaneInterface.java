@@ -46,5 +46,6 @@ public interface PlotWallPaneInterface {
     void toggleSculptingMode();
 
     void addRepaintDelegateAction(DelegateActionInterface delegateAction);
+
     void removeRepaintDelegateAction(DelegateActionInterface delegateAction);
 }

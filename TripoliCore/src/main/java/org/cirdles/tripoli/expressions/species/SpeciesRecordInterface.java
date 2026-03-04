@@ -16,8 +16,6 @@
 
 package org.cirdles.tripoli.expressions.species;
 
-import java.io.Serializable;
-
 public interface SpeciesRecordInterface extends Comparable<SpeciesRecordInterface> {
     String getMolecularFormula();
 

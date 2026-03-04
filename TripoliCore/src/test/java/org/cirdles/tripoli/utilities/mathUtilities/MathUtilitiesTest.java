@@ -16,6 +16,8 @@
 
 package org.cirdles.tripoli.utilities.mathUtilities;
 
+import com.google.common.math.Stats;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.parameters.Parameters;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,9 +25,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import com.google.common.math.Stats;
 
 class MathUtilitiesTest {
 
@@ -42,12 +41,12 @@ class MathUtilitiesTest {
      */
     void setUp() {
         //Create an array of doubles
-        arr = new double[] {47.3, 50.5, 53.7, 55.8, 55.0, 56.0001, 57.0012345678, 57.004999, 58.153, 58.852, 58.123, 58.543, 60.415, 60.794, 60.351,
+        arr = new double[]{47.3, 50.5, 53.7, 55.8, 55.0, 56.0001, 57.0012345678, 57.004999, 58.153, 58.852, 58.123, 58.543, 60.415, 60.794, 60.351,
                 61.751, 61.652, 61.325, 61.587, 61.126, 61.897, 62.543, 62.258, 62.689, 63.5473, 63.789, 64.369, 67.115, 68.142, 72.368};
-        indices = new boolean[] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
+        indices = new boolean[]{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
 
 
-        solvedIndices = new boolean[] {false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false};
+        solvedIndices = new boolean[]{false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false};
     }
 
     @AfterEach
@@ -108,7 +107,7 @@ class MathUtilitiesTest {
 
         double[] actual = new double[nums.length];
 
-        double[] expected = {6.154,2.365,8.913,0.02548,10.55,103.3,0.0001256,0.2000,0.0000,2.000,3.000}; // Iff sigFigs is equal to 4
+        double[] expected = {6.154, 2.365, 8.913, 0.02548, 10.55, 103.3, 0.0001256, 0.2000, 0.0000, 2.000, 3.000}; // Iff sigFigs is equal to 4
 
         for (int i = 0; i < nums.length; i++) {
             actual[i] = MathUtilities.roundedToSize(nums[i], sigFigs);
@@ -130,7 +129,7 @@ class MathUtilitiesTest {
         double[] nums = {6.1542565, 2.30089, 8.9125, 0.025483, 10.5475, 103.2578, 0.00012563, 0.2000, 0.0000, 2.0, 3};
         double[] actual = new double[nums.length];
 
-        double[] expected = {3,3,3,5,0,0,7,4,0,3,3}; // Iff sigFigs is equal to 4
+        double[] expected = {3, 3, 3, 5, 0, 0, 7, 4, 0, 3, 3}; // Iff sigFigs is equal to 4
 
         for (int i = 0; i < nums.length; i++) {
             actual[i] = FormatterForSigFigN.countOfTrailingDigitsForSigFig(nums[i], sigFigs);

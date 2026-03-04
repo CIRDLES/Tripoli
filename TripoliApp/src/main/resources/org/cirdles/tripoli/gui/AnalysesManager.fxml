@@ -42,6 +42,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.TextFlow?>
 
 <GridPane fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0" prefHeight="640.0" prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" stylesheets="@css/tripoli.css" vgap="10.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.AnalysisManagerController">
@@ -71,8 +72,12 @@
         <TextField fx:id="labNameTextField" prefHeight="26.0" prefWidth="219.0" promptText="Lab Name:" />
     </HBox>
     <VBox prefHeight="133.0" prefWidth="130.0" GridPane.rowIndex="4" GridPane.rowSpan="2">
-        <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Meta Data:" />
-      <Button fx:id="openConcatenatedButton" mnemonicParsing="false" onAction="#openConcatenatedAction" prefHeight="26.0" prefWidth="131.0" style="-fx-text-fill: red;" text="Open Concatenated" />
+        <Label fx:id="metaDataLabel" alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Meta Data:" />
+        <Button fx:id="openConcatenatedButton" mnemonicParsing="false" onAction="#openConcatenatedAction" prefHeight="26.0" prefWidth="131.0" style="-fx-text-fill: red; -fx-background-color: white; -fx-border-color: black; -fx-border-width: 2; -fx-border-radius: 2; -fx-background-radius: 2;" text="Open Concatenated">
+            <font>
+                <Font size="12.0" />
+            </font>
+        </Button>
     </VBox>
     <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Analysis Name:" GridPane.rowIndex="1" />
     <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Sample &amp; Description:" GridPane.rowIndex="2" />
@@ -132,38 +137,34 @@
             </ToolBar>
         </children>
     </HBox>
-    <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Data Summary:" GridPane.rowIndex="5" />
-   <AnchorPane GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.rowSpan="2">
-      <children>
-         <TabPane fx:id="dataTabPane" prefHeight="200.0" prefWidth="1072.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE">
-           <tabs>
-             <Tab fx:id="dataTab" text="Meta Data and Data">
-               <content>
-                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                        <children>
-                           <VBox prefHeight="200.0" prefWidth="1042.0">
-                              <children>
-                                  <TextArea fx:id="metaDataTextArea" editable="false" prefHeight="211.0" prefWidth="652.0" style="-fx-font-family: Monospaced; -fx-font-weight: BOLD;" text="No meta data" />
-                                  <TextArea fx:id="dataSummaryTextArea" editable="false" prefHeight="205.0" prefWidth="652.0" style="-fx-font-family: Monospaced; -fx-font-weight: BOLD;" text="No data" />
-                              </children>
-                           </VBox>
-                        </children>
-                     </AnchorPane>
-               </content>
-             </Tab>
-               <Tab fx:id="concatTab" closable="false" text="Concatenated Files">
-                 <content>
-                     <ScrollPane prefHeight="169.0" prefWidth="616.0">
+    <Label fx:id="dataSummaryLabel" alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Data Summary:" GridPane.rowIndex="5" />
+    <AnchorPane GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.rowSpan="2">
+        <children>
+            <TabPane fx:id="dataTabPane" prefHeight="200.0" prefWidth="1072.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE">
+                <tabs>
+                    <Tab fx:id="dataTab" text="Meta Data and Data">
                         <content>
-                           <ListView fx:id="memberAnalysesListView" prefHeight="185.0" prefWidth="1072.0" />
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                <children>
+                                    <VBox prefHeight="200.0" prefWidth="1042.0">
+                                        <children>
+                                            <TextArea fx:id="metaDataTextArea" editable="false" prefHeight="211.0" prefWidth="652.0" style="-fx-font-family: Monospaced; -fx-font-weight: BOLD;" text="No meta data" />
+                                            <TextArea fx:id="dataSummaryTextArea" editable="false" prefHeight="205.0" prefWidth="652.0" style="-fx-font-family: Monospaced; -fx-font-weight: BOLD;" text="No data" />
+                                        </children>
+                                    </VBox>
+                                </children>
+                            </AnchorPane>
                         </content>
-                     </ScrollPane>
-                 </content>
-               </Tab>
-           </tabs>
-         </TabPane>
-      </children>
-   </AnchorPane>
+                    </Tab>
+                    <Tab fx:id="concatTab" closable="false" text="Concatenated Files">
+                        <content>
+                            <ListView fx:id="memberAnalysesListView" prefHeight="185.0" prefWidth="1072.0" />
+                        </content>
+                    </Tab>
+                </tabs>
+            </TabPane>
+        </children>
+    </AnchorPane>
     <TabPane fx:id="analysisMethodTabPane" style="-fx-border-color: BLACK;" tabMaxHeight="20.0" tabMinHeight="20.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
         <Tab id="tab0" closable="false" text="About">
             <HBox>
@@ -180,7 +181,7 @@
                             <children>
                                 <Pane prefHeight="144.0" prefWidth="225.0">
                                     <children>
-                              <TextArea prefHeight="45.0" prefWidth="200.0" text="Set default cycles per block when no value specified in data:" wrapText="true" />
+                                        <TextArea prefHeight="45.0" prefWidth="200.0" text="Set default cycles per block when no value specified in data:" wrapText="true" />
                                         <Spinner fx:id="defaultCyclesPerBlockSpinner" layoutX="207.0" layoutY="10.0" prefHeight="26.0" prefWidth="63.0" />
                                         <Button fx:id="reloadDataForCyclesPerBlockBtn" layoutX="41.0" layoutY="45.0" mnemonicParsing="false" onAction="#reloadDataForCyclesPerBlockBtnAction" prefHeight="26.0" prefWidth="207.0" text="Reload Data" />
                                     </children>
@@ -349,7 +350,7 @@
                 <VBox spacing="10" style="-fx-padding: 10;">
                     <children>
                         <HBox>
-                        <Label prefHeight="20.0" prefWidth="513.0" style="-fx-font-weight: bold; -fx-font-size: 14;" text="Select two user functions to plot against each other:" />
+                            <Label prefHeight="20.0" prefWidth="513.0" style="-fx-font-weight: bold; -fx-font-size: 14;" text="Select two user functions to plot against each other:" />
                             <Label style="-fx-font-weight: bold; -fx-font-size: 12;" text="Saved Plot2 Selections:" />
                         </HBox>
                         <HBox spacing="20">
@@ -409,27 +410,28 @@
                             <Button fx:id="deleteExpressionButton" onAction="#deleteCustomExpressionOnAction" text="Delete" />
                             <Region HBox.hgrow="ALWAYS" />
                             <Label fx:id="expressionUnsavedLabel" style="-fx-text-fill: RED" text="UNSAVED CHANGES!" visible="false" />
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
+                            <opaqueInsets>
+                                <Insets />
+                            </opaqueInsets>
                         </ToolBar>
                         <HBox spacing="10">
                             <Label prefHeight="25.0" prefWidth="104.0" text="Expression Name:">
-                        <VBox.margin>
-                           <Insets />
-                        </VBox.margin>
-                        <padding>
-                           <Insets left="5.0" />
-                        </padding></Label>
+                                <VBox.margin>
+                                    <Insets />
+                                </VBox.margin>
+                                <padding>
+                                    <Insets left="5.0" />
+                                </padding>
+                            </Label>
                             <TextField fx:id="expressionNameTextField" maxWidth="400.0" minWidth="120.0" opacity="0.99" prefHeight="25.0" prefWidth="285.0" promptText="type your new expression name here" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
-                                <Button fx:id="treatAsRatioButton" onAction="#expressionRatioCheckBoxAction">
-                                    <graphic>
-                                        <HBox alignment="center" spacing="5">
-                                            <CheckBox fx:id="treatAsRatioCheckBox" onAction="#expressionRatioCheckBoxAction" styleClass="white-checkbox" />
-                                            <Label text="Treat as Ratio" />
-                                        </HBox>
-                                    </graphic>
-                                </Button>
+                            <Button fx:id="treatAsRatioButton" onAction="#expressionRatioCheckBoxAction">
+                                <graphic>
+                                    <HBox alignment="center" spacing="5">
+                                        <CheckBox fx:id="treatAsRatioCheckBox" onAction="#expressionRatioCheckBoxAction" styleClass="white-checkbox" />
+                                        <Label text="Treat as Ratio" />
+                                    </HBox>
+                                </graphic>
+                            </Button>
                             <Region prefWidth="0.0" HBox.hgrow="ALWAYS" />
                             <Label fx:id="expressionInvalidLabel" style="-fx-text-fill: RED" text="INVALID EXPRESSION!" visible="false" />
                         </HBox>
@@ -456,15 +458,18 @@
             <Label alignment="CENTER_RIGHT" layoutX="10.0" layoutY="10.0" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Buttons change status" />
         </children>
     </VBox>
-    <HBox fx:id="blockStatusHBox" prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: white; -fx-border-color: green; -fx-border-width: 2;" stylesheets="@css/tripoli.css" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-   <VBox prefHeight="183.0" prefWidth="130.0" GridPane.rowIndex="6">
+    <HBox fx:id="blockStatusHBox" prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: white; -fx-border-color: green; -fx-border-width: 2;" stylesheets="@css/tripoli.css" GridPane.columnIndex="1" GridPane.rowIndex="7">
       <children>
-          <Label prefHeight="58.0" prefWidth="114.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Analysis Method with Detector Details from Data File:" textAlignment="RIGHT" wrapText="true" />
-         <Pane prefHeight="200.0" prefWidth="200.0">
-            <children>
-               <Button alignment="TOP_LEFT" layoutX="12.0" layoutY="87.0" mnemonicParsing="false" onAction="#manageSessionAction" style="-fx-text-fill: red;" text="Manage Session" />
-            </children>
-         </Pane>
-      </children>
-   </VBox>
+         <TextField fx:id="liveWorkFlowStatusText" prefHeight="26.0" prefWidth="1103.0" style="-fx-background-color: ALICEBLUE;" />
+      </children></HBox>
+    <VBox prefHeight="183.0" prefWidth="130.0" GridPane.rowIndex="6">
+        <children>
+            <Label prefHeight="58.0" prefWidth="114.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Analysis Method with Detector Details from Data File:" textAlignment="RIGHT" wrapText="true" />
+            <Pane prefHeight="200.0" prefWidth="200.0">
+                <children>
+                    <Button alignment="TOP_LEFT" layoutX="12.0" layoutY="87.0" mnemonicParsing="false" onAction="#manageSessionAction" style="-fx-text-fill: red; -fx-background-color: white; -fx-background-radius: 2; -fx-border-color: black; -fx-border-radius: 2; -fx-border-width: 2;" text="Manage Session" />
+                </children>
+            </Pane>
+        </children>
+    </VBox>
 </GridPane>

@@ -22,7 +22,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -32,11 +35,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotOG;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisTwoUserFunctionsPlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.*;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.AnalysisRatioPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
@@ -234,7 +233,7 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
         this.plotWallPane.addRepaintDelegateAction(plot.getRepaintDelegateAction());
         Pane plotPane = new Pane();
         plotPane.getChildren().add(plot);
-        plotPane.getChildren().addListener((ListChangeListener<? super Node>) change ->{
+        plotPane.getChildren().addListener((ListChangeListener<? super Node>) change -> {
             while (change.next()) {
                 for (Node node : change.getRemoved()) {
                     if (node == plotPane) {

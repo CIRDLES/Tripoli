@@ -5,7 +5,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.MCMCVectorExporter;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
-import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -14,7 +13,6 @@ import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.file.SessionFileUtilities;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 
 import java.io.File;
 import java.io.IOException;
@@ -150,6 +148,16 @@ public enum FileHandlerUtil {
 
     }
 
+    public static File selectSampleMetaDataFolder(Window ownerWindow) {
+
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select SampleMetaData folder");
+        File initDirectory =
+                new File(tripoliPersistentState.getTripoliPersistentParameters().getSampleMetaDataFolderPath());
+        directoryChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+        return directoryChooser.showDialog(ownerWindow);
+    }
+
     public static File selectPeakShapeResourceFolderForBrowsing(Window ownerWindow) {
         File resourceFile;
 
@@ -241,18 +249,16 @@ public enum FileHandlerUtil {
     public static void saveExportFile(ETReduxFraction etReduxFraction, Window ownerWindow)
             throws IOException, TripoliException {
 
-        DirectoryChooser dirChooser = new DirectoryChooser();
-        dirChooser.setTitle("Select Export Folder");
-        File userHome = new File(File.separator + TripoliPersistentState.getExistingPersistentState().getMRUExportFolderPath());
-        dirChooser.setInitialDirectory(userHome.isDirectory() ? userHome : null);
-        File directory = dirChooser.showDialog(ownerWindow);
-        if (null != directory) {
-            TripoliPersistentState.getExistingPersistentState().setMRUExportFolderPath(directory.getPath());
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Fraction '.xml' file");
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("ET_Redux Fraction files", "*.xml"));
+        File initDirectory = new File(tripoliPersistentState.getMRUSessionFolderPath());
+        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+        String fileName = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
+        fileChooser.setInitialFileName(fileName);
+        File fractionFileNew = fileChooser.showSaveDialog(ownerWindow);
 
-            String fileName = directory + File.separator +
-                    etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
-            etReduxFraction.serializeXMLObject(fileName);
-        }
+        etReduxFraction.serializeXMLObject(fractionFileNew.getAbsolutePath());
     }
 
     public static File selectImportFile(Window ownerWindow) throws TripoliException {

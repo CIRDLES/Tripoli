@@ -75,6 +75,7 @@ public class AnalysisMethodPersistance implements Serializable {
         }
         return expressionUserFunctionList;
     }
+
     public void setExpressionUserFunctionList(List<UserFunction> expressionUserFunctionList) {
         this.expressionUserFunctionList = expressionUserFunctionList;
     }

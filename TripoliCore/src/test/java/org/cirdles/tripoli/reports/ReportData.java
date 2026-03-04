@@ -30,7 +30,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -51,7 +50,8 @@ public class ReportData {
         this.dataFile = dataFile;
     }
 
-    public ReportData() {}
+    public ReportData() {
+    }
 
     public List<AnalysisInterface> getAnalysisList() {
         return analysisList;

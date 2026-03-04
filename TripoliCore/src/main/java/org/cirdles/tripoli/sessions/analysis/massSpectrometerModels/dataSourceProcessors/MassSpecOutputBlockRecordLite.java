@@ -41,8 +41,9 @@ public record MassSpecOutputBlockRecordLite(
         }
         return new MassSpecOutputBlockRecordLite(blockID, cycleDataExpand);
     }
-    public MassSpecOutputBlockRecordLite populateColumnForCustomExpression(Double[] expressionData, int columnIndex){
-        if (columnIndex == -1){ // New column
+
+    public MassSpecOutputBlockRecordLite populateColumnForCustomExpression(Double[] expressionData, int columnIndex) {
+        if (columnIndex == -1) { // New column
             double[][] cycleDataExpand = new double[cycleData.length][];
             for (int row = 0; row < cycleData.length; row++) {
                 cycleDataExpand[row] = new double[cycleData[row].length + 1];
@@ -55,7 +56,7 @@ public record MassSpecOutputBlockRecordLite(
 
         } else { // Existing column
             for (int row = 0; row < cycleData.length; row++) {
-                cycleData[row][columnIndex-0] = expressionData[row];
+                cycleData[row][columnIndex - 0] = expressionData[row];
             }
 
             return new MassSpecOutputBlockRecordLite(blockID, cycleData);
@@ -65,15 +66,15 @@ public record MassSpecOutputBlockRecordLite(
 
     public MassSpecOutputBlockRecordLite removeColumnForCustomExpression(int columnIndex) {
         int arrayIndex = columnIndex - 0;
-        
+
         double[][] cycleDataReduce = new double[cycleData.length][];
         for (int row = 0; row < cycleData.length; row++) {
             cycleDataReduce[row] = new double[cycleData[row].length - 1];
             // Copy elements before the column to be removed
             System.arraycopy(cycleData[row], 0, cycleDataReduce[row], 0, arrayIndex);
             // Copy elements after the column to be removed
-            System.arraycopy(cycleData[row], arrayIndex + 1, cycleDataReduce[row], arrayIndex, 
-                         cycleData[row].length - (arrayIndex + 1));
+            System.arraycopy(cycleData[row], arrayIndex + 1, cycleDataReduce[row], arrayIndex,
+                    cycleData[row].length - (arrayIndex + 1));
         }
         return new MassSpecOutputBlockRecordLite(blockID, cycleDataReduce);
     }

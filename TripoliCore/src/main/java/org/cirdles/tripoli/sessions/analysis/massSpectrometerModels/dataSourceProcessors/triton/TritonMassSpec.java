@@ -119,7 +119,7 @@ public enum TritonMassSpec {
         for (String line : blockData) {
             String[] lineSplit = line.split("\t");
             // handle strange time from UCDavis
-            lineSplit[1] = lineSplit[1].trim().replace(":","");
+            lineSplit[1] = lineSplit[1].trim().replace(":", "");
             timeStampByLineSplit.add(lineSplit[1].trim());
             cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 0, lineSplit.length));
         }

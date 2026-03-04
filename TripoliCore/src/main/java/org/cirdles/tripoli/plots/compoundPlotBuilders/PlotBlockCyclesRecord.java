@@ -61,9 +61,9 @@ public record PlotBlockCyclesRecord(
 
     public PlotBlockCyclesRecord performChauvenets(Parameters parameters) {
         boolean[] cyclesIncludedChauvenet = applyChauvenetsCriterion(
-                    cycleMeansData,
-                    cyclesIncluded,
-                    parameters);
+                cycleMeansData,
+                cyclesIncluded,
+                parameters);
 
         return new PlotBlockCyclesRecord(
                 blockID,

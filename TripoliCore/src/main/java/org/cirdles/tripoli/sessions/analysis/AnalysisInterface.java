@@ -81,7 +81,7 @@ public interface AnalysisInterface {
                     retVal = MassSpectrometerContextEnum.PHOENIX_IONVANTAGE_XLS;
                 }
             } catch (BiffException e) {
-                throw new RuntimeException(e);
+                //throw new RuntimeException(e);
             }
 
         } else {
@@ -150,7 +150,7 @@ public interface AnalysisInterface {
 
     void setAnalysisSampleDescription(String analysisSampleDescription);
 
-    String prettyPrintAnalysisSummary();
+    String prettyPrintAnalysisSummary(int trimNameSize);
 
     String prettyPrintAnalysisMetaData();
 
@@ -193,20 +193,31 @@ public interface AnalysisInterface {
     Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount();
 
     String getTwoSigmaHexColorString();
-    String getOneSigmaHexColorString();
-    String getTwoStandardErrorHexColorString();
-    String getMeanHexColorString();
-    String getDataHexColorString();
-    String getAntiDataHexColorString();
-    RatiosColors getRatioColors();
 
+    void setTwoSigmaHexColorString(String hexColor);
+
+    String getOneSigmaHexColorString();
 
     void setOneSigmaHexColorString(String hexColor);
-    void setTwoSigmaHexColorString(String hexColor);
+
+    String getTwoStandardErrorHexColorString();
+
     void setTwoStandardErrorHexColorString(String hexColor);
+
+    String getMeanHexColorString();
+
     void setMeanHexColorString(String hexColor);
+
+    String getDataHexColorString();
+
     void setDataHexColorString(String hexColor);
+
+    String getAntiDataHexColorString();
+
     void setAntiDataHexColorString(String hexColor);
+
+    RatiosColors getRatioColors();
+
     void setRatioColors(RatiosColors ratiosColors);
 
     Parameters getParameters();

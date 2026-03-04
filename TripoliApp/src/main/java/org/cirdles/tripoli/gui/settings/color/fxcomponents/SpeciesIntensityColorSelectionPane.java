@@ -34,6 +34,8 @@ import java.util.Map;
 
 public class SpeciesIntensityColorSelectionPane extends Pane {
 
+    private static final double POINTS_TO_PIXELS = 1.33;
+    private static final double TITLE_TO_LABELS_RATIO = 1.05;
     @FXML
     private Label title;
     @FXML
@@ -44,10 +46,6 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
     private SpeciesColorSelectionRow faradayModelRow;
     @FXML
     private SpeciesColorSelectionRow photomultiplierModelRow;
-
-    private static final double POINTS_TO_PIXELS = 1.33;
-    private static final double TITLE_TO_LABELS_RATIO = 1.05;
-
     private SpeciesRecordInterface speciesRecordInterface;
     private SpeciesColors speciesColors;
     private Map<SpeciesRecordInterface, SpeciesColors> colorMap;
@@ -55,18 +53,18 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
 
 
     public SpeciesIntensityColorSelectionPane(
-                                               SpeciesRecordInterface speciesRecordInterface,
-                                               Map<SpeciesRecordInterface, SpeciesColors> colorMap,
-                                               DelegateActionSet delegateActionSet,
-                                               double prefHeight
-        ) {
+            SpeciesRecordInterface speciesRecordInterface,
+            Map<SpeciesRecordInterface, SpeciesColors> colorMap,
+            DelegateActionSet delegateActionSet,
+            double prefHeight
+    ) {
         // TODO: Replace fxml with row construct
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("SpeciesIntensityColorSelectionPane.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
-        try{
+        try {
             fxmlLoader.load();
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         this.setPrefHeight(prefHeight);
@@ -87,7 +85,7 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
                         Font.font(
                                 title.getFont().getFamily(),
                                 FontWeight.BOLD,
-                                heightProperty().get() /(POINTS_TO_PIXELS * TITLE_TO_LABELS_RATIO))
+                                heightProperty().get() / (POINTS_TO_PIXELS * TITLE_TO_LABELS_RATIO))
                 );
             }
         });
@@ -117,12 +115,12 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
             delegateActionSet.executeDelegateActions();
         });
         this.photomultiplierDataRow.colorObjectProperty().addListener((observable, oldValue, newValue) -> {
-           colorMap.put(
-                   speciesRecordInterface,
-                   speciesColors.altered(TripoliConstants.DetectorPlotFlavor.PM_DATA,
-                           ConstantsTripoliApp.convertColorToHex(newValue))
-           );
-           delegateActionSet.executeDelegateActions();
+            colorMap.put(
+                    speciesRecordInterface,
+                    speciesColors.altered(TripoliConstants.DetectorPlotFlavor.PM_DATA,
+                            ConstantsTripoliApp.convertColorToHex(newValue))
+            );
+            delegateActionSet.executeDelegateActions();
         });
         this.photomultiplierModelRow.colorObjectProperty().addListener((observable, oldValue, newValue) -> {
             colorMap.put(
@@ -144,33 +142,32 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
     }
 
 
-
     public SpeciesRecordInterface getSpeciesRecordInterface() {
         return speciesRecordInterface;
-    }
-
-    public SpeciesColors getSpeciesColors() {
-        return speciesColors;
-    }
-
-    public Map<SpeciesRecordInterface, SpeciesColors> getColorMap() {
-        return colorMap;
-    }
-
-    public DelegateActionSet getDelegateActionSet() {
-        return delegateActionSet;
     }
 
     private void setSpeciesRecordInterface(SpeciesRecordInterface speciesRecordInterface) {
         this.speciesRecordInterface = speciesRecordInterface;
     }
 
+    public SpeciesColors getSpeciesColors() {
+        return speciesColors;
+    }
+
     private void setSpeciesColors(SpeciesColors speciesColors) {
         this.speciesColors = speciesColors;
     }
 
+    public Map<SpeciesRecordInterface, SpeciesColors> getColorMap() {
+        return colorMap;
+    }
+
     private void setColorMap(Map<SpeciesRecordInterface, SpeciesColors> colorMap) {
         this.colorMap = colorMap;
+    }
+
+    public DelegateActionSet getDelegateActionSet() {
+        return delegateActionSet;
     }
 
     private void setDelegateActionSet(DelegateActionSet delegateActionSet) {

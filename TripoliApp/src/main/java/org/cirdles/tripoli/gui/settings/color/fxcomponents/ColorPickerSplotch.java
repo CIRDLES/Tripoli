@@ -29,7 +29,6 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.Setter;
@@ -60,12 +59,12 @@ public class ColorPickerSplotch extends StackPane {
         super();
         initializeComponents();
         bindProperties();
-        this.label.setStyle(this.label.getStyle() +";-fx-font-weight: bold;");
+        this.label.setStyle(this.label.getStyle() + ";-fx-font-weight: bold;");
         this.label.setAlignment(Pos.CENTER);
         this.getChildren().addAll(this.colorPicker, this.label);
 
         this.label.addEventHandler(MouseEvent.MOUSE_CLICKED, click -> {
-            if (! colorPicker.isShowing()) {
+            if (!colorPicker.isShowing()) {
                 colorPicker.show();
             }
         });
@@ -97,7 +96,8 @@ public class ColorPickerSplotch extends StackPane {
 
     private void initializeComponents() {
         this.repaintDelegateActionSet = new DelegateActionSet();
-        this.hexColorSetter = hexString -> {};
+        this.hexColorSetter = hexString -> {
+        };
         this.fontObjectProperty = new SimpleObjectProperty<>();
         this.colorPicker = new ColorPicker();
         this.colorValue = new SimpleObjectProperty<>(colorPicker.getValue());
@@ -127,7 +127,9 @@ public class ColorPickerSplotch extends StackPane {
         return colorValue;
     }
 
-    public Color getColor() { return colorValue.get(); }
+    public Color getColor() {
+        return colorValue.get();
+    }
 
     public void setColor(Color color) {
         this.colorValue.set(color);

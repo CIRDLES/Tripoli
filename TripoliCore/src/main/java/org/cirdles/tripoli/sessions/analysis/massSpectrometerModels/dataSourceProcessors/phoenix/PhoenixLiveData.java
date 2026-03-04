@@ -45,7 +45,7 @@ public class PhoenixLiveData {
     boolean initMetaData = true;
     MassSpecOutputBlockRecordLite blockRecordLite;
     MassSpecExtractedData massSpecExtractedData;
-    double [][] cycleData;
+    double[][] cycleData;
     int numOfFunctions = 0;
     int cycleIndex = 0;
     int blockIndex = 0;
@@ -56,15 +56,78 @@ public class PhoenixLiveData {
 
     /**
      * Contains all the logic for operating on live data files output by Phoenix mass spectrometer.
+     *
      * @throws TripoliException Thrown by analysis initialization
      */
     public PhoenixLiveData() throws TripoliException {
         liveDataAnalysis = AnalysisInterface.initializeNewAnalysis(0);
         massSpecExtractedData = new MassSpecExtractedData();
-        massSpecExtractedData.setColumnHeaders(new String[] { "Cycle", "Time" });
+        massSpecExtractedData.setColumnHeaders(new String[]{"Cycle", "Time"});
         MassSpectrometerContextEnum massSpectrometerContext = liveDataAnalysis.getParameters().getMassSpectrometerContext();
         massSpecExtractedData.setMassSpectrometerContext(massSpectrometerContext);
         liveDataAnalysis.setMassSpecExtractedData(massSpecExtractedData);
+    }
+
+    /**
+     * Checks methodfolder and its parent for the existence of LiveDataStatus.txt, retrieves the active livedata location
+     * from the txt and returns the path of it.
+     *
+     * @param methodFolder user/mru supplied folder file
+     * @return Path of the active LiveData folder
+     */
+    public static Path getLiveDataFolderPath(File methodFolder) {
+        File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
+        File parentLiveDataStatusFile = new File(methodFolder.getParentFile(), "LiveDataStatus.txt");
+
+        File mutatableMethodFolder = methodFolder;
+        if (!liveDataStatusFile.exists() && !parentLiveDataStatusFile.exists()) {
+            return null;
+        }
+
+        // Prefer methodFolder, fallback to parent
+        if (!liveDataStatusFile.exists()) {
+            liveDataStatusFile = parentLiveDataStatusFile;
+            mutatableMethodFolder = methodFolder.getParentFile();
+        }
+
+        String line = "";
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusFile));
+
+            do {
+                line = bufferedReader.readLine();
+            } while (!Objects.equals(line.split(",")[0], "Method"));
+        } catch (IOException ignored) {
+        }
+
+        String[] methodParts = line.split("\\\\");
+        String methodName = methodParts[methodParts.length - 2].replace("\"", "");
+
+        return Path.of(mutatableMethodFolder + File.separator + methodName + File.separator + "LiveData");
+    }
+
+    public static File getFinishedFile(File methodFolder) {
+        File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
+
+        if (!liveDataStatusFile.exists()) {
+            return new File("");
+        }
+
+        String line = "";
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusFile));
+
+            do {
+                line = bufferedReader.readLine();
+            } while (!Objects.equals(line.split(",")[0], "Method"));
+        } catch (IOException ignored) {
+        }
+
+        String[] methodParts = line.split("\\\\");
+        String methodName = methodParts[methodParts.length - 2];
+        String analysisName = methodParts[methodParts.length - 1].replace("\"", "");
+
+        return new File(methodFolder + File.separator + methodName + File.separator + analysisName + ".TIMSDP");
     }
 
     private File getAnalysisTxtFile() {
@@ -77,7 +140,7 @@ public class PhoenixLiveData {
         return null;
     }
 
-    public AnalysisInterface getLiveDataAnalysis(){
+    public AnalysisInterface getLiveDataAnalysis() {
         return liveDataAnalysis;
     }
 
@@ -85,10 +148,10 @@ public class PhoenixLiveData {
         File liveDataFile = filePath.toFile();
         analysisNumber = liveDataFile.getName().split("-")[0];
 
-        if (liveDataFile.exists() && liveDataFile.isFile()){
+        if (liveDataFile.exists() && liveDataFile.isFile()) {
             try {
                 String[] lines = Files.readAllLines(filePath).toArray(new String[0]);
-                for (String line : lines){
+                for (String line : lines) {
                     readLiveDataLine(line);
                 }
                 if (initMetaData) {
@@ -107,7 +170,7 @@ public class PhoenixLiveData {
                         }
 
                         // Add oxide corrected user functions to analysis
-                        if (modelFunc.isOxideCorrected()){
+                        if (modelFunc.isOxideCorrected()) {
                             liveDataAnalysis.getUserFunctions().add(modelFunc);
                         }
 
@@ -124,12 +187,12 @@ public class PhoenixLiveData {
 
                 blockRecordLite = new MassSpecOutputBlockRecordLite(blockIndex, cycleData);
                 if (r270_267ColumnIndex != -1 && r265_267ColumnIndex != -1) {
-                    blockRecordLite = blockRecordLite.expandForUraniumOxideCorrection(r270_267ColumnIndex,r265_267ColumnIndex, 0.00205);
+                    blockRecordLite = blockRecordLite.expandForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, 0.00205);
                 }
                 massSpecExtractedData.addBlockLiteRecord(blockRecordLite);
 
                 // Add data to UF map (For use in plots)
-                for (UserFunction userFunction : liveDataAnalysis.getUserFunctions()){
+                for (UserFunction userFunction : liveDataAnalysis.getUserFunctions()) {
                     SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = AllBlockInitForDataLiteOne.prepareSingleBlockDataLiteCaseOne(
                             blockIndex,
                             massSpecExtractedData
@@ -159,7 +222,7 @@ public class PhoenixLiveData {
     private void readLiveDataLine(String dataLine) {
         String[] dataLineSplit = dataLine.split(",");
 
-        switch (dataLineSplit[0]){
+        switch (dataLineSplit[0]) {
             case "Version":
             case "Serial No":
             case "Sample No":
@@ -167,16 +230,15 @@ public class PhoenixLiveData {
             case "Baseline Corrected":
                 break;
             case "Method":
-                if (initMetaData)
-                {
-                    String analysisName = dataLineSplit[1].substring(dataLineSplit[1].lastIndexOf("\\")+1, dataLineSplit[1].length()-1);
+                if (initMetaData) {
+                    String analysisName = dataLineSplit[1].substring(dataLineSplit[1].lastIndexOf("\\") + 1, dataLineSplit[1].length() - 1);
                     liveDataAnalysis.setAnalysisName(analysisName + (" (Live Data)"));
                     liveDataAnalysis.setAnalysisSampleName(analysisName.split(" ")[0]);
                     liveDataAnalysis.setAnalysisFractionName(analysisName.split(" ")[1].split("-")[0]);
                 }
                 break;
             case "Acquire Date":
-                if (initMetaData){
+                if (initMetaData) {
                     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date date;
                     try {
@@ -207,7 +269,7 @@ public class PhoenixLiveData {
                 cycleIndex = Integer.parseInt(dataLineSplit[1]);
                 if (cycleData == null || cycleData.length > cycleIndex) {
                     // Starting a new block, set the CPB and redo the header
-                    if (cycleData != null && cyclesPerBlock == 0){
+                    if (cycleData != null && cyclesPerBlock == 0) {
                         cyclesPerBlock = cycleData.length;
                         setAnalysisHeader();
                     }
@@ -226,21 +288,23 @@ public class PhoenixLiveData {
                 break;
             default:
                 try {
-                    int columnIndex = Integer.parseInt(dataLineSplit[0])-1;
-                    String userFunctionName = dataLineSplit[1].substring(1, dataLineSplit[1].length()-1);
+                    int columnIndex = Integer.parseInt(dataLineSplit[0]) - 1;
+                    String userFunctionName = dataLineSplit[1].substring(1, dataLineSplit[1].length() - 1);
                     double userFunctionValue = Double.parseDouble(dataLineSplit[2]);
-                    if (initMetaData){
+                    if (initMetaData) {
                         UserFunction userFunction = new UserFunction(userFunctionName, columnIndex);
                         liveDataAnalysis.getUserFunctions().add(userFunction);
                         String[] headersExpanded = Arrays.copyOf(massSpecExtractedData.getColumnHeaders(),
-                                massSpecExtractedData.getColumnHeaders().length+1);
-                        headersExpanded[columnIndex+2] = userFunctionName;
+                                massSpecExtractedData.getColumnHeaders().length + 1);
+                        headersExpanded[columnIndex + 2] = userFunctionName;
                         massSpecExtractedData.setColumnHeaders(headersExpanded);
                     }
-                    cycleData[cycleIndex-1][columnIndex] = userFunctionValue;
-                } catch (Exception ignore) {}
+                    cycleData[cycleIndex - 1][columnIndex] = userFunctionValue;
+                } catch (Exception ignore) {
+                }
         }
     }
+
     private List<String> readTxtHeaderFromFile(File analysisTxtFile) {
         if (analysisTxtFile != null) {
             try {
@@ -249,11 +313,11 @@ public class PhoenixLiveData {
 
                 String line;
                 while (!Objects.equals(line = br.readLine(), "")) {
-                    if (line.contains(",")){
+                    if (line.contains(",")) {
                         headerData.add(line.split(",")[1]);
                     }
                 }
-                if (headerData.get(2).contains(".")){ // Strip off file extension
+                if (headerData.get(2).contains(".")) { // Strip off file extension
                     headerData.set(2, headerData.get(2).substring(0, headerData.get(2).lastIndexOf(".")));
                 }
                 return headerData;
@@ -263,6 +327,7 @@ public class PhoenixLiveData {
         }
         return null;
     }
+
     private void setAnalysisHeader() {
         MassSpecExtractedData.MassSpecExtractedHeader header;
 
@@ -300,6 +365,7 @@ public class PhoenixLiveData {
     /**
      * Merges changes from LiveData analysis to finished analysis. Copies BlockIdToRawDataLiteOne included data,
      * and replaces UserFunctions in FinishedAnalysis with those from LiveDataAnalysis.
+     *
      * @param finishedAnalysis analysis generated from finished timsdp file
      */
     public void mergeFinalFile(AnalysisInterface finishedAnalysis) {
@@ -320,64 +386,5 @@ public class PhoenixLiveData {
                         .orElse(finishedUF)
         );
 
-    }
-
-    /**
-     * Checks methodfolder and its parent for the existence of LiveDataStatus.txt, retrieves the active livedata location
-     * from the txt and returns the path of it.
-     * @param methodFolder user/mru supplied folder file
-     * @return Path of the active LiveData folder
-     */
-    public static Path getLiveDataFolderPath(File methodFolder) {
-        File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
-        File parentLiveDataStatusFile = new File(methodFolder.getParentFile(), "LiveDataStatus.txt");
-
-        File mutatableMethodFolder = methodFolder;
-        if (!liveDataStatusFile.exists() && !parentLiveDataStatusFile.exists()) {
-            return null;
-        }
-
-        // Prefer methodFolder, fallback to parent
-        if (!liveDataStatusFile.exists()) {
-            liveDataStatusFile = parentLiveDataStatusFile;
-            mutatableMethodFolder = methodFolder.getParentFile();
-        }
-
-        String line = "";
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusFile));
-
-            do {
-                line = bufferedReader.readLine();
-            } while (!Objects.equals(line.split(",")[0], "Method"));
-        } catch (IOException ignored) {}
-
-        String[] methodParts = line.split("\\\\");
-        String methodName = methodParts[methodParts.length - 2].replace("\"", "");
-
-        return Path.of(mutatableMethodFolder + File.separator + methodName + File.separator + "LiveData");
-    }
-
-    public static File getFinishedFile(File methodFolder) {
-        File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
-
-        if (!liveDataStatusFile.exists()) {
-            return new File("");
-        }
-
-        String line = "";
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusFile));
-
-            do {
-                line = bufferedReader.readLine();
-            } while (!Objects.equals(line.split(",")[0], "Method"));
-        } catch (IOException ignored) {}
-
-        String[] methodParts = line.split("\\\\");
-        String methodName =  methodParts[methodParts.length - 2];
-        String analysisName = methodParts[methodParts.length - 1].replace("\"", "");
-
-        return new File(methodFolder + File.separator + methodName + File.separator + analysisName + ".TIMSDP");
     }
 }

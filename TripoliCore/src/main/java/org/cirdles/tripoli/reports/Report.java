@@ -27,24 +27,19 @@ import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-
 public class Report implements Serializable, Comparable<Report> {
     private static final long serialVersionUID = 1064098835718283672L;
+    public static boolean supressContents = false;
     public final String FIXED_REPORT_NAME = "Full Report";
-
     private String reportName;
     private String methodName;
-
     private Set<ReportCategory> categorySet;
-
-    public static boolean supressContents = false;
 
     public Report(String reportName, String methodName, Set<ReportCategory> categorySet) {
         this.reportName = reportName;
@@ -54,6 +49,7 @@ public class Report implements Serializable, Comparable<Report> {
 
     /**
      * Creates a mutable copy from an existing Report
+     *
      * @param otherReport Report to be copied
      */
     public Report(Report otherReport) {
@@ -62,44 +58,6 @@ public class Report implements Serializable, Comparable<Report> {
         this.categorySet = otherReport.categorySet.stream()
                 .map(ReportCategory::new)
                 .collect(Collectors.toCollection(TreeSet::new));
-    }
-
-    public String getReportName() { return this.reportName; }
-    public void setReportName(String reportName) { this.reportName = reportName; }
-
-    public String getMethodName() { return this.methodName; }
-
-    public void addCategory(ReportCategory category) {
-        this.categorySet.add(category);
-    }
-    public void removeCategory(ReportCategory category) { this.categorySet.remove(category); }
-
-    public Set<ReportCategory> getCategories() { return categorySet; }
-
-    /**
-     * Inserts a category's new index position respecting the position of the category that already exists there.
-     * If the moving category is moving up in the set then the categories residing between the old index and the new one
-     * will be shifted DOWN to preserve order integrity. Likewise, categories moving down the set will force categories
-     * to shift UP.
-     * @param category The existing category that will have its index updated
-     * @param newIndex New index for that category
-     */
-    public void updateCategoryPosition(ReportCategory category, int newIndex) {
-        int oldIndex = category.getPositionIndex();
-        if (oldIndex == newIndex) { return; }
-        categorySet.remove(category);
-
-        // Adjust indices for new spot
-        for (ReportCategory c : categorySet) {
-            int currentIndex = c.getPositionIndex();
-            if (currentIndex >= newIndex && currentIndex < oldIndex) {
-                c.setPositionIndex(currentIndex + 1);
-            } else if (currentIndex > oldIndex && currentIndex <= newIndex) {
-                c.setPositionIndex(currentIndex - 1);
-            }
-        }
-        category.setPositionIndex(newIndex);
-        categorySet.add(category);
     }
 
     public static List<Report> getReportList(String methodName) {
@@ -113,8 +71,8 @@ public class Report implements Serializable, Comparable<Report> {
             return new ArrayList<>();
         }
         List<Report> methodReports;
-        if (methodPersistence != null){
-             methodReports = methodPersistence.getReportList();
+        if (methodPersistence != null) {
+            methodReports = methodPersistence.getReportList();
         } else {
             methodReports = new ArrayList<>();
         }
@@ -124,6 +82,7 @@ public class Report implements Serializable, Comparable<Report> {
     /**
      * Creates a blank report class which only has the fixed category and column initialized. Since all reports are bound
      * to a method name, that is required to be passed
+     *
      * @param reportName Name of the report
      * @param methodName Analysis method relevant to this report
      * @return A report class object
@@ -147,6 +106,80 @@ public class Report implements Serializable, Comparable<Report> {
         categories.add(ReportCategory.generateCustomExpressions(ufList));
 
         return new Report(reportName, analysis.getMethod().getMethodName(), categories);
+    }
+
+    /**
+     * Creates a class type of File for the location of a generated CSV report. Location is in the same directory as
+     * the first analysis and the name is as follows: [SessionName]-[Each Analysis Name]-report.csc
+     * <p>THIS METHOD DOES NOT GENERATE THE CSV</p>
+     *
+     * @param listOfAnalyses analyses to be appended to file name
+     * @param sessionName    current session name
+     * @return File class pointing to the expected output for a CSV file of the generated report
+     */
+    public static File getReportCSVFile(List<AnalysisInterface> listOfAnalyses, String sessionName) {
+        StringBuilder filePathString = new StringBuilder(listOfAnalyses.get(0).getDataFilePathString());
+        filePathString.replace(filePathString.lastIndexOf(File.separator), filePathString.length(), File.separator);
+        filePathString.append(sessionName).append("-");
+        for (AnalysisInterface analysis : listOfAnalyses) {
+            filePathString.append(analysis.getAnalysisName()).append("-");
+        }
+        filePathString.append("report.csv");
+
+        return new File(filePathString.toString());
+    }
+
+    public String getReportName() {
+        return this.reportName;
+    }
+
+    public void setReportName(String reportName) {
+        this.reportName = reportName;
+    }
+
+    public String getMethodName() {
+        return this.methodName;
+    }
+
+    public void addCategory(ReportCategory category) {
+        this.categorySet.add(category);
+    }
+
+    public void removeCategory(ReportCategory category) {
+        this.categorySet.remove(category);
+    }
+
+    public Set<ReportCategory> getCategories() {
+        return categorySet;
+    }
+
+    /**
+     * Inserts a category's new index position respecting the position of the category that already exists there.
+     * If the moving category is moving up in the set then the categories residing between the old index and the new one
+     * will be shifted DOWN to preserve order integrity. Likewise, categories moving down the set will force categories
+     * to shift UP.
+     *
+     * @param category The existing category that will have its index updated
+     * @param newIndex New index for that category
+     */
+    public void updateCategoryPosition(ReportCategory category, int newIndex) {
+        int oldIndex = category.getPositionIndex();
+        if (oldIndex == newIndex) {
+            return;
+        }
+        categorySet.remove(category);
+
+        // Adjust indices for new spot
+        for (ReportCategory c : categorySet) {
+            int currentIndex = c.getPositionIndex();
+            if (currentIndex >= newIndex && currentIndex < oldIndex) {
+                c.setPositionIndex(currentIndex + 1);
+            } else if (currentIndex > oldIndex && currentIndex <= newIndex) {
+                c.setPositionIndex(currentIndex - 1);
+            }
+        }
+        category.setPositionIndex(newIndex);
+        categorySet.add(category);
     }
 
     public void serializeReport() {
@@ -181,27 +214,9 @@ public class Report implements Serializable, Comparable<Report> {
     }
 
     /**
-     * Creates a class type of File for the location of a generated CSV report. Location is in the same directory as
-     * the first analysis and the name is as follows: [SessionName]-[Each Analysis Name]-report.csc
-     * <p>THIS METHOD DOES NOT GENERATE THE CSV</p>
-     * @param listOfAnalyses analyses to be appended to file name
-     * @param sessionName current session name
-     * @return File class pointing to the expected output for a CSV file of the generated report
-     */
-    public static File getReportCSVFile(List<AnalysisInterface> listOfAnalyses, String sessionName){
-        StringBuilder filePathString = new StringBuilder(listOfAnalyses.get(0).getDataFilePathString());
-        filePathString.replace(filePathString.lastIndexOf(File.separator),filePathString.length(), File.separator);
-        filePathString.append(sessionName).append("-");
-        for (AnalysisInterface analysis : listOfAnalyses) {
-            filePathString.append(analysis.getAnalysisName()).append("-");
-        }
-        filePathString.append("report.csv");
-
-        return new File(filePathString.toString());
-    }
-    /**
      * Generates a CSV output and creates it at the report directory. Creates a row in the file for each analysis given.
      * Internally filters out analyses that don't match the report.
+     *
      * @param listOfAnalyses List of all loaded analyses
      * @return File of the created CSV. Null if process failed.
      */
@@ -239,7 +254,7 @@ public class Report implements Serializable, Comparable<Report> {
                     headers.add(column.getColumnName() + " Mean");
                     headers.add("%StdErr");
                     headers.add("%StdDev");
-                } else if (column.isUserFunction()){
+                } else if (column.isUserFunction()) {
                     headers.add(column.getColumnName() + " Mean");
                     headers.add("StdErr");
                     headers.add("StdDev");
@@ -304,7 +319,9 @@ public class Report implements Serializable, Comparable<Report> {
         Iterator<ReportCategory> categoriesIterator = this.categorySet.iterator();
         Iterator<ReportCategory> categoriesIterator2 = that.categorySet.iterator();
 
-        if (this.categorySet.size() != that.categorySet.size()) { categoriesEqual = false; }
+        if (this.categorySet.size() != that.categorySet.size()) {
+            categoriesEqual = false;
+        }
         while (categoriesIterator.hasNext() && categoriesIterator2.hasNext()) {
             ReportCategory category1 = categoriesIterator.next();
             ReportCategory category2 = categoriesIterator2.next();

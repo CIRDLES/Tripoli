@@ -16,7 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis;
 
-import com.google.common.primitives.Booleans;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
@@ -50,7 +49,7 @@ public record AnalysisStatsRecord(
         int countOfTotalCycles,
         int countOfIncludedCycles) implements Serializable {
 
-    ///TODO: fix signature as userFunction holds all
+    /// TODO: fix signature as userFunction holds all
     public static BlockStatsRecord[] generateAnalysisBlockStatsRecords(UserFunction userFunction, Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord) {
         // Jan 2024 new approach - two modes: block mode and cycle mode
         // BLOCK MODE will be default - calculate and plot stats for each block

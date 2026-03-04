@@ -38,6 +38,7 @@ import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.utilities.events.PlotTabSelectedEvent;
 import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.plots.PlotTwo;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.BlockAnalysisRatioCyclesBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesBuilder;
@@ -48,11 +49,10 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
-import org.cirdles.tripoli.plots.PlotTwo;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 
 import java.util.*;
 
@@ -102,9 +102,9 @@ public class OGTripoliViewController {
             tab.selectedProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue != null && newValue) {
                     SettingsWindow.getCurrentScene().ifPresent(scene -> {
-                       Event.fireEvent(scene, PlotTabSelectedEvent.create(
-                               SettingsRequestType.INTENSITIES
-                       )) ;
+                        Event.fireEvent(scene, PlotTabSelectedEvent.create(
+                                SettingsRequestType.INTENSITIES
+                        ));
                     });
                 }
             });
@@ -299,7 +299,7 @@ public class OGTripoliViewController {
                                     true,
                                     false);
                     AbstractPlot plot = AnalysisBlockCyclesPlot.generatePlot(
-                            new Rectangle(minPlotWidth, minPlotHeight),analysis, blockAnalysisRatioCyclesBuilder.getBlockAnalysisRatioCyclesRecord(), (PlotWallPane) plotsWallPaneRatios);
+                            new Rectangle(minPlotWidth, minPlotHeight), analysis, blockAnalysisRatioCyclesBuilder.getBlockAnalysisRatioCyclesRecord(), (PlotWallPane) plotsWallPaneRatios);
 
                     tripoliPlotPane.addPlot(plot);
                     plot.refreshPanel(false, false);
@@ -353,7 +353,7 @@ public class OGTripoliViewController {
             if (!plot2Selection.isDisplayed()) {
                 continue;
             }
-            
+
             // Find UserFunctions by name
             UserFunction xAxisUF = null;
             UserFunction yAxisUF = null;
@@ -367,7 +367,7 @@ public class OGTripoliViewController {
                     yAxisUF = uf;
                 }
                 if (plot2Selection.getIntensityUserFunctionName() != null &&
-                    uf.getName().equals(plot2Selection.getIntensityUserFunctionName())) {
+                        uf.getName().equals(plot2Selection.getIntensityUserFunctionName())) {
                     intensityUF = uf;
                 }
             }
@@ -385,10 +385,10 @@ public class OGTripoliViewController {
     }
 
     public void plotTwoUserFunctions(UserFunction xAxisUF, UserFunction yAxisUF, UserFunction intensityUF) {
-        
+
         // Create the plot using the same approach as in plotRatios for case 1
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
-        
+
         AbstractPlot plot = AnalysisTwoUserFunctionsPlot.generatePlot(
                 new Rectangle(minPlotWidth, minPlotHeight),
                 analysis,
@@ -396,10 +396,10 @@ public class OGTripoliViewController {
                 xAxisUF,
                 intensityUF,
                 (PlotWallPane) plotsWallPaneRatios);
-        
+
         tripoliPlotPane.addPlot(plot);
         plot.refreshPanel(false, false);
-        
+
         // Tile the plots to update layout
         plotsWallPaneRatios.tilePlots();
     }
@@ -599,7 +599,8 @@ public class OGTripoliViewController {
     public void toggleSculptingModeAction() {
         plotsWallPaneRatios.toggleSculptingMode();
     }
-    public void replotAllPlots(){
+
+    public void replotAllPlots() {
         ((PlotWallPane) plotsWallPaneRatios).replotAll();
     }
 }

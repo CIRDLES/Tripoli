@@ -24,7 +24,6 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.d
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
 import java.util.Map;
 import java.util.TreeMap;
