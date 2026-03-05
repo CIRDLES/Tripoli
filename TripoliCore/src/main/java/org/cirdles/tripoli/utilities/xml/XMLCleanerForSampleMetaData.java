@@ -19,7 +19,9 @@ public class XMLCleanerForSampleMetaData {
             String xmlContent = Files.readString(Paths.get(fileName), StandardCharsets.UTF_8);
             System.out.println("File successfully read into a String.");
             int indexOfSample = xmlContent.indexOf("<sampleName>");
-            xmlContent = "<SampleMetaData>\n" + xmlContent.substring(indexOfSample);
+            xmlContent =
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                            + "<SampleMetaData>\n" + xmlContent.substring(indexOfSample);
             xmlContent = xmlContent.replaceAll("\n", "");
 
             Files.write(Paths.get(cleanedFile.getAbsolutePath()),
