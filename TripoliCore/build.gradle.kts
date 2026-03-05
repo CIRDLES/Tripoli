@@ -60,7 +60,9 @@ dependencies {
     implementation("org.jblas:jblas:1.2.5")
 
     // https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream
-    implementation("com.thoughtworks.xstream:xstream:1.4.21")
+   // implementation("com.thoughtworks.xstream:xstream:1.4.21")
+
+    implementation("com.thoughtworks.xstream:xstream:[1.4.19,)")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-rng-core
     implementation("org.apache.commons:commons-rng-core:1.0")
