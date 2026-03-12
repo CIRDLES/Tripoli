@@ -1975,7 +1975,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             try {
                 previewAndSculptDataAction();
             } catch (TripoliException e) {
-               // throw new RuntimeException(e);
+                // throw new RuntimeException(e);
             }
             processingToolBar.setDisable(null == analysis.getAnalysisMethod());
             exportToETReduxButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());

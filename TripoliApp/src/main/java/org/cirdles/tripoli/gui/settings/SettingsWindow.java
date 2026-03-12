@@ -300,8 +300,8 @@ public class SettingsWindow {
         });
     }
 
-    private void initSampleMetaDataFolderTextArea(){
-        TextArea  sampleMetaDataFolderTextArea = settingsWindowController.getSampleMetaDataFolderTextArea();
+    private void initSampleMetaDataFolderTextArea() {
+        TextArea sampleMetaDataFolderTextArea = settingsWindowController.getSampleMetaDataFolderTextArea();
         sampleMetaDataFolderTextArea.setText(analysis.getParameters().getSampleMetaDataFolderPath());
         sampleMetaDataFolderTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
             analysis.getParameters().setSampleMetaDataFolderPath(newValue);
@@ -610,55 +610,56 @@ public class SettingsWindow {
         settingsWindowController.getRestoreSessionDefaultsButton().setOnAction(e -> {
             Session currentSession = ((Analysis) analysis).getParentSession();
             if (null != currentSession) {
-            analysis.getParameters().setChauvenetRejectionProbability(
-                    currentSession.getSessionDefaultParameters().getChauvenetRejectionProbability()
-            );
-            settingsWindowController.getChauvenetRejectionProbabilitySpinner().getValueFactory().setValue(
-                    analysis.getParameters().getChauvenetRejectionProbability()
-            );
-            analysis.getParameters().setRequiredMinDatumCount(
-                    currentSession.getSessionDefaultParameters().getRequiredMinDatumCount()
-            );
-            settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
-                    analysis.getParameters().getRequiredMinDatumCount()
-            );
-            // Get values from session defaults
-            double minSize = currentSession.getSessionDefaultParameters().getScalingDotMinSize();
-            double maxSize = currentSession.getSessionDefaultParameters().getScalingDotMaxSize();
+                analysis.getParameters().setChauvenetRejectionProbability(
+                        currentSession.getSessionDefaultParameters().getChauvenetRejectionProbability()
+                );
+                settingsWindowController.getChauvenetRejectionProbabilitySpinner().getValueFactory().setValue(
+                        analysis.getParameters().getChauvenetRejectionProbability()
+                );
+                analysis.getParameters().setRequiredMinDatumCount(
+                        currentSession.getSessionDefaultParameters().getRequiredMinDatumCount()
+                );
+                settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
+                        analysis.getParameters().getRequiredMinDatumCount()
+                );
+                // Get values from session defaults
+                double minSize = currentSession.getSessionDefaultParameters().getScalingDotMinSize();
+                double maxSize = currentSession.getSessionDefaultParameters().getScalingDotMaxSize();
 
-            // If both are 0.0, they're likely from old serialization - use system defaults
-            if (minSize == 0.0 && maxSize == 0.0) {
-                minSize = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MIN_SIZE;
-                maxSize = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MAX_SIZE;
+                // If both are 0.0, they're likely from old serialization - use system defaults
+                if (minSize == 0.0 && maxSize == 0.0) {
+                    minSize = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MIN_SIZE;
+                    maxSize = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MAX_SIZE;
+                }
+
+                // Update analysis parameters
+                analysis.getParameters().setScalingDotMinSize(minSize);
+                analysis.getParameters().setScalingDotMaxSize(maxSize);
+
+                // Update spinner value factories - need to update ranges first
+                SpinnerValueFactory.DoubleSpinnerValueFactory minValueFactory =
+                        (SpinnerValueFactory.DoubleSpinnerValueFactory) settingsWindowController.getScalingDotMinSizeSpinner().getValueFactory();
+                SpinnerValueFactory.DoubleSpinnerValueFactory maxValueFactory =
+                        (SpinnerValueFactory.DoubleSpinnerValueFactory) settingsWindowController.getScalingDotMaxSizeSpinner().getValueFactory();
+
+                // Update ranges to allow the new values
+                minValueFactory.setMax(maxSize);
+                maxValueFactory.setMin(minSize);
+
+                // Now set the values using the spinner's value factory (same pattern as other parameters)
+                settingsWindowController.getScalingDotMinSizeSpinner().getValueFactory().setValue(minSize);
+                settingsWindowController.getScalingDotMaxSizeSpinner().getValueFactory().setValue(maxSize);
+                analysis.setRatioColors(currentSession.getBlockCyclesPlotColors());
+                ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().
+                        putAll(currentSession.getSessionDefaultMapOfSpeciesToColors());
+                isotopePaneRows.forEach(isotopePaneRow -> {
+                    isotopePaneRow.speciesColorsProperty().set(((Analysis) analysis).
+                            getAnalysisMapOfSpeciesToColors().get(isotopePaneRow.getSpeciesRecord()));
+                });
+                repaintRatiosDelegateActionSet.executeDelegateActions();
+                updateRatioColorSelectionPane();
             }
-
-            // Update analysis parameters
-            analysis.getParameters().setScalingDotMinSize(minSize);
-            analysis.getParameters().setScalingDotMaxSize(maxSize);
-
-            // Update spinner value factories - need to update ranges first
-            SpinnerValueFactory.DoubleSpinnerValueFactory minValueFactory =
-                    (SpinnerValueFactory.DoubleSpinnerValueFactory) settingsWindowController.getScalingDotMinSizeSpinner().getValueFactory();
-            SpinnerValueFactory.DoubleSpinnerValueFactory maxValueFactory =
-                    (SpinnerValueFactory.DoubleSpinnerValueFactory) settingsWindowController.getScalingDotMaxSizeSpinner().getValueFactory();
-
-            // Update ranges to allow the new values
-            minValueFactory.setMax(maxSize);
-            maxValueFactory.setMin(minSize);
-
-            // Now set the values using the spinner's value factory (same pattern as other parameters)
-            settingsWindowController.getScalingDotMinSizeSpinner().getValueFactory().setValue(minSize);
-            settingsWindowController.getScalingDotMaxSizeSpinner().getValueFactory().setValue(maxSize);
-            analysis.setRatioColors(currentSession.getBlockCyclesPlotColors());
-            ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().
-                    putAll(currentSession.getSessionDefaultMapOfSpeciesToColors());
-            isotopePaneRows.forEach(isotopePaneRow -> {
-                isotopePaneRow.speciesColorsProperty().set(((Analysis) analysis).
-                        getAnalysisMapOfSpeciesToColors().get(isotopePaneRow.getSpeciesRecord()));
-            });
-            repaintRatiosDelegateActionSet.executeDelegateActions();
-            updateRatioColorSelectionPane();
-        }});
+        });
         settingsWindowController.getRestoreUserDefaultsButton().setOnAction(e -> {
             try {
                 TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();

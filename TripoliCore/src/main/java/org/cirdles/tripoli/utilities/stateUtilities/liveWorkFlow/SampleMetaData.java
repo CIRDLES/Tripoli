@@ -33,9 +33,11 @@ public class SampleMetaData {
     public String getSampleName() {
         return sampleName;
     }
+
     public String getSampleAnalysisFolderPath() {
         return sampleAnalysisFolderPath;
     }
+
     public List<FractionMetaData> getFractionsMetaData() {
         return fractionsMetaData;
     }

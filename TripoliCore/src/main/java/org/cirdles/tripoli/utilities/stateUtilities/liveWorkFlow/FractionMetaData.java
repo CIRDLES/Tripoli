@@ -31,12 +31,15 @@ public class FractionMetaData {
     public String getFractionID() {
         return fractionID;
     }
+
     public String getAliquotName() {
         return aliquotName;
     }
+
     public String getFractionXMLUPbReduxFileName_U() {
         return fractionXMLUPbReduxFileName_U;
     }
+
     public String getFractionXMLUPbReduxFileName_Pb() {
         return fractionXMLUPbReduxFileName_Pb;
     }
