@@ -1,8 +1,12 @@
 package org.cirdles.tripoli.utilities.xml;
 
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
+import org.w3c.dom.Document;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;

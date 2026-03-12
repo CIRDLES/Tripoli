@@ -32,33 +32,15 @@ public class FractionMetaData {
         return fractionID;
     }
 
-    public void setFractionID(String fractionID) {
-        this.fractionID = fractionID;
-    }
-
     public String getAliquotName() {
         return aliquotName;
-    }
-
-    public void setAliquotName(String aliquotName) {
-        this.aliquotName = aliquotName;
     }
 
     public String getFractionXMLUPbReduxFileName_U() {
         return fractionXMLUPbReduxFileName_U;
     }
 
-    public void setFractionXMLUPbReduxFileName_U(String fractionXMLUPbReduxFileName_U) {
-        this.fractionXMLUPbReduxFileName_U = fractionXMLUPbReduxFileName_U;
-    }
-
     public String getFractionXMLUPbReduxFileName_Pb() {
         return fractionXMLUPbReduxFileName_Pb;
     }
-
-    public void setFractionXMLUPbReduxFileName_Pb(String fractionXMLUPbReduxFileName_Pb) {
-        this.fractionXMLUPbReduxFileName_Pb = fractionXMLUPbReduxFileName_Pb;
-    }
-
-
 }
