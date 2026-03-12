@@ -26,7 +26,6 @@ import java.util.List;
  */
 @XmlRootElement
 public class SampleMetaData {
-
     String sampleName;
     String sampleAnalysisFolderPath;
     List<FractionMetaData> fractionsMetaData = new ArrayList<>();
@@ -34,24 +33,10 @@ public class SampleMetaData {
     public String getSampleName() {
         return sampleName;
     }
-
-    public void setSampleName(String sampleName) {
-        this.sampleName = sampleName;
-    }
-
     public String getSampleAnalysisFolderPath() {
         return sampleAnalysisFolderPath;
     }
-
-    public void setSampleAnalysisFolderPath(String sampleAnalysisFolderPath) {
-        this.sampleAnalysisFolderPath = sampleAnalysisFolderPath;
-    }
-
     public List<FractionMetaData> getFractionsMetaData() {
         return fractionsMetaData;
-    }
-
-    public void setFractionsMetaData(List<FractionMetaData> fractionsMetaData) {
-        this.fractionsMetaData = fractionsMetaData;
     }
 }
