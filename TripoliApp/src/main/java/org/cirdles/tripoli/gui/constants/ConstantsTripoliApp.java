@@ -30,7 +30,7 @@ public enum ConstantsTripoliApp {
     public static final String TRIPOLI_CLIPBOARD_ICON = "org/cirdles/tripoli/gui/images/noun-copy-to-clipboard-3401852c.png";
     public static final String TRIPOLI_GEAR_ICON = "org/cirdles/tripoli/gui/images/gear-icon-image.png";//
 
-    public static final Color TRIPOLI_STARTING_YELLOW = new Color(243.0 / 256.0, 227.0 / 256.0, 118.0 / 256.0, 1.0);
+    public static final Color TRIPOLI_STARTING_YELLOW = new Color(243.0 / 256.0, 227.0 / 256.0, 118.0 / 256.0, 1.0);//F3E376
     public static final Color TRIPOLI_SESSION_LINEN = Color.LINEN;
     public static final Color TRIPOLI_ANALYSIS_YELLOW = Color.web("#fbf6d5");
     public static final Color TRIPOLI_ANALYSIS_GREEN = Color.web("#AFFF80");

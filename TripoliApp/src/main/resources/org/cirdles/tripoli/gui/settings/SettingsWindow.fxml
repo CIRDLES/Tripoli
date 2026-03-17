@@ -27,7 +27,7 @@
     <children>
         <TabPane fx:id="settingsTabPane" prefWidth="414.0">
             <tabs>
-                <Tab fx:id="ratiosColorTab" closable="false" text="Ratios Color Control">
+                <Tab fx:id="ratiosColorTab" closable="false" text="Ratios Color Controls">
                     <content>
                         <AnchorPane fx:id="ratioColorSelectionAnchorPane" prefHeight="367.0" prefWidth="536.0" />
                     </content>
@@ -99,14 +99,14 @@
                         </AnchorPane>
                     </content>
                 </Tab>
-                <Tab fx:id="parametersTab" closable="false" text="Parameter Control">
+                <Tab fx:id="parametersTab" closable="false" text="Parameter Controls">
                     <content>
                         <AnchorPane fx:id="parameterControlAnchorPane" prefHeight="474.0" prefWidth="536.0">
                             <children>
                                 <VBox prefHeight="425.0" prefWidth="526.0" AnchorPane.leftAnchor="0.0">
                                     <HBox alignment="CENTER" prefHeight="64.0" prefWidth="536.0">
                                         <children>
-                                            <Label alignment="CENTER" prefHeight="64.0" prefWidth="538.0" style="-fx-background-color: white; -fx-text-fill: red;" text="Parameter Control" textAlignment="CENTER">
+                                            <Label alignment="CENTER" prefHeight="64.0" prefWidth="538.0" style="-fx-background-color: white; -fx-text-fill: red;" text="Parameter Controls" textAlignment="CENTER">
                                                 <font>
                                                     <Font size="24.0" />
                                                 </font>
@@ -260,7 +260,7 @@
                         </AnchorPane>
                     </content>
                 </Tab>
-                <Tab fx:id="plotTwoControlsTab" closable="false" text="PlotTwo Controls">
+                <Tab fx:id="plotTwoControlsTab" closable="false" text="Plot AnyTwo Controls">
                     <content>
                         <AnchorPane fx:id="plotTwoControlsAnchorPane" prefHeight="427.0" prefWidth="511.0" style="-fx-background-color: white;">
                             <children>
