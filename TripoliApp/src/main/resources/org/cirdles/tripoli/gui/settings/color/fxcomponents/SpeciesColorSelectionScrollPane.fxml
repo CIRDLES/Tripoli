@@ -5,7 +5,8 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<fx:root xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+<fx:root xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+         minWidth="-Infinity"
          prefHeight="453.0" prefWidth="536.0" type="ScrollPane" xmlns="http://javafx.com/javafx/22">
     <VBox fx:id="paneVBox" prefHeight="440.0" prefWidth="520.0">
         <Label fx:id="title" alignment="CENTER" prefHeight="52.0" prefWidth="520.0"

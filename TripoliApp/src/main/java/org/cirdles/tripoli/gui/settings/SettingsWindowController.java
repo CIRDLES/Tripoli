@@ -166,7 +166,9 @@ public class SettingsWindowController implements Initializable {
         return plotTwoControlsTab;
     }
 
-    public TextArea getSampleMetaDataFolderTextArea() {return sampleMetaDataFolderTextArea;}
+    public TextArea getSampleMetaDataFolderTextArea() {
+        return sampleMetaDataFolderTextArea;
+    }
 
     public void selectSampleMetaDataFolderButtonAction() {
         File sampleMetaDataFolder = selectSampleMetaDataFolder(primaryStageWindow);

@@ -48,7 +48,7 @@ public enum NuMassSpec {
         try {
             massSpecExtractedData = new MassSpecExtractedData();
         } catch (TripoliException e) {
-          //  throw new RuntimeException(e);
+            //  throw new RuntimeException(e);
         }
         List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
         List<List<String>> dataByBlocks = new ArrayList<>();

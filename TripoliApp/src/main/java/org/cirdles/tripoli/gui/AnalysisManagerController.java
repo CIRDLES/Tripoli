@@ -1975,7 +1975,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             try {
                 previewAndSculptDataAction();
             } catch (TripoliException e) {
-               // throw new RuntimeException(e);
+                // throw new RuntimeException(e);
             }
             processingToolBar.setDisable(null == analysis.getAnalysisMethod());
             exportToETReduxButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
@@ -2311,7 +2311,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     sampleAnalysisFolderPath + File.separator + aliquotName + File.separator + fractionMame;
             etReduxFraction.serializeXMLObject(exportFileName);
             liveWorkFlowStatusText.setText("LiveWorkFlow Exported to " + exportFileName);
-        } catch (IOException | JAXBException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

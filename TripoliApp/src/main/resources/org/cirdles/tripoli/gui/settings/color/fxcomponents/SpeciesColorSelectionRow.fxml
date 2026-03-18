@@ -6,7 +6,8 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.text.Font?>
 <?import org.cirdles.tripoli.gui.settings.color.fxcomponents.ColorPickerSplotch?>
-<fx:root xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+<fx:root xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+         minWidth="-Infinity"
          prefHeight="37.0" prefWidth="536.0" type="HBox" xmlns="http://javafx.com/javafx/21">
     <Label fx:id="rowLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="230.0"
            text="Dummy Color Text" textAlignment="CENTER">
