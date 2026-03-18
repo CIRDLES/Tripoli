@@ -30,6 +30,15 @@ public class SampleMetaData {
     String sampleAnalysisFolderPath;
     List<FractionMetaData> fractionsMetaData = new ArrayList<>();
 
+    public SampleMetaData() {
+        this("MISSING SAMPLE NAME", "", new ArrayList<>());
+    }
+    public SampleMetaData(String sampleName, String sampleAnalysisFolderPath, List<FractionMetaData> fractionsMetaData) {
+        this.sampleName = sampleName;
+        this.sampleAnalysisFolderPath = sampleAnalysisFolderPath;
+        this.fractionsMetaData = fractionsMetaData;
+    }
+
     public String getSampleName() {
         return sampleName;
     }
