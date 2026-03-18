@@ -31,6 +31,7 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
@@ -52,6 +53,7 @@ import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.imports.OgTripoliImporter;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
@@ -71,11 +73,15 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.StandardWatchEventKinds;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.nio.file.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.ogTripoliPreviewPlotsWindow;
@@ -832,6 +838,105 @@ public class TripoliGUIController implements Initializable {
         ClipboardContent content = new ClipboardContent();
         content.putString(clipBoardString);
         clipboard.setContent(content);
+    }
+
+    /**
+     * Serializes Cycle data into a Tab-Delimited .tsv file
+     * @throws IOException
+     */
+    public void tabDelimitedSerializer() throws IOException {
+        Comparator<UserFunction> columnIndexComparator = Comparator.comparingInt(UserFunction::getColumnIndex);
+        analysis.getUserFunctions().sort(columnIndexComparator);
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+
+        Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = analysis.getMapOfBlockIdToRawDataLiteOne();
+
+        String currDate = new SimpleDateFormat("MM/dd/yy HH:mm:ss").format(new Date());
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Cycles Export");
+        fileChooser.setInitialFileName(analysis.getAnalysisName() + "_Cycles.txt");
+        fileChooser.setInitialDirectory(new File(tripoliPersistentState.getMRUSessionFolderPath()));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Tab Delimited Text", "*.txt"));
+
+        File file = fileChooser.showSaveDialog(primaryStageWindow);
+
+        if (file != null) {
+            Path filepath = file.toPath();
+
+            try {
+                Files.createFile(filepath);
+            }
+            catch (FileAlreadyExistsException e) {
+                System.out.println("File already exists, overwriting...");
+                Files.writeString(filepath, "");
+            }
+
+            Files.writeString(filepath, "New Tripoli tab-delimited output of processed data for:\n", StandardOpenOption.APPEND);
+            // What is the default session name?
+            Files.writeString(filepath, analysis.getAnalysisName() + " in " + sessionFileName + ".tripoli\n", StandardOpenOption.APPEND);
+            Files.writeString(filepath, "produced on: " + currDate + "\n\n", StandardOpenOption.APPEND);
+            Files.writeString(filepath, "Data is presented by cycles.\n", StandardOpenOption.APPEND);
+            Files.writeString(filepath, "Any discarded values are wrapped in &s.\n", StandardOpenOption.APPEND);
+            Files.writeString(filepath, "Any missing values are represented as a blank entry.\n\n", StandardOpenOption.APPEND);
+
+            // Write the UserFunctions to the file
+            Files.writeString(filepath, tabJoin(userFunctions, UserFunction::getName) + "\n", StandardOpenOption.APPEND);
+
+            // Write the Cycle Data to the file
+            for (int i = 1; i <= mapOfBlockIdToRawDataLiteOne.size(); i++) {
+                SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = mapOfBlockIdToRawDataLiteOne.get(i);
+                double[][] blockRawDataLiteArray = singleBlockRawDataLiteSetRecord.blockRawDataLiteArray();
+                boolean[][] blockRawDataLiteIncludedArray = singleBlockRawDataLiteSetRecord.blockRawDataLiteIncludedArray();
+
+                for (int j = 0; j < blockRawDataLiteArray.length; j++) {
+                    Files.writeString(filepath, tabJoin(Stream.of(determineDiscardedValues(blockRawDataLiteArray[j], blockRawDataLiteIncludedArray[j])).collect(Collectors.toList()), null) + "\n", StandardOpenOption.APPEND);
+                }
+            }
+        }
+
+
+
+    }
+
+    /**
+     * Takes in an array and its respective inclusion array and wraps it in &s if it is not to be included
+     * @param arr
+     * @param includedArr
+     * @return a String array of the values. Wrapped if not included
+     */
+    public String[] determineDiscardedValues(double[] arr, boolean[] includedArr) {
+        String[] arrayWithDiscardedValues = new String[arr.length];
+
+        for (int i = 0; i < arr.length; i++) {
+            if (includedArr[i]) {
+                arrayWithDiscardedValues[i] = Double.toString(arr[i]);
+            } else {
+                arrayWithDiscardedValues[i] = "&" + arr[i] + "&";
+            }
+        }
+        return arrayWithDiscardedValues;
+    }
+
+    /**
+     * Takes in a generic list of objects and joins them with a tab delimiter.
+     * @param items Generic list of objects
+     * @param action Action to perform on each item to get the desired String
+     * @return String of tab-delimited items
+     * @param <T>
+     */
+    public <T> String tabJoin(List<T> items, Function<T, String> action) {
+        StringBuilder joinedString = new StringBuilder();
+        for (T item : items) {
+            String value = action == null ? item.toString() : action.apply(item);
+
+            joinedString.append(String.format("%-17s", value)).append("\t");
+        }
+        return joinedString.toString().trim();
+    }
+
+    public void cyclesExportAction() throws IOException {
+        tabDelimitedSerializer();
     }
 
     public void showTripoliDiscussionsAction() {
