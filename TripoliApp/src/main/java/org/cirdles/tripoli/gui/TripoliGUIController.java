@@ -24,6 +24,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
@@ -66,6 +70,7 @@ import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -76,6 +81,7 @@ import java.net.URL;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -848,54 +854,55 @@ public class TripoliGUIController implements Initializable {
         Comparator<UserFunction> columnIndexComparator = Comparator.comparingInt(UserFunction::getColumnIndex);
         analysis.getUserFunctions().sort(columnIndexComparator);
         List<UserFunction> userFunctions = analysis.getUserFunctions();
+        String dataFilepath = analysis.getDataFilePathString();
+        String analysisName = analysis.getAnalysisName();
 
         Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = analysis.getMapOfBlockIdToRawDataLiteOne();
 
         String currDate = new SimpleDateFormat("MM/dd/yy HH:mm:ss").format(new Date());
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save Cycles Export");
-        fileChooser.setInitialFileName(analysis.getAnalysisName() + "_Cycles.txt");
-        fileChooser.setInitialDirectory(new File(tripoliPersistentState.getMRUSessionFolderPath()));
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Tab Delimited Text", "*.txt"));
+        Path filepath = Path.of(dataFilepath.substring(0, dataFilepath.lastIndexOf('\\') + 1) + "New Session-" + analysisName + "-report.tsv");
+        String proceed = TripoliMessageDialog.showSavedAsDialog(new File(filepath.toUri()), primaryStage);
+        assert proceed != null;
+        if (proceed.equals(ButtonType.CANCEL.getText())) {
+            System.out.println("User cancelled the file save operation.");
+            return;
+        }
 
-        File file = fileChooser.showSaveDialog(primaryStageWindow);
+        try {
+            Files.createFile(filepath);
+            System.out.println("File created: " + filepath);
+        }
+        catch (FileAlreadyExistsException e) {
+            System.out.println("File at " + filepath + " already exists, overwriting...");
+            Files.writeString(filepath, "");
+        }
 
-        if (file != null) {
-            Path filepath = file.toPath();
+        Files.writeString(filepath, "New Tripoli tab-delimited output of processed data for:\n", StandardOpenOption.APPEND);
+        // What is the default session name?
+        Files.writeString(filepath, analysisName + " in " + filepath + "\n", StandardOpenOption.APPEND);
+        Files.writeString(filepath, "produced on: " + currDate + "\n\n", StandardOpenOption.APPEND);
+        Files.writeString(filepath, "Data is presented by cycles.\n", StandardOpenOption.APPEND);
+        Files.writeString(filepath, "Any discarded values are wrapped in &s.\n", StandardOpenOption.APPEND);
+        Files.writeString(filepath, "Any missing values are represented as a blank entry.\n\n", StandardOpenOption.APPEND);
 
-            try {
-                Files.createFile(filepath);
-            }
-            catch (FileAlreadyExistsException e) {
-                System.out.println("File already exists, overwriting...");
-                Files.writeString(filepath, "");
-            }
+        // Write the UserFunctions to the file
+        Files.writeString(filepath, tabJoin(userFunctions, UserFunction::getName) + "\n", StandardOpenOption.APPEND);
 
-            Files.writeString(filepath, "New Tripoli tab-delimited output of processed data for:\n", StandardOpenOption.APPEND);
-            // What is the default session name?
-            Files.writeString(filepath, analysis.getAnalysisName() + " in " + sessionFileName + ".tripoli\n", StandardOpenOption.APPEND);
-            Files.writeString(filepath, "produced on: " + currDate + "\n\n", StandardOpenOption.APPEND);
-            Files.writeString(filepath, "Data is presented by cycles.\n", StandardOpenOption.APPEND);
-            Files.writeString(filepath, "Any discarded values are wrapped in &s.\n", StandardOpenOption.APPEND);
-            Files.writeString(filepath, "Any missing values are represented as a blank entry.\n\n", StandardOpenOption.APPEND);
+        // Write the Cycle Data to the file
+        for (int i = 1; i <= mapOfBlockIdToRawDataLiteOne.size(); i++) {
+            SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = mapOfBlockIdToRawDataLiteOne.get(i);
+            double[][] blockRawDataLiteArray = singleBlockRawDataLiteSetRecord.blockRawDataLiteArray();
+            boolean[][] blockRawDataLiteIncludedArray = singleBlockRawDataLiteSetRecord.blockRawDataLiteIncludedArray();
 
-            // Write the UserFunctions to the file
-            Files.writeString(filepath, tabJoin(userFunctions, UserFunction::getName) + "\n", StandardOpenOption.APPEND);
-
-            // Write the Cycle Data to the file
-            for (int i = 1; i <= mapOfBlockIdToRawDataLiteOne.size(); i++) {
-                SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = mapOfBlockIdToRawDataLiteOne.get(i);
-                double[][] blockRawDataLiteArray = singleBlockRawDataLiteSetRecord.blockRawDataLiteArray();
-                boolean[][] blockRawDataLiteIncludedArray = singleBlockRawDataLiteSetRecord.blockRawDataLiteIncludedArray();
-
-                for (int j = 0; j < blockRawDataLiteArray.length; j++) {
-                    Files.writeString(filepath, tabJoin(Stream.of(determineDiscardedValues(blockRawDataLiteArray[j], blockRawDataLiteIncludedArray[j])).collect(Collectors.toList()), null) + "\n", StandardOpenOption.APPEND);
-                }
+            for (int j = 0; j < blockRawDataLiteArray.length; j++) {
+                Files.writeString(filepath, tabJoin(Stream.of(determineDiscardedValues(blockRawDataLiteArray[j], blockRawDataLiteIncludedArray[j])).collect(Collectors.toList()), null) + "\n", StandardOpenOption.APPEND);
             }
         }
 
-
+        if (proceed.equals("Save and Open")) {
+            Desktop.getDesktop().open(new File(filepath.toUri()));
+        }
 
     }
 

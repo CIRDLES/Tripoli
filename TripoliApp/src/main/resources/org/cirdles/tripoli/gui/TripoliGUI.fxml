@@ -66,9 +66,9 @@
                 <Menu fx:id="customReportMenu" mnemonicParsing="false" text="Custom Reports"/>
                 <Menu mnemonicParsing="false" text="Builtin Reports">
                     <items>
+                        <MenuItem mnemonicParsing="false" onAction="#cyclesExportAction" text="Cycles Export" />
                         <MenuItem mnemonicParsing="false" onAction="#etReduxExportAction" text="ET_Redux Export"/>
                         <MenuItem mnemonicParsing="false" onAction="#clipboardExportAction" text="Clipboard Export"/>
-                        <MenuItem mnemonicParsing="false" onAction="#cyclesExportAction" text="Cycles Export" />
                         <Menu mnemonicParsing="false" text="Analysis Reports">
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#generateMCMCDetailsPerBlockAction"
