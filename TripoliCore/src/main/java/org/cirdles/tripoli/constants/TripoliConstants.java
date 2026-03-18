@@ -65,7 +65,7 @@ public enum TripoliConstants {
 
     /**
      * elementary charge e is exactly 1.602176634×10−19 coulomb (C).
-     * see: https://en.wikipedia.org/wiki/2019_redefinition_of_the_SI_base_units
+     * see: <a href="https://en.wikipedia.org/wiki/2019_redefinition_of_the_SI_base_units">...</a>
      */
     public static final double ELEMENTARY_CHARGE_E = 1.602176634e-19;
     public static final double ONE_COULOMB = 1.0 / ELEMENTARY_CHARGE_E; // s.b. 6.2415091e18 == 6.2415090744607631E18
@@ -77,11 +77,6 @@ public enum TripoliConstants {
     public static final String PLOT_TAB_CONVERGE = "Converge";
     public static final String PLOT_TAB_CONVERGE_INTENSITY = "Converge Intensity";
 
-    //    public static final FixedLengthCircularQueue<String> TRIPOLI_DEFAULT_HEX_COLORS =
-//            new FixedLengthCircularQueue<>(new String[]{
-//                    "#12bceb", "#095c73", "#ff0000", "#7fffd4", "#ffcf62", "#ac8c42", "#ff0000",
-//                    "#7fffd4", "#9e6fb1", "#4d3656", "#ff0000", "#7fffd4", "#baff78", "#6e9747", "#ff0000",
-//                    "#7fffd4", "#ffa056", "#b2703c", "#ff0000", "#7fffd4"});
     public static final FixedLengthCircularQueue<String> TRIPOLI_DEFAULT_HEX_COLORS =
             new FixedLengthCircularQueue<>(new String[]{
                     "#12bceb", "#095c73", "#ed4213", "#f6a38b", "#ffcf62", "#ac8c42", "#002f9d",
@@ -116,9 +111,9 @@ public enum TripoliConstants {
     }
 
     public enum RatiosPlotColorFlavor {
-        ONE_SIGMA_SHADE("One \u03C3 Shading"),
-        TWO_SIGMA_SHADE("Two \u03C3 Shading"),
-        TWO_STD_ERR_SHADE("Two \u03C3 Standard Error Shading"),
+        ONE_SIGMA_SHADE("One σ Shading"),
+        TWO_SIGMA_SHADE("Two σ Shading"),
+        TWO_STD_ERR_SHADE("Two σ Standard Error Shading"),
         MEAN_COLOR("Mean Color"),
         DATA_COLOR("Data Color"),
         REJECTED_COLOR("Rejected Data Color");
@@ -160,15 +155,15 @@ public enum TripoliConstants {
         }
     }
 
-    public static enum ETReduxExportTypeEnum {
+    public enum ETReduxExportTypeEnum {
         Pb(),
         U(),
-        NONE();
+        NONE()
     }
 
-    public static enum ReductionModeEnum {
+    public enum ReductionModeEnum {
         BLOCK(),
-        CYCLE();
+        CYCLE()
     }
 
 }

@@ -43,8 +43,11 @@ dependencies {
     // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
 
-    // https://mvnrepository.com/artifact/com.google.guava/guava
-    implementation("com.google.guava:guava:31.1-jre")
+    // Source: https://mvnrepository.com/artifact/com.google.guava/guava
+    implementation("com.google.guava:guava:33.5.0-jre")
+
+    // Source: https://mvnrepository.com/artifact/org.checkerframework/checker-qual
+    implementation("org.checkerframework:checker-qual:3.54.0")
 }
 
 val mavenArtifactId = name
