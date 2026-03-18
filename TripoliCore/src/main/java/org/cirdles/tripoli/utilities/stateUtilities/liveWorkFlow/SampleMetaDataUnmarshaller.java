@@ -23,10 +23,7 @@ import com.thoughtworks.xstream.security.NoTypePermission;
 import com.thoughtworks.xstream.security.NullPermission;
 import com.thoughtworks.xstream.security.PrimitiveTypePermission;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.Collection;
 
 /**
@@ -34,7 +31,7 @@ import java.util.Collection;
  */
 public class SampleMetaDataUnmarshaller {
 
-    public static SampleMetaData unmarshall(String sampleMetaDataFilePath) throws FileNotFoundException {
+    public static SampleMetaData unmarshall(String sampleMetaDataFilePath) throws IOException {
         XStream xstream = new XStream(new DomDriver());
         xstream.alias("SampleMetaData", SampleMetaData.class);
         xstream.alias("FractionMetaData", FractionMetaData.class);
@@ -49,6 +46,16 @@ public class SampleMetaDataUnmarshaller {
         Reader inReader = new FileReader(sampleMetaDataFilePath);
         BufferedReader reader = new BufferedReader(inReader);
 
-        return (SampleMetaData) xstream.fromXML(reader);
+        reader.readLine();
+        reader.readLine();
+        reader.readLine();
+        String lineFour = reader.readLine();
+        if (lineFour.contains("ET_Redux")) {
+            inReader = new FileReader(sampleMetaDataFilePath);
+            reader = new BufferedReader(inReader);
+            return (SampleMetaData) xstream.fromXML(reader);
+        } else {
+            return new SampleMetaData();
+        }
     }
 }

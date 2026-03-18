@@ -161,6 +161,11 @@ public class SessionManagerController implements Initializable {
         listViewOfAnalyses.setOnMouseClicked(event -> {
             AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
             AnalysisManagerController.analysis = analysisSelected;
+
+            MenuItem menuItemReports = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                    .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(3);
+            menuItemReports.setDisable(false);
+
             listOfSelectedAnalyses.clear();
             listOfSelectedAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems().stream()
                     .filter(p -> !((Analysis) p).hasMemberAnalyses())

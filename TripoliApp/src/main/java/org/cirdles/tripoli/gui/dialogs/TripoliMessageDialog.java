@@ -17,6 +17,9 @@
 package org.cirdles.tripoli.gui.dialogs;
 
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
@@ -26,6 +29,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Pattern;
+
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_LOGO_SANS_TEXT_URL;
 
 /**
  * @author James Bowring
@@ -52,6 +57,19 @@ public class TripoliMessageDialog extends Alert {
         }
         getDialogPane().setPrefSize(750, 150 + countOfNewLines * 20);
         getDialogPane().setStyle(getDialogPane().getStyle() + ";-fx-font-family: SansSerif Bold;-fx-font-size: 15");
+
+        Image image = new Image(TRIPOLI_LOGO_SANS_TEXT_URL);
+        ImageView imageView = new ImageView(image);
+        imageView.setFitHeight(48);
+        imageView.setFitWidth(48);
+        getDialogPane().setGraphic(imageView);
+
+        getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+
+        getDialogPane().getStylesheets().add(
+                getClass().getResource("/org/cirdles/tripoli/gui/css/customAlert.css").toExternalForm());
+        getDialogPane().getStyleClass().add("alert");
+
     }
 
     /**
