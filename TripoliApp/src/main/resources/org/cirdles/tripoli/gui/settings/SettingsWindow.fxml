@@ -23,7 +23,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="vBoxRoot" prefHeight="543.0" prefWidth="536.0" style="-fx-border-color: red; -fx-border-width: 5;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.settings.SettingsWindowController">
+<VBox fx:id="vBoxRoot" prefHeight="543.0" prefWidth="536.0" style="-fx-border-color: blue; -fx-border-width: 5;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.settings.SettingsWindowController">
     <children>
         <TabPane fx:id="settingsTabPane" prefWidth="414.0">
             <tabs>
