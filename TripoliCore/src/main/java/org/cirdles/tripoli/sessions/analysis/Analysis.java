@@ -112,7 +112,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private String labName;
     private AnalysisMethod analysisMethod;
 
-
     private List<UserFunction> userFunctions;
     private String analysisSampleName;
     private String analysisFractionName;
