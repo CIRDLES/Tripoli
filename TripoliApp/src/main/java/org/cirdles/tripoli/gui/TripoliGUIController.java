@@ -586,6 +586,11 @@ public class TripoliGUIController implements Initializable {
                 handleExpressionsInSavedSession();
 
                 detectMassSpecContext();
+
+                TripoliGUI.updateStageTitle(
+                        tripoliSession.getSessionName(),
+                        tripoliPersistentState.getTripoliPersistentParameters().getMassSpectrometerContext());
+
                 buildSessionMenuMRU();
                 tripoliPersistentState.setMRUSessionFolderPath(sessionFile.getParent());
                 launchSessionManager();
@@ -610,6 +615,10 @@ public class TripoliGUIController implements Initializable {
             try {
                 serializeObjectToFile(tripoliSession, tripoliPersistentState.getMRUSessionFile().getAbsolutePath());
                 Session.setSessionChanged(false);
+                TripoliGUI.updateStageTitle(
+                        tripoliSession.getSessionName(),
+                        tripoliPersistentState.getTripoliPersistentParameters().getMassSpectrometerContext());
+
             } catch (TripoliException ex) {
                 TripoliMessageDialog.showWarningDialog(ex.getMessage(), null);
             }
@@ -632,6 +641,10 @@ public class TripoliGUIController implements Initializable {
                 saveSessionMenuItem.setDisable(false);
                 tripoliPersistentState.updateSessionListMRU(sessionFile);
                 detectMassSpecContext();
+                TripoliGUI.updateStageTitle(
+                        tripoliSession.getSessionName(),
+                        tripoliPersistentState.getTripoliPersistentParameters().getMassSpectrometerContext());
+
                 buildSessionMenuMRU();
                 launchSessionManager();
             }
