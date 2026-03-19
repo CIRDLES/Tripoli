@@ -35,7 +35,6 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.stage.FileChooser;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
@@ -83,10 +82,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
@@ -854,8 +851,10 @@ public class TripoliGUIController implements Initializable {
         Comparator<UserFunction> columnIndexComparator = Comparator.comparingInt(UserFunction::getColumnIndex);
         analysis.getUserFunctions().sort(columnIndexComparator);
         List<UserFunction> userFunctions = analysis.getUserFunctions();
-        String dataFilepath = analysis.getDataFilePathString();
-        String analysisName = analysis.getAnalysisName();
+        String dataFilepath = AnalysisManagerController.analysis.getDataFilePathString();
+        String analysisName = AnalysisManagerController.analysis.getAnalysisName();
+        assert tripoliSession != null;
+        String sessionFilepath = !Objects.equals(tripoliSession.getSessionFilePathAsString(), "") ? tripoliSession.getSessionFilePathAsString() : "*Unsaved Session*";
 
         Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = analysis.getMapOfBlockIdToRawDataLiteOne();
 
@@ -880,7 +879,8 @@ public class TripoliGUIController implements Initializable {
 
         Files.writeString(filepath, "New Tripoli tab-delimited output of processed data for:\n", StandardOpenOption.APPEND);
         // What is the default session name?
-        Files.writeString(filepath, analysisName + " in " + filepath + "\n", StandardOpenOption.APPEND);
+        Files.writeString(filepath, "Session: " + sessionFilepath + "\n", StandardOpenOption.APPEND);
+        Files.writeString(filepath, "Analysis: " + analysisName + "\n", StandardOpenOption.APPEND);
         Files.writeString(filepath, "produced on: " + currDate + "\n\n", StandardOpenOption.APPEND);
         Files.writeString(filepath, "Data is presented by cycles.\n", StandardOpenOption.APPEND);
         Files.writeString(filepath, "Any discarded values are wrapped in &s.\n", StandardOpenOption.APPEND);
@@ -896,7 +896,7 @@ public class TripoliGUIController implements Initializable {
             boolean[][] blockRawDataLiteIncludedArray = singleBlockRawDataLiteSetRecord.blockRawDataLiteIncludedArray();
 
             for (int j = 0; j < blockRawDataLiteArray.length; j++) {
-                Files.writeString(filepath, tabJoin(Stream.of(determineDiscardedValues(blockRawDataLiteArray[j], blockRawDataLiteIncludedArray[j])).collect(Collectors.toList()), null) + "\n", StandardOpenOption.APPEND);
+                Files.writeString(filepath, tabJoin(Stream.of(formatCycleData(blockRawDataLiteArray[j], blockRawDataLiteIncludedArray[j])).collect(Collectors.toList()), null) + "\n", StandardOpenOption.APPEND);
             }
         }
 
@@ -907,22 +907,26 @@ public class TripoliGUIController implements Initializable {
     }
 
     /**
-     * Takes in an array and its respective inclusion array and wraps it in &s if it is not to be included
+     * Takes in an array and its respective inclusion array and formats the data into a string
      * @param arr
      * @param includedArr
      * @return a String array of the values. Wrapped if not included
      */
-    public String[] determineDiscardedValues(double[] arr, boolean[] includedArr) {
-        String[] arrayWithDiscardedValues = new String[arr.length];
+    public String[] formatCycleData(double[] arr, boolean[] includedArr) {
+        String[] formattedArray = new String[arr.length];
 
         for (int i = 0; i < arr.length; i++) {
-            if (includedArr[i]) {
-                arrayWithDiscardedValues[i] = Double.toString(arr[i]);
+            // Converts Cycle column into integers
+            if (i == 0 && includedArr[i]) {
+                formattedArray[i] = Integer.toString((int) arr[i]);
+            }
+            else if (includedArr[i]) {
+                formattedArray[i] = Double.toString(arr[i]);
             } else {
-                arrayWithDiscardedValues[i] = "&" + arr[i] + "&";
+                formattedArray[i] = "&" + arr[i] + "&";
             }
         }
-        return arrayWithDiscardedValues;
+        return formattedArray;
     }
 
     /**
