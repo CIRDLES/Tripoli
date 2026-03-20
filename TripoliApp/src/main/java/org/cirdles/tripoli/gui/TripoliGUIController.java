@@ -860,7 +860,7 @@ public class TripoliGUIController implements Initializable {
 
         String currDate = new SimpleDateFormat("MM/dd/yy HH:mm:ss").format(new Date());
 
-        Path filepath = Path.of(dataFilepath.substring(0, dataFilepath.lastIndexOf('\\') + 1) + "New Session-" + analysisName + "-report.tsv");
+        Path filepath = Path.of(dataFilepath.substring(0, dataFilepath.lastIndexOf(File.separator) + 1) + tripoliSession.getSessionName() + "-" + analysisName + "-report.tsv");
         String proceed = TripoliMessageDialog.showSavedAsDialog(new File(filepath.toUri()), primaryStage);
         assert proceed != null;
         if (proceed.equals(ButtonType.CANCEL.getText())) {
