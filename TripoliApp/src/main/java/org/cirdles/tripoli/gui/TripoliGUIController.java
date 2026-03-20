@@ -853,8 +853,10 @@ public class TripoliGUIController implements Initializable {
         List<UserFunction> userFunctions = analysis.getUserFunctions();
         String dataFilepath = AnalysisManagerController.analysis.getDataFilePathString();
         String analysisName = AnalysisManagerController.analysis.getAnalysisName();
-        assert tripoliSession != null;
-        String sessionFilepath = !Objects.equals(tripoliSession.getSessionFilePathAsString(), "") ? tripoliSession.getSessionFilePathAsString() : "*Unsaved Session*";
+        String sessionFilepath = null;
+        if (tripoliSession != null) {
+            sessionFilepath = !Objects.equals(tripoliSession.getSessionFilePathAsString(), "") ? tripoliSession.getSessionFilePathAsString() : "*Unsaved Session*";
+        }
 
         Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = analysis.getMapOfBlockIdToRawDataLiteOne();
 
@@ -862,7 +864,7 @@ public class TripoliGUIController implements Initializable {
 
         Path filepath = Path.of(dataFilepath.substring(0, dataFilepath.lastIndexOf(File.separator) + 1) + tripoliSession.getSessionName() + "-" + analysisName + "-report.tsv");
         String proceed = TripoliMessageDialog.showSavedAsDialog(new File(filepath.toUri()), primaryStage);
-        assert proceed != null;
+        if (proceed == null) return;
         if (proceed.equals(ButtonType.CANCEL.getText())) {
             System.out.println("User cancelled the file save operation.");
             return;
