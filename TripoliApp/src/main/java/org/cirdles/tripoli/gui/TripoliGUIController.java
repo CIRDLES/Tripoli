@@ -880,7 +880,7 @@ public class TripoliGUIController implements Initializable {
         Files.writeString(filepath, "New Tripoli tab-delimited output of processed data for:\n", StandardOpenOption.APPEND);
         // What is the default session name?
         Files.writeString(filepath, "Session: " + sessionFilepath + "\n", StandardOpenOption.APPEND);
-        Files.writeString(filepath, "Analysis: " + analysisName + "\n", StandardOpenOption.APPEND);
+        Files.writeString(filepath, "Analysis: " + dataFilepath + "\n", StandardOpenOption.APPEND);
         Files.writeString(filepath, "produced on: " + currDate + "\n\n", StandardOpenOption.APPEND);
         Files.writeString(filepath, "Data is presented by cycles.\n", StandardOpenOption.APPEND);
         Files.writeString(filepath, "Any discarded values are wrapped in &s.\n", StandardOpenOption.APPEND);
