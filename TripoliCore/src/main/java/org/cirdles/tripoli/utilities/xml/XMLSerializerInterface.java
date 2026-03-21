@@ -17,6 +17,7 @@ package org.cirdles.tripoli.utilities.xml;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 import com.thoughtworks.xstream.security.NoTypePermission;
 import com.thoughtworks.xstream.security.NullPermission;
@@ -25,7 +26,9 @@ import com.thoughtworks.xstream.security.PrimitiveTypePermission;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,13 +57,17 @@ public interface XMLSerializerInterface {
             customizeXstream(xstream);
             String xml = xstream.toXML(this).trim();
             xml = customizeXML(xml).trim();
+
             // march 2026 write local, then copy to solve network issues
-            outFile = new OutputStreamWriter(new FileOutputStream(filename), StandardCharsets.UTF_8);
+            outFile = new OutputStreamWriter(new FileOutputStream("copyFraction.xml"), StandardCharsets.UTF_8);
             try (PrintWriter out = new PrintWriter(outFile)) {
-                // Write xml to file
                 out.println(xml);
                 out.flush();
             }
+            Path sourceFractionFile = Paths.get("copyFraction.xml");
+            Path targetFractionFilePath = Paths.get(filename);
+            Files.copy(sourceFractionFile, targetFractionFilePath, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("fractionFile copied successfully!");
         } catch (IOException ex) {
             Logger.getLogger(XMLSerializerInterface.class.getName()).log(Level.SEVERE, null, ex);
         }

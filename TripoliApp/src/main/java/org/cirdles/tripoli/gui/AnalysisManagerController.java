@@ -2238,7 +2238,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
         Path directoryPath = Paths.get(sampleMetaDataFolderPath);
         try {
-            Files.createDirectories(directoryPath);
+           // Files.createDirectories(directoryPath);
             List<Path> xmlFiles;
             try (Stream<Path> walk = Files.walk(directoryPath)) {
                 xmlFiles = walk
