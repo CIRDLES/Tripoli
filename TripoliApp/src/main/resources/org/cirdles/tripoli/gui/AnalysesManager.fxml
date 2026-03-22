@@ -385,14 +385,15 @@
                 </SplitPane>
             </content>
         </Tab>
-        <Tab fx:id="selectTwoUserFunctionsTab" closable="false" text="Plot Two User Functions">
+        <Tab fx:id="selectTwoUserFunctionsTab" closable="false" text="Plot Any Two User Functions">
             <content>
                 <VBox spacing="10" style="-fx-padding: 10;">
                     <children>
                         <HBox>
                             <Label prefHeight="20.0" prefWidth="513.0" style="-fx-font-weight: bold; -fx-font-size: 14;"
                                    text="Select two user functions to plot against each other:"/>
-                            <Label style="-fx-font-weight: bold; -fx-font-size: 12;" text="Saved Plot2 Selections:"/>
+                            <Label style="-fx-font-weight: bold; -fx-font-size: 12;"
+                                   text="Saved Plot Any Two Selections:"/>
                         </HBox>
                         <HBox spacing="20">
                             <children>

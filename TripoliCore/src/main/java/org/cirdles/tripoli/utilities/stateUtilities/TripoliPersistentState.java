@@ -24,6 +24,7 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_USERS_DATA_
 public class TripoliPersistentState implements Serializable {
 
     // class variables
+    @Serial
     private static final long serialVersionUID = -7177208336686295496L;
     private static final String TRIPOLI_PERSISTENT_STATE_FILE_NAME = "TripoliPersistentState.ser";
     private static final int MRU_COUNT = 10;
@@ -132,22 +134,12 @@ public class TripoliPersistentState implements Serializable {
      * @return
      */
     public static String getMySerializedName() throws TripoliException {
-        String mySerializedName
-                = File.separator//
+        return File.separator//
                 + System.getProperty("user.home")//
                 + File.separator//
                 + TRIPOLI_USERS_DATA_FOLDER_NAME //
                 + File.separator + TRIPOLI_PERSISTENT_STATE_FILE_NAME;
-        return mySerializedName;
     }
-
-    public String getTripoliUserHomeDirectoryLocal() {
-        if (tripoliUserHomeDirectoryLocal == null) {
-            tripoliUserHomeDirectoryLocal = System.getProperty("user.home");
-        }
-        return tripoliUserHomeDirectoryLocal;
-    }
-
 
     private void serializeSelf() {
         // save initial persistent state serialized file
@@ -156,9 +148,8 @@ public class TripoliPersistentState implements Serializable {
         } catch (TripoliException tripoliException) {
         }
     }
+
     //properties
-
-
     public Parameters getTripoliPersistentParameters() {
         if (tripoliPersistentParameters == null) {
             tripoliPersistentParameters = new Parameters();
@@ -277,10 +268,6 @@ public class TripoliPersistentState implements Serializable {
             TripoliSerializer.serializeObjectToFile(this, getMySerializedName());
         } catch (TripoliException tripoliException) {
         }
-    }
-
-    public void removeFileNameFromSessionListMRU(String mruSessionFileName) {
-        MRUSessionList.remove(mruSessionFileName);
     }
 
     public void cleanSessionListMRU() {

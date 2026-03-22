@@ -79,7 +79,10 @@ public class Session implements Serializable {
 
     public static Session initializeDefaultSession() throws JAXBException {
         Session session = new Session();
-//        session.addAnalysis(initializeNewAnalysis(1));
+        return getSavedSession(session);
+    }
+
+    private static Session getSavedSession(Session session) {
         try {
             TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
             session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
@@ -93,15 +96,7 @@ public class Session implements Serializable {
 
     public static Session initializeSession(String sessionName) {
         Session session = new Session(sessionName);
-        try {
-            TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
-            session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
-            session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
-            session.ratiosColors = tripoliPersistentState.getBlockCyclesPlotColors();
-        } catch (TripoliException e) {
-            e.printStackTrace();
-        }
-        return session;
+        return getSavedSession(session);
     }
 
     public static boolean isSessionChanged() {
@@ -156,10 +151,6 @@ public class Session implements Serializable {
 
     public Map<String, AnalysisInterface> getMapOfAnalyses() {
         return mapOfAnalyses;
-    }
-
-    public String getSessionNotes() {
-        return sessionNotes;
     }
 
     public void setSessionNotes(String sessionNotes) {

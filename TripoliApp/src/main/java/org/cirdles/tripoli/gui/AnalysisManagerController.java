@@ -20,7 +20,6 @@ import jakarta.xml.bind.JAXBException;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -85,7 +84,10 @@ import org.cirdles.tripoli.utilities.stateUtilities.liveWorkFlow.FractionMetaDat
 import org.cirdles.tripoli.utilities.stateUtilities.liveWorkFlow.SampleMetaData;
 import org.cirdles.tripoli.utilities.stateUtilities.liveWorkFlow.SampleMetaDataUnmarshaller;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -358,9 +360,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         mcmc2Button.setDisable(false);
 
         // March 2024 implement drag n drop of files ===================================================================
-        analysisManagerGridPane.setOnDragOver(event -> {
-            event.acceptTransferModes(TransferMode.MOVE);
-        });
+        analysisManagerGridPane.setOnDragOver(event -> event.acceptTransferModes(TransferMode.MOVE));
         analysisManagerGridPane.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
             if (event.getDragboard().hasFiles()) {
@@ -388,9 +388,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                             analysis = null;
                             TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", primaryStageWindow);
                         }
-                    } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
-//                    throw new RuntimeException(e);
-                    } catch (IllegalAccessException | TripoliException e) {
+                    } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | TripoliException e) {
 //                    throw new RuntimeException(e);
                     }
                 }
@@ -409,7 +408,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 //TODO: ALL need fixing:           throw new RuntimeException(e);
 //        }
 
-        ImageView imageView = new ImageView(getClass().getResource("/" + TRIPOLI_CLIPBOARD_ICON).toExternalForm());
+        ImageView imageView = new ImageView(Objects.requireNonNull(getClass().getResource("/" + TRIPOLI_CLIPBOARD_ICON)).toExternalForm());
         exportToClipBoardButton.setGraphic(imageView);
         exportToClipBoardButton.setPadding(new Insets(0, 0, 0, 0));
         exportToClipBoardButton.setMaxHeight(35);
@@ -434,8 +433,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             items = items.sorted();
             memberAnalysesListView.setItems(items);
             memberAnalysesListView.setOnMouseClicked(event -> {
-                AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
-                analysis = analysisSelected;
+                analysis = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
                 if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
                     if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
                         MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
@@ -643,7 +641,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             mapOfDetectorsToBaselineCell = analysis.getMethod().getBaselineTable().getMapOfDetectorsToBaselineCells();
         }
         for (int col = 0; col < detectorCount + 1; col++) {
-            populateDetectorDetailRow(methodGridPane, (0 < col) ? detectorsInOrderList.get(col - 1).getDetectorName() : "spec\u2193/detector\u2192", col, 0);
+            populateDetectorDetailRow(methodGridPane, (0 < col) ? detectorsInOrderList.get(col - 1).getDetectorName() : "spec↓/detector→", col, 0);
 
             if (methodGridPane.equals(analysisDetectorsGridPane)) {
                 populateDetectorDetailRow(methodGridPane, (0 < col) ? detectorsInOrderList.get(col - 1).getDetectorType().getName() : "type", col, 1);
@@ -725,23 +723,28 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         List<UserFunction> userFunctions = analysis.getUserFunctions();
 
         AnalysisMethodPersistance analysisMethodPersistance =
-                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+                null;
+        if (tripoliPersistentState != null) {
+            analysisMethodPersistance = tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+        }
         if (analysisMethodPersistance == null) {
             analysisMethodPersistance = new AnalysisMethodPersistance(analysis.getMassSpecExtractedData().getHeader().cyclesPerBlock());
-            tripoliPersistentState.getMapMethodNamesToDefaults().put(analysis.getMethod().getMethodName(), analysisMethodPersistance);
+            if (tripoliPersistentState != null) {
+                tripoliPersistentState.getMapMethodNamesToDefaults().put(analysis.getMethod().getMethodName(), analysisMethodPersistance);
+            }
         }
 
         Map<String, UserFunctionDisplay> userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
         if (userFunctionDisplayMap.isEmpty()) {
-            for (int i = 0; i < userFunctions.size(); i++) {
-                userFunctionDisplayMap.put(userFunctions.get(i).getName(), userFunctions.get(i).calcUserFunctionDisplay());
+            for (UserFunction userFunction : userFunctions) {
+                userFunctionDisplayMap.put(userFunction.getName(), userFunction.calcUserFunctionDisplay());
             }
         } else {
-            for (int i = 0; i < userFunctions.size(); i++) {
-                UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
+            for (UserFunction userFunction : userFunctions) {
+                UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunction.getName());
                 if (userFunctionDisplay != null) {
-                    userFunctions.get(i).setDisplayed(userFunctionDisplay.isDisplayed());
-                    userFunctions.get(i).setInverted(userFunctionDisplay.isInverted());
+                    userFunction.setDisplayed(userFunctionDisplay.isDisplayed());
+                    userFunction.setInverted(userFunctionDisplay.isInverted());
                 }
             }
         }
@@ -755,7 +758,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         List<CheckBox> functionCheckBoxList = new ArrayList<>();
         List<CheckBox> expressionCheckBoxList = new ArrayList<>();
         List<Label> exportLabelList = new ArrayList<>();
-        List<RadioButton> cycleMeanRBs = new ArrayList<>();
 
         ChangeListener<Boolean> allRatiosChangeListener = (observable, oldValue, newValue) -> {
             for (CheckBox checkBoxRatio : ratioCheckBoxList) {
@@ -1060,7 +1062,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             allRatios = new ArrayList<>();
             allRatios.addAll(analysis.getAnalysisMethod().getIsotopicRatiosList());
             allRatios.addAll(analysis.getAnalysisMethod().getDerivedIsotopicRatiosList());
-            Collections.sort(allRatios, IsotopicRatio::compareTo);
+            allRatios.sort(IsotopicRatio::compareTo);
 
             populateRatiosForDisplay(allRatios);
 
@@ -1173,9 +1175,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         // Enable/disable save and generate plot buttons based on X and Y axis selections
         if (xAxisUserFunctionComboBox != null && yAxisUserFunctionComboBox != null) {
-            ChangeListener<UserFunction> comboBoxChangeListener = (observable, oldValue, newValue) -> {
-                updateSaveAndGenerateButtonStates();
-            };
+            ChangeListener<UserFunction> comboBoxChangeListener = (observable, oldValue, newValue) -> updateSaveAndGenerateButtonStates();
 
             xAxisUserFunctionComboBox.getSelectionModel().selectedItemProperty().addListener(comboBoxChangeListener);
             yAxisUserFunctionComboBox.getSelectionModel().selectedItemProperty().addListener(comboBoxChangeListener);
@@ -1186,14 +1186,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         // Enable/disable delete button based on ListView selection
         if (plot2SelectionLV != null && deletePlot2SelectionButton != null) {
-            plot2SelectionLV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                updateDeleteButtonState();
-            });
+            plot2SelectionLV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateDeleteButtonState());
 
             // Also update when list items change
-            plot2SelectionList.addListener((ListChangeListener<PlotTwo>) c -> {
-                updateDeleteButtonState();
-            });
+            plot2SelectionList.addListener((ListChangeListener<PlotTwo>) c -> updateDeleteButtonState());
 
             // Set initial state
             updateDeleteButtonState();
@@ -1235,7 +1231,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             return;
         }
 
-        TripoliPersistentState tripoliPersistentState = null;
+        TripoliPersistentState tripoliPersistentState;
         try {
             tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
         } catch (TripoliException e) {
@@ -1261,7 +1257,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             return;
         }
 
-        TripoliPersistentState tripoliPersistentState = null;
+        TripoliPersistentState tripoliPersistentState;
         try {
             tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
         } catch (TripoliException e) {
@@ -1428,7 +1424,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             return;
         }
 
-        TripoliPersistentState tripoliPersistentState = null;
+        TripoliPersistentState tripoliPersistentState;
         try {
             tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
         } catch (TripoliException e) {
@@ -1486,7 +1482,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             return;
         }
 
-        TripoliPersistentState tripoliPersistentState = null;
+        TripoliPersistentState tripoliPersistentState;
         try {
             tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
         } catch (TripoliException e) {
@@ -1635,9 +1631,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         });
 
-        expressionScrollPane.setOnDragExited(event -> {
-            expressionTextFlow.getChildren().remove(insertIndicator);
-        });
+        expressionScrollPane.setOnDragExited(event -> expressionTextFlow.getChildren().remove(insertIndicator));
 
         expressionScrollPane.setOnDragDropped((DragEvent event) -> {
             int index = expressionTextFlow.getChildren().indexOf(insertIndicator);
@@ -2055,30 +2049,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         MCMC2PlotsWindow.loadPlotsWindow();
     }
 
-    private void previewAndSculptDataFromFile() throws TripoliException {
-        // first time opening file, suppress plotting
-        TripoliPersistentState tripoliPersistentState = null;
-        try {
-            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
-        } catch (TripoliException e) {
-//            throw new RuntimeException(e);
-        }
-        AnalysisMethodPersistance analysisMethodPersistance =
-                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
-        if (analysisMethodPersistance != null) {
-            Map<String, UserFunctionDisplay> userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
-            List<UserFunction> userFunctions = analysis.getUserFunctions();
-            for (int i = 0; i < userFunctions.size(); i++) {
-                UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
-                if (userFunctionDisplay != null) {
-                    userFunctions.get(i).setDisplayed(userFunctionDisplay.isDisplayed());
-                    userFunctions.get(i).setInverted(userFunctionDisplay.isInverted());
-                }
-            }
-        }
-        previewAndSculptDataAction();
-    }
-
     public void previewAndSculptDataAction() throws TripoliException {
         // ogTripoli view
         // first time opening file, suppress plotting
@@ -2089,7 +2059,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 //            throw new RuntimeException(e);
         }
 
-        if ((analysis.getMethod() != null) &&
+        if (tripoliPersistentState != null && (analysis.getMethod() != null) &&
                 (tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName()) != null)) {
             if (null != ogTripoliPreviewPlotsWindow) {
                 ogTripoliPreviewPlotsWindow.close();
@@ -2097,15 +2067,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
             AllBlockInitForMCMC.PlottingData plottingData = null;
             switch (analysis.getAnalysisCaseNumber()) {
-                case 0 -> {
+                case 0, 2, 3 -> {
                 }
-                case 1 -> {
-                    plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
-                }
-                case 2 -> {
-                }
-                case 3 -> {
-                }
+                case 1 -> plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
                 case 4 -> {
                     if (analysis.getAnalysisMethod() != null) {
                         plottingData = AllBlockInitForMCMC.initBlockModels(analysis);
@@ -2153,7 +2117,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             if ((button instanceof Button) && (null != analysis.getMapOfBlockIdToPlots().get(Integer.parseInt(button.getId())))) {
                 tuneButton((Button) button, SHOW);
             } else if (null == analysis.getMapOfBlockIdToPlots().get(Integer.parseInt(button.getId()))) {
-                tuneButton((Button) button, SKIP);
+                if (button instanceof Button) {
+                    tuneButton((Button) button, SKIP);
+                }
             }
         }
     }
@@ -2238,13 +2204,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
         Path directoryPath = Paths.get(sampleMetaDataFolderPath);
         try {
-            Files.createDirectories(directoryPath);
+            // Files.createDirectories(directoryPath);
             List<Path> xmlFiles;
             try (Stream<Path> walk = Files.walk(directoryPath)) {
                 xmlFiles = walk
                         .filter(Files::isRegularFile)
                         .filter(p -> p.toString().toLowerCase().endsWith(".xml"))
-                        .collect(Collectors.toList());
+                        .toList();
             }
             // should be only one file
             if (xmlFiles.isEmpty()) {
@@ -2358,16 +2324,24 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         List<UserFunction> userFunctions = analysis.getUserFunctions();
 
         AnalysisMethodPersistance analysisMethodPersistance =
-                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+                null;
+        if (tripoliPersistentState != null) {
+            analysisMethodPersistance = tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+        }
 
-        Map<String, UserFunctionDisplay> userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
+        Map<String, UserFunctionDisplay> userFunctionDisplayMap = null;
+        if (analysisMethodPersistance != null) {
+            userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
+        }
         for (int i = 0; i < userFunctions.size(); i++) {
             UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
             userFunctionDisplay.setDisplayed(userFunctions.get(i).isDisplayed());
             userFunctionDisplay.setInverted(userFunctions.get(i).isInverted());
         }
 
-        tripoliPersistentState.updateTripoliPersistentState();
+        if (tripoliPersistentState != null) {
+            tripoliPersistentState.updateTripoliPersistentState();
+        }
     }
 
     public void newCustomExpressionOnAction() {
@@ -2807,7 +2781,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 current = current.prev;
                 updateProperties();
                 return current.state;
-            } else if (current.prev == null) {
+            } else if (current != null && current.prev == null) {
                 Node newNext = current;
                 current = new Node(null);
                 current.next = newNext;
@@ -2968,26 +2942,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
-    private class CheckBoxChangeListener implements ChangeListener<Boolean> {
-        private final CheckBox checkBox;
-
-        public CheckBoxChangeListener(CheckBox checkBox) {
-            this.checkBox = checkBox;
-        }
-
-        /**
-         * @param observable The {@code ObservableValue} which value changed
-         * @param oldValue   The old value
-         * @param newValue   The new value
-         */
-        @Override
-        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-            boolean displayed = newValue;
-            IsotopicRatio ratio = (IsotopicRatio) checkBox.getUserData();
-            updateAnalysisRatios(ratio, displayed);
-        }
-    }
-
     private class ExpressionTextNode extends Text {
         public final String text;
         protected Color regularColor;
@@ -3046,9 +3000,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 event.consume();
             });
 
-            setOnDragExited(event -> {
-                expressionTextFlow.getChildren().remove(insertIndicator);
-            });
+            setOnDragExited(event -> expressionTextFlow.getChildren().remove(insertIndicator));
 
             setOnDragDropped(event -> {
                 Dragboard db = event.getDragboard();
