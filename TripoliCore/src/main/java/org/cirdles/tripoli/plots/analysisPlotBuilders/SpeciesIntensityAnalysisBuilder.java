@@ -80,10 +80,6 @@ public class SpeciesIntensityAnalysisBuilder extends PlotBuilder {
         return onPeakDataIncludedAllBlocks;
     }
 
-    public void setOnPeakDataIncludedAllBlocks(boolean[][] onPeakDataIncludedAllBlocks) {
-        this.onPeakDataIncludedAllBlocks = onPeakDataIncludedAllBlocks;
-    }
-
     public double[][] getAmpResistance() {
         return ampResistance;
     }

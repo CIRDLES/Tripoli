@@ -34,10 +34,10 @@ import static org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord.*;
 /**
  * @author James F. Bowring
  */
-public class UserFunction implements Comparable, Serializable {
+public class UserFunction implements Comparable<UserFunction>, Serializable {
     @Serial
     private static final long serialVersionUID = -5408855769497340457L;
-    private String name;
+    private final String name;
     private String etReduxName;
     private String invertedETReduxName;
     private boolean oxideCorrected;
@@ -51,7 +51,6 @@ public class UserFunction implements Comparable, Serializable {
     private AnalysisStatsRecord analysisStatsRecord;
     private ExpressionTreeInterface customExpression;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
-    private int[] concatenatedBlockCounts;
 
     public UserFunction(String name, int columnIndex) {
         this(name, columnIndex, false, true);
@@ -67,7 +66,6 @@ public class UserFunction implements Comparable, Serializable {
         this.treatAsIsotopicRatio = treatAsIsotopicRatio;
         this.displayed = displayed;
         this.inverted = false;
-        this.concatenatedBlockCounts = new int[]{-1};
 
         if (name.contains("20")) {
             etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.Pb;
@@ -96,7 +94,7 @@ public class UserFunction implements Comparable, Serializable {
 
     public AnalysisStatsRecord calculateAnalysisStatsRecord(AnalysisInterface analysis) {
         if (!invertedETReduxName.isEmpty()) {
-            // detect if ratio to be treated as function because of negative or zero value Issue #214
+            // detect if ratio to be treated as a function because of negative or zero value Issue #214
             boolean allPositive = true;
             for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
                 PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
@@ -104,6 +102,7 @@ public class UserFunction implements Comparable, Serializable {
                     for (int i = 0; i < plotBlockCyclesRecord.cycleMeansData().length; i++) {
                         if ((plotBlockCyclesRecord.cycleMeansData()[i] <= 0.0) && (plotBlockCyclesRecord.cyclesIncluded()[i])) {
                             allPositive = false;
+                            break;
                         }
                     }
                 }
@@ -127,16 +126,8 @@ public class UserFunction implements Comparable, Serializable {
         return name;
     }
 
-    public String getEtReduxName() {
-        return etReduxName;
-    }
-
     public void setEtReduxName(String etReduxName) {
         this.etReduxName = etReduxName;
-    }
-
-    public String getInvertedETReduxName() {
-        return invertedETReduxName;
     }
 
     public void setInvertedETReduxName(String invertedETReduxName) {
@@ -148,7 +139,8 @@ public class UserFunction implements Comparable, Serializable {
         if (inverted && treatAsIsotopicRatio) {
             String[] ratioSplit = retVal.split("/", 2); // [000], [111 Words]
             String[] nameSplit = ratioSplit[1].split(" ", 2); // [111], [Words]
-            retVal = nameSplit[0] + "/" + ratioSplit[0] + " " + nameSplit[1]; // [111/000 Words]
+            retVal = nameSplit[0] + "/" + ratioSplit[0] +
+                    ((nameSplit.length > 1) ? (" " + nameSplit[1]) : "");// [111/000 Words]
         }
         return retVal;
     }
@@ -221,10 +213,6 @@ public class UserFunction implements Comparable, Serializable {
         return analysisStatsRecord;
     }
 
-    public void setAnalysisStatsRecord(AnalysisStatsRecord analysisStatsRecord) {
-        this.analysisStatsRecord = analysisStatsRecord;
-    }
-
     public Map<Integer, PlotBlockCyclesRecord> getMapBlockIdToBlockCyclesRecord() {
         return mapBlockIdToBlockCyclesRecord;
     }
@@ -233,22 +221,13 @@ public class UserFunction implements Comparable, Serializable {
         this.mapBlockIdToBlockCyclesRecord = mapBlockIdToBlockCyclesRecord;
     }
 
-    public int[] getConcatenatedBlockCounts() {
-        return concatenatedBlockCounts;
-    }
-
     /**
-     * @param o the object to be compared.
-     * @return
+     * @param userFunction the object to be compared.
+     * @return int
      */
     @Override
-    public int compareTo(@NotNull Object o) {
-        UserFunction userFunction = (UserFunction) o;
+    public int compareTo(@NotNull UserFunction userFunction) {
         return this.name.compareTo(userFunction.name);
-    }
-
-    public String showBlockMean() {
-        return prettyPrintRatioBlockMean(this);
     }
 
     public String showCycleMean() {

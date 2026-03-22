@@ -72,7 +72,7 @@ public interface AnalysisInterface {
         MassSpectrometerContextEnum retVal = MassSpectrometerContextEnum.UNKNOWN;
         if (dataFilePath.toString().endsWith(".xls")) {
 
-            Workbook workbook = null;
+            Workbook workbook;
             try {
                 WorkbookSettings workbookSettings = new WorkbookSettings();
                 workbookSettings.setSuppressWarnings(true);
@@ -142,9 +142,9 @@ public interface AnalysisInterface {
 
     void setAnalysisSampleName(String analysisSampleName);
 
-    public String getAnalysisFractionName();
+    String getAnalysisFractionName();
 
-    public void setAnalysisFractionName(String analysisFractionName);
+    void setAnalysisFractionName(String analysisFractionName);
 
     String getAnalysisSampleDescription();
 
@@ -173,8 +173,6 @@ public interface AnalysisInterface {
     void setDataFilePathString(String dataFilePathString);
 
     boolean isMutable();
-
-    void setMutable(boolean mutable);
 
     Map<Integer, Integer> getMapOfBlockIdToProcessStatus();
 
@@ -210,11 +208,7 @@ public interface AnalysisInterface {
 
     String getDataHexColorString();
 
-    void setDataHexColorString(String hexColor);
-
     String getAntiDataHexColorString();
-
-    void setAntiDataHexColorString(String hexColor);
 
     RatiosColors getRatioColors();
 

@@ -22,16 +22,12 @@ import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static java.lang.StrictMath.abs;
-import static java.lang.StrictMath.exp;
 import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
-import static org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN.countOfTrailingDigitsForSigFig;
 
 public record AnalysisStatsRecord(
         boolean isRatio,
@@ -73,7 +69,7 @@ public record AnalysisStatsRecord(
         int countOfIncludedBlocks = 0;
         double wmNumerator = 0.0;
         double wmDenominator = 0.0;
-        double weightedMeanC = 0.0;
+        double weightedMeanC;
         double weightedMeanOneSigmaSquaredC;
         double weightedMeanOneSigmaC;
         double chiSquaredTerm = 0.0;
@@ -84,25 +80,25 @@ public record AnalysisStatsRecord(
         List<boolean[]> cycleModeIncludedByBlocks = new ArrayList<>();
         int countOfTotalCycles = 0;
 
-        for (int i = 0; i < blockStatsRecords.length; i++) {
-            cycleModeDataByBlocks.add(blockStatsRecords[i].cycleMeansData());
-            cycleModeIncludedByBlocks.add(blockStatsRecords[i].cyclesIncluded());
-            countOfTotalCycles += blockStatsRecords[i].cyclesIncluded().length;
+        for (BlockStatsRecord blockStatsRecord : blockStatsRecords) {
+            cycleModeDataByBlocks.add(blockStatsRecord.cycleMeansData());
+            cycleModeIncludedByBlocks.add(blockStatsRecord.cyclesIncluded());
+            countOfTotalCycles += blockStatsRecord.cyclesIncluded().length;
 
             //todo fix or remove blockincludedflag
-            if (blockStatsRecords[i].blockIncluded()) {
-                wmNumerator += blockStatsRecords[i].mean() / StrictMath.pow(blockStatsRecords[i].standardDeviation(), 2);
-                wmDenominator += 1.0 / StrictMath.pow(blockStatsRecords[i].standardDeviation(), 2);
-                for (int cycleIndex = 0; cycleIndex < blockStatsRecords[i].cycleMeansData().length; cycleIndex++) {
-                    if (blockStatsRecords[i].cyclesIncluded()[cycleIndex]) {
+            if (blockStatsRecord.blockIncluded()) {
+                wmNumerator += blockStatsRecord.mean() / StrictMath.pow(blockStatsRecord.standardDeviation(), 2);
+                wmDenominator += 1.0 / StrictMath.pow(blockStatsRecord.standardDeviation(), 2);
+                for (int cycleIndex = 0; cycleIndex < blockStatsRecord.cycleMeansData().length; cycleIndex++) {
+                    if (blockStatsRecord.cyclesIncluded()[cycleIndex]) {
                         if (blockStatsRecords[0].isRatio()) {
-                            if (blockStatsRecords[0].isRatio() && blockStatsRecords[0].isInverted()) {
-                                cycleModeDescriptiveStats.addValue(-StrictMath.log(blockStatsRecords[i].cycleMeansData()[cycleIndex]));
+                            if (blockStatsRecords[0].isInverted()) {
+                                cycleModeDescriptiveStats.addValue(-StrictMath.log(blockStatsRecord.cycleMeansData()[cycleIndex]));
                             } else {
-                                cycleModeDescriptiveStats.addValue(StrictMath.log(blockStatsRecords[i].cycleMeansData()[cycleIndex]));
+                                cycleModeDescriptiveStats.addValue(StrictMath.log(blockStatsRecord.cycleMeansData()[cycleIndex]));
                             }
                         } else {
-                            cycleModeDescriptiveStats.addValue(blockStatsRecords[i].cycleMeansData()[cycleIndex]);
+                            cycleModeDescriptiveStats.addValue(blockStatsRecord.cycleMeansData()[cycleIndex]);
                         }
                     }
                 }
@@ -112,9 +108,9 @@ public record AnalysisStatsRecord(
         weightedMeanOneSigmaSquaredC = 1.0 / wmDenominator;
         weightedMeanOneSigmaC = StrictMath.sqrt(weightedMeanOneSigmaSquaredC);
 
-        for (int i = 0; i < blockStatsRecords.length; i++) {
-            if (blockStatsRecords[i].blockIncluded()) {
-                chiSquaredTerm += StrictMath.pow(blockStatsRecords[i].mean() - weightedMeanC, 2) / weightedMeanOneSigmaSquaredC;
+        for (BlockStatsRecord blockStatsRecord : blockStatsRecords) {
+            if (blockStatsRecord.blockIncluded()) {
+                chiSquaredTerm += StrictMath.pow(blockStatsRecord.mean() - weightedMeanC, 2) / weightedMeanOneSigmaSquaredC;
                 countOfIncludedBlocks++;
             }
         }
@@ -130,22 +126,22 @@ public record AnalysisStatsRecord(
         double[] cycleModeData = new double[countOfTotalCycles];
         int index = 0;
         for (boolean[] cyclesIncluded : cycleModeIncludedByBlocks) {
-            for (int i = 0; i < cyclesIncluded.length; i++) {
-                cycleModeIncluded[index] = cyclesIncluded[i];
+            for (boolean b : cyclesIncluded) {
+                cycleModeIncluded[index] = b;
                 index++;
             }
         }
 
         index = 0;
         for (double[] cycleData : cycleModeDataByBlocks) {
-            for (int i = 0; i < cycleData.length; i++) {
-                cycleModeData[index] = cycleData[i];
+            for (double cycleDatum : cycleData) {
+                cycleModeData[index] = cycleDatum;
                 index++;
             }
         }
 
         return new AnalysisStatsRecord(
-                blockStatsRecords.length > 0 ? blockStatsRecords[0].isRatio() : false,
+                blockStatsRecords.length > 0 && blockStatsRecords[0].isRatio(),
                 blockStatsRecords,
                 weightedMeanC,
                 weightedMeanOneSigmaC,
@@ -159,41 +155,6 @@ public record AnalysisStatsRecord(
                 cycleModeData,
                 countOfTotalCycles,
                 (int) cycleModeDescriptiveStats.getN());
-    }
-
-    public static String prettyPrintRatioBlockMean(UserFunction userFunction) {
-        // todo: refactor this code which duplicates cyclesplot code
-        String blockMean = "";
-        if (userFunction.getAnalysisStatsRecord() != null) {
-            AnalysisStatsRecord analysisStatsRecord = userFunction.getAnalysisStatsRecord();
-            double geoWeightedMeanRatio = exp(analysisStatsRecord.blockModeWeightedMean());
-            if (!Double.isNaN(geoWeightedMeanRatio)) {
-                double geoWeightedMeanRatioPlusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
-                double geoWeightedMeanRatioMinusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() - analysisStatsRecord.blockModeWeightedMeanOneSigma());
-                double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;
-                double geoWeightedMeanRatioMinusOneSigmaPct = (geoWeightedMeanRatio - geoWeightedMeanRatioMinusOneSigma) / geoWeightedMeanRatio * 100.0;
-
-                double lesserSigmaPct = (geoWeightedMeanRatioPlusOneSigmaPct > geoWeightedMeanRatioMinusOneSigmaPct) ?
-                        geoWeightedMeanRatioMinusOneSigmaPct : geoWeightedMeanRatioPlusOneSigmaPct;
-
-                int countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(lesserSigmaPct, 2);
-                double plusSigmaPct = (new BigDecimal(geoWeightedMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
-                double minusSigmaPct = (new BigDecimal(geoWeightedMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
-
-                lesserSigmaPct = (plusSigmaPct > minusSigmaPct) ? minusSigmaPct : plusSigmaPct;
-
-                FormatterForSigFigN.FormattedStats formattedStats;
-                if ((abs(geoWeightedMeanRatio) >= 1e7) || (abs(geoWeightedMeanRatio) <= 1e-5)) {
-                    formattedStats =
-                            FormatterForSigFigN.formatToScientific(geoWeightedMeanRatio, lesserSigmaPct, 0, 2).padLeft();
-                } else {
-                    formattedStats =
-                            FormatterForSigFigN.formatToSigFig(geoWeightedMeanRatio, lesserSigmaPct, 0, 2).padLeft();
-                }
-                blockMean = formattedStats.meanAsString();
-            }
-        }
-        return "x\u0304=" + blockMean;
     }
 
     public static String prettyPrintRatioCycleMean(UserFunction userFunction) {
@@ -215,17 +176,15 @@ public record AnalysisStatsRecord(
             if (!Double.isNaN(geoMean)) {
                 double geoMeanPlusOneStandardDeviation = geometricMeanStatsRecord.geoMeanPlusOneStdDev();
 
+                FormatterForSigFigN.FormattedStats formattedStats;
                 if ((abs(geoMean) >= 1e7) || (abs(geoMean) <= 1e-5)) {
-                    FormatterForSigFigN.FormattedStats formattedStats =
-                            FormatterForSigFigN.formatToScientific(geoMean, geoMeanPlusOneStandardDeviation - geoMean, 0, 2).padLeft();
-                    cycleMean = formattedStats.meanAsString();
+                    formattedStats = FormatterForSigFigN.formatToScientific(geoMean, geoMeanPlusOneStandardDeviation - geoMean, 0, 2).padLeft();
                 } else {
-                    FormatterForSigFigN.FormattedStats formattedStats =
-                            FormatterForSigFigN.formatToSigFig(geoMean, geoMeanPlusOneStandardDeviation - geoMean, 0, 2).padLeft();
-                    cycleMean = formattedStats.meanAsString();
+                    formattedStats = FormatterForSigFigN.formatToSigFig(geoMean, geoMeanPlusOneStandardDeviation - geoMean, 0, 2).padLeft();
                 }
+                cycleMean = formattedStats.meanAsString();
             }
         }
-        return "x\u0304=" + cycleMean;
+        return "x̄=" + cycleMean;
     }
 }

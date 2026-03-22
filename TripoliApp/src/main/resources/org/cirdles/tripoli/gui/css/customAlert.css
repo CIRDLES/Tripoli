@@ -17,6 +17,7 @@
 .alert {
     -fx-background-color: #fbf6d5;
 }
+
 .alert .header-panel .label {
     -fx-font-family: "SansSerif";
     -fx-font-size: 24px;
