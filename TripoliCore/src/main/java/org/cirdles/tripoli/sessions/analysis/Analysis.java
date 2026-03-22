@@ -503,8 +503,9 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
     /**
      * Updates Peak Centre plots
+     *
      * @param indexOfIsotopicRatio indexOfIsotopicRatio
-     * @param displayed boolean
+     * @param displayed            boolean
      */
     public void updateRatiosPlotBuilderDisplayStatus(int indexOfIsotopicRatio, boolean displayed) {
         for (Integer blockID : mapOfBlockIdToPlots.keySet()) {

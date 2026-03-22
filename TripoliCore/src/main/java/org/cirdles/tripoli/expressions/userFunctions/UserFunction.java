@@ -212,6 +212,7 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
     public AnalysisStatsRecord getAnalysisStatsRecord() {
         return analysisStatsRecord;
     }
+
     public Map<Integer, PlotBlockCyclesRecord> getMapBlockIdToBlockCyclesRecord() {
         return mapBlockIdToBlockCyclesRecord;
     }

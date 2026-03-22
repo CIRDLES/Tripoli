@@ -17,8 +17,6 @@
 package org.cirdles.tripoli.sessions;
 
 import jakarta.xml.bind.JAXBException;
-import org.cirdles.commons.util.ResourceExtractor;
-import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -40,7 +38,6 @@ public enum SessionBuiltinFactory {
 
     public static final Map<String, Session> sessionsBuiltinMap = new TreeMap<>();
     public static final String TRIPOLI_DEMONSTRATION_SESSION = "Tripoli Demonstration Session";
-    private static final ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
 
     static {
         Session tripoliDemonstrationSession = Session.initializeSession(TRIPOLI_DEMONSTRATION_SESSION);
@@ -56,12 +53,14 @@ public enum SessionBuiltinFactory {
         }
         Path dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_12.txt");
         try {
-            fiveIsotopes_12.extractMassSpecDataFromPath(dataFilePath);
+            if (fiveIsotopes_12 != null) {
+                fiveIsotopes_12.extractMassSpecDataFromPath(dataFilePath);
+                tripoliDemonstrationSession.addAnalysis(fiveIsotopes_12);
+            }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
             // do nothing
         }
-        tripoliDemonstrationSession.addAnalysis(fiveIsotopes_12);
 
         Analysis twoIsotopes_01 = null;
         try {
@@ -71,12 +70,14 @@ public enum SessionBuiltinFactory {
         }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_01.txt");
         try {
-            twoIsotopes_01.extractMassSpecDataFromPath(dataFilePath);
+            if (twoIsotopes_01 != null) {
+                twoIsotopes_01.extractMassSpecDataFromPath(dataFilePath);
+                tripoliDemonstrationSession.addAnalysis(twoIsotopes_01);
+            }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
             // do nothing
         }
-        tripoliDemonstrationSession.addAnalysis(twoIsotopes_01);
 
         Analysis twoIsotopes_02 = null;
         try {
@@ -86,12 +87,14 @@ public enum SessionBuiltinFactory {
         }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_02.txt");
         try {
-            twoIsotopes_02.extractMassSpecDataFromPath(dataFilePath);
+            if (twoIsotopes_02 != null) {
+                twoIsotopes_02.extractMassSpecDataFromPath(dataFilePath);
+                tripoliDemonstrationSession.addAnalysis(twoIsotopes_02);
+            }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
             // do nothing
         }
-        tripoliDemonstrationSession.addAnalysis(twoIsotopes_02);
 
         Analysis twoIsotopes_03 = null;
         try {
@@ -101,12 +104,14 @@ public enum SessionBuiltinFactory {
         }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_03.txt");
         try {
-            twoIsotopes_03.extractMassSpecDataFromPath(dataFilePath);
+            if (twoIsotopes_03 != null) {
+                twoIsotopes_03.extractMassSpecDataFromPath(dataFilePath);
+                tripoliDemonstrationSession.addAnalysis(twoIsotopes_03);
+            }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
             // do nothing
         }
-        tripoliDemonstrationSession.addAnalysis(twoIsotopes_03);
 
         Analysis twoIsotopes_04 = null;
         try {
@@ -116,12 +121,14 @@ public enum SessionBuiltinFactory {
         }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_04.txt");
         try {
-            twoIsotopes_04.extractMassSpecDataFromPath(dataFilePath);
+            if (twoIsotopes_04 != null) {
+                twoIsotopes_04.extractMassSpecDataFromPath(dataFilePath);
+                tripoliDemonstrationSession.addAnalysis(twoIsotopes_04);
+            }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
             // do nothing
         }
-        tripoliDemonstrationSession.addAnalysis(twoIsotopes_04);
 
         Analysis twoIsotopes_05 = null;
         try {
@@ -131,12 +138,14 @@ public enum SessionBuiltinFactory {
         }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_05.txt");
         try {
-            twoIsotopes_05.extractMassSpecDataFromPath(dataFilePath);
+            if (twoIsotopes_05 != null) {
+                twoIsotopes_05.extractMassSpecDataFromPath(dataFilePath);
+                tripoliDemonstrationSession.addAnalysis(twoIsotopes_05);
+            }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
             // do nothing
         }
-        tripoliDemonstrationSession.addAnalysis(twoIsotopes_05);
 
         Analysis twoIsotopes_06 = null;
         try {
@@ -146,12 +155,14 @@ public enum SessionBuiltinFactory {
         }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_06.txt");
         try {
-            twoIsotopes_06.extractMassSpecDataFromPath(dataFilePath);
+            if (twoIsotopes_06 != null) {
+                twoIsotopes_06.extractMassSpecDataFromPath(dataFilePath);
+                tripoliDemonstrationSession.addAnalysis(twoIsotopes_06);
+            }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
             // do nothing
         }
-        tripoliDemonstrationSession.addAnalysis(twoIsotopes_06);
 
         Analysis twoIsotopes_07 = null;
         try {
@@ -161,12 +172,14 @@ public enum SessionBuiltinFactory {
         }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_07.txt");
         try {
-            twoIsotopes_07.extractMassSpecDataFromPath(dataFilePath);
+            if (twoIsotopes_07 != null) {
+                twoIsotopes_07.extractMassSpecDataFromPath(dataFilePath);
+                tripoliDemonstrationSession.addAnalysis(twoIsotopes_07);
+            }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
             // do nothing
         }
-        tripoliDemonstrationSession.addAnalysis(twoIsotopes_07);
 
         Analysis twoIsotopes_08 = null;
         try {
@@ -176,13 +189,13 @@ public enum SessionBuiltinFactory {
         }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_08.txt");
         try {
-            twoIsotopes_08.extractMassSpecDataFromPath(dataFilePath);
+            if (twoIsotopes_08 != null) {
+                twoIsotopes_08.extractMassSpecDataFromPath(dataFilePath);
+                tripoliDemonstrationSession.addAnalysis(twoIsotopes_08);
+            }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
             // do nothing
         }
-        tripoliDemonstrationSession.addAnalysis(twoIsotopes_08);
-
-
     }
 }

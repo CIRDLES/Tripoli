@@ -17,7 +17,6 @@ package org.cirdles.tripoli.utilities.xml;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 import com.thoughtworks.xstream.security.NoTypePermission;
 import com.thoughtworks.xstream.security.NullPermission;
@@ -58,7 +57,7 @@ public interface XMLSerializerInterface {
             String xml = xstream.toXML(this).trim();
             xml = customizeXML(xml).trim();
 
-            // march 2026 write local, then copy to solve network issues
+            // March 2026 write local, then copy to solve network issues
             outFile = new OutputStreamWriter(new FileOutputStream("copyFraction.xml"), StandardCharsets.UTF_8);
             try (PrintWriter out = new PrintWriter(outFile)) {
                 out.println(xml);
@@ -75,10 +74,10 @@ public interface XMLSerializerInterface {
 
     /**
      * @param filename
-     * @param doValidate
+     * @param ignoredDoValidate
      * @return
      */
-    default Object readXMLObject(String filename, boolean doValidate) {
+    default Object readXMLObject(String filename, boolean ignoredDoValidate) {
 
         Object myModelClassInstance = null;
 

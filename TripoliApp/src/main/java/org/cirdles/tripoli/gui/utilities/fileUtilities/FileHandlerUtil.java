@@ -194,8 +194,8 @@ public enum FileHandlerUtil {
                 Path path = Paths.get(directory + File.separator + "EnsemblesForBlock_" + blockID + ".csv");
                 OutputStream stream = Files.newOutputStream(path);
                 stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV("Index", analysis.getAnalysisMethod().getIsotopicRatiosList()).getBytes());
-                for (int i = 0; i < ensembleRecordsList.size(); i++) {
-                    stream.write(ensembleRecordsList.get(i).prettyPrintAsCSV().getBytes());
+                for (EnsemblesStore.EnsembleRecord ensembleRecord : ensembleRecordsList) {
+                    stream.write(ensembleRecord.prettyPrintAsCSV().getBytes());
                 }
 
                 stream.close();
@@ -216,17 +216,15 @@ public enum FileHandlerUtil {
             // Issue # 196
             MCMCVectorExporter.DataVectorsRecord dataVectorsRecord = MCMCVectorExporter.exportData(analysis, blockID);
 
-            if (null != dataVectorsRecord) {
-                Path path = Paths.get(directory + File.separator + "MCMCVectorsForBlock_" + blockID + ".csv");
-                OutputStream stream = Files.newOutputStream(path);
-                stream.write(dataVectorsRecord.prettyPrintHeaderAsCSV().getBytes());
-                int countOfData = dataVectorsRecord.baselineFlags().length;
-                for (int i = 0; i < countOfData; i++) {
-                    stream.write(dataVectorsRecord.prettyPrintAsCSV(i).getBytes());
-                }
-
-                stream.close();
+            Path path = Paths.get(directory + File.separator + "MCMCVectorsForBlock_" + blockID + ".csv");
+            OutputStream stream = Files.newOutputStream(path);
+            stream.write(dataVectorsRecord.prettyPrintHeaderAsCSV().getBytes());
+            int countOfData = dataVectorsRecord.baselineFlags().length;
+            for (int i = 0; i < countOfData; i++) {
+                stream.write(dataVectorsRecord.prettyPrintAsCSV(i).getBytes());
             }
+
+            stream.close();
         }
     }
 
@@ -261,7 +259,7 @@ public enum FileHandlerUtil {
         etReduxFraction.serializeXMLObject(fractionFileNew.getAbsolutePath());
     }
 
-    public static File selectImportFile(Window ownerWindow) throws TripoliException {
+    public static File selectImportFile(Window ownerWindow) {
         File retVal = null;
 
         FileChooser fileChooser = new FileChooser();
