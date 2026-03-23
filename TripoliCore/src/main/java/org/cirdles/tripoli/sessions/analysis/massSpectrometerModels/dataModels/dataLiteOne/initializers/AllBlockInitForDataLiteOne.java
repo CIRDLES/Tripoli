@@ -25,6 +25,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -56,7 +57,7 @@ public class AllBlockInitForDataLiteOne {
                 Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
                 for (int blockIndex = 0; blockIndex < singleBlockRawDataLiteSetRecords.length; blockIndex++) {
                     if (null != singleBlockRawDataLiteSetRecords[blockIndex]) {
-                        Integer blockID = singleBlockRawDataLiteSetRecords[blockIndex].blockID();
+                        int blockID = singleBlockRawDataLiteSetRecords[blockIndex].blockID();
 
                         mapBlockIdToBlockCyclesRecord.put(blockID, (BlockCyclesBuilder.initializeBlockCycles(
                                 blockID,
@@ -78,23 +79,28 @@ public class AllBlockInitForDataLiteOne {
             }
         }
 
-        return (countOfBlocks > 0) ? new AllBlockInitForMCMC.PlottingData(
-                null,
-                null,
-                singleBlockRawDataLiteSetRecords,
-                //TODO: fix this cyclecount for concat Feb 2026
-                singleBlockRawDataLiteSetRecords[0].blockRawDataLiteArray().length, true, 1) : null;
+        //TODO: fix this cyclecount for concat Feb 2026
+        return singleBlockRawDataLiteSetRecords[0] != null ?
+                new AllBlockInitForMCMC.PlottingData(
+                        null,
+                        null,
+                        singleBlockRawDataLiteSetRecords,
+                        //TODO: fix this cyclecount for concat Feb 2026
+                        singleBlockRawDataLiteSetRecords[0].blockRawDataLiteArray().length, true, 1)
+                : null;
     }
 
 
     public static SingleBlockRawDataLiteSetRecord prepareSingleBlockDataLiteCaseOne(
             int blockID, MassSpecExtractedData massSpecExtractedData) {
         MassSpecOutputBlockRecordLite massSpecOutputBlockRecordLite = massSpecExtractedData.getBlocksDataLite().get(blockID);
-        boolean[][] rawDataIncluded = new boolean[massSpecOutputBlockRecordLite.cycleData().length][massSpecOutputBlockRecordLite.cycleData()[0].length]; // Array Index Out of Bounds when cycleData is empty
+        boolean[][] rawDataIncluded =
+                (massSpecOutputBlockRecordLite.cycleData().length > 0) ?
+                        new boolean[massSpecOutputBlockRecordLite.cycleData().length]
+                                [massSpecOutputBlockRecordLite.cycleData()[0].length]
+                        : new boolean[0][0];
         for (int row = 0; row < rawDataIncluded.length; row++) {
-            for (int col = 0; col < rawDataIncluded[row].length; col++) {
-                rawDataIncluded[row][col] = true;
-            }
+            Arrays.fill(rawDataIncluded[row], true);
         }
 
         return new SingleBlockRawDataLiteSetRecord(
