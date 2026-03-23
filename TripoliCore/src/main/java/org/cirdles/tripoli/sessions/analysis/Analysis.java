@@ -717,7 +717,12 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
         String dataFilepath = getDataFilePathString();
         String sessionFilepath = null;
         if (tripoliSession != null) {
-            sessionFilepath = !Objects.equals(tripoliSession.getSessionFilePathAsString(), "") ? tripoliSession.getSessionFilePathAsString() : "*Unsaved Session*";
+            if (!Objects.equals(tripoliSession.getSessionFilePathAsString(), "")) {
+                sessionFilepath = tripoliSession.getSessionFilePathAsString().substring(0, tripoliSession.getSessionFilePathAsString().lastIndexOf(File.separator) + 1) + String.join("_", tripoliSession.getSessionName().split(" ")) + ".tripoli";
+            }
+            else {
+                sessionFilepath = "*Unsaved Session*";
+            }
         }
 
         Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = getMapOfBlockIdToRawDataLiteOne();
