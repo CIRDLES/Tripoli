@@ -166,6 +166,12 @@ public class AllReportsTest {
         return new String[]{expectedReport, actualReport};
     }
 
+//    public String[] cycleReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+//        AnalysisInterface analysis = reportData.getAnalysis();
+//        String analysisName = reportData.getAnalysisName();
+//
+//    }
+
     @ParameterizedTest
     @MethodSource("generateFilepaths")
     public void allReportsTest(String dataFilePath) {
