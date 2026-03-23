@@ -68,8 +68,11 @@ import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_FULL_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
@@ -665,6 +668,90 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
                 }
             }
         }
+    }
+
+    /**
+     * Takes in an array and its respective inclusion array and formats the data into a string
+     * @param arr
+     * @param includedArr
+     * @return a String array of the values. Wrapped if not included
+     */
+    public String[] formatCycleData(double[] arr, boolean[] includedArr) {
+        String[] formattedArray = new String[arr.length];
+
+        for (int i = 0; i < arr.length; i++) {
+            // Converts Cycle column into integers
+            if (i == 0 && includedArr[i]) {
+                formattedArray[i] = Integer.toString((int) arr[i]);
+            }
+            else if (includedArr[i]) {
+                formattedArray[i] = Double.toString(arr[i]);
+            } else {
+                formattedArray[i] = "&" + arr[i] + "&";
+            }
+        }
+        return formattedArray;
+    }
+
+    /**
+     * Takes in a generic list of objects and joins them with a tab delimiter.
+     * @param items Generic list of objects
+     * @param action Action to perform on each item to get the desired String
+     * @return String of tab-delimited items
+     * @param <T>
+     */
+    public <T> String tabJoin(List<T> items, Function<T, String> action) {
+        StringBuilder joinedString = new StringBuilder();
+        for (T item : items) {
+            String value = action == null ? item.toString() : action.apply(item);
+
+            joinedString.append(String.format("%-17s", value)).append("\t");
+        }
+        return joinedString.toString().trim();
+    }
+
+    public final ArrayList<String> prepareFractionForCyclesExport(Session tripoliSession) {
+        Comparator<UserFunction> columnIndexComparator = Comparator.comparingInt(UserFunction::getColumnIndex);
+        getUserFunctions().sort(columnIndexComparator);
+        List<UserFunction> userFunctions = getUserFunctions();
+        String dataFilepath = getDataFilePathString();
+        String sessionFilepath = null;
+        if (tripoliSession != null) {
+            if (!Objects.equals(tripoliSession.getSessionFilePathAsString(), "")) {
+                sessionFilepath = tripoliSession.getSessionFilePathAsString().substring(0, tripoliSession.getSessionFilePathAsString().lastIndexOf(File.separator) + 1) + String.join("_", tripoliSession.getSessionName().split(" ")) + ".tripoli";
+            }
+            else {
+                sessionFilepath = "*Unsaved Session*";
+            }
+        }
+
+        Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = getMapOfBlockIdToRawDataLiteOne();
+
+        String currDate = new SimpleDateFormat("MM/dd/yy HH:mm:ss").format(new Date());
+        ArrayList<String> fileContents = new ArrayList<>();
+
+        fileContents.add("New Tripoli tab-delimited output of processed data for:\n");
+        fileContents.add("Session: " + sessionFilepath + "\n");
+        fileContents.add("Analysis: " + dataFilepath + "\n");
+        fileContents.add("produced on: " + currDate + "\n\n");
+        fileContents.add("Data is presented by cycles.\n");
+        fileContents.add("Any discarded values are wrapped in &s.\n");
+        fileContents.add("Any missing values are represented as a blank entry.\n\n");
+
+        fileContents.add(tabJoin(userFunctions, UserFunction::getName) + "\n");
+
+        // Write the Cycle Data to the file
+        for (int i = 1; i <= mapOfBlockIdToRawDataLiteOne.size(); i++) {
+            SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = mapOfBlockIdToRawDataLiteOne.get(i);
+            double[][] blockRawDataLiteArray = singleBlockRawDataLiteSetRecord.blockRawDataLiteArray();
+            boolean[][] blockRawDataLiteIncludedArray = singleBlockRawDataLiteSetRecord.blockRawDataLiteIncludedArray();
+
+            for (int j = 0; j < blockRawDataLiteArray.length; j++) {
+                fileContents.add(tabJoin(Stream.of(formatCycleData(blockRawDataLiteArray[j], blockRawDataLiteIncludedArray[j])).collect(Collectors.toList()), null) + "\n");
+            }
+        }
+
+        return fileContents;
     }
 
     public final ETReduxFraction prepareFractionForETReduxExport() {
