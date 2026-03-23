@@ -45,7 +45,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
@@ -91,9 +90,7 @@ public class SessionManagerController implements Initializable {
         }
 
         // March 2024 implement drag n drop of files ===================================================================
-        sessionGridPane.setOnDragOver(event -> {
-            event.acceptTransferModes(TransferMode.MOVE);
-        });
+        sessionGridPane.setOnDragOver(event -> event.acceptTransferModes(TransferMode.MOVE));
         sessionGridPane.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
 
@@ -169,7 +166,7 @@ public class SessionManagerController implements Initializable {
             listOfSelectedAnalyses.clear();
             listOfSelectedAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems().stream()
                     .filter(p -> !((Analysis) p).hasMemberAnalyses())
-                    .collect(Collectors.toList()));
+                    .toList());
             concatenateButton.setDisable(listOfSelectedAnalyses.size() < 2);
             if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
                 if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
@@ -218,7 +215,7 @@ public class SessionManagerController implements Initializable {
             }
         }
         AnalysisInterface[] analysesToConcatenate
-                = analysesWithSameMethodList.stream().toArray(AnalysisInterface[]::new);
+                = analysesWithSameMethodList.toArray(AnalysisInterface[]::new);
 
         if (analysesToConcatenate.length > 1) {
             AnalysisInterface analysisConcat = Analysis.concatenateAnalysesLite(analysesToConcatenate);

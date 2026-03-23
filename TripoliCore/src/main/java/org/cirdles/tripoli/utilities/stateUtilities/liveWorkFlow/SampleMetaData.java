@@ -28,11 +28,12 @@ import java.util.List;
 public class SampleMetaData {
     String sampleName;
     String sampleAnalysisFolderPath;
-    List<FractionMetaData> fractionsMetaData = new ArrayList<>();
+    List<FractionMetaData> fractionsMetaData;
 
     public SampleMetaData() {
         this("MISSING SAMPLE NAME", "", new ArrayList<>());
     }
+
     public SampleMetaData(String sampleName, String sampleAnalysisFolderPath, List<FractionMetaData> fractionsMetaData) {
         this.sampleName = sampleName;
         this.sampleAnalysisFolderPath = sampleAnalysisFolderPath;
