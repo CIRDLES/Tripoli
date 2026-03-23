@@ -715,7 +715,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
         getUserFunctions().sort(columnIndexComparator);
         List<UserFunction> userFunctions = getUserFunctions();
         String dataFilepath = getDataFilePathString();
-        String analysisName = getAnalysisName();
         String sessionFilepath = null;
         if (tripoliSession != null) {
             sessionFilepath = !Objects.equals(tripoliSession.getSessionFilePathAsString(), "") ? tripoliSession.getSessionFilePathAsString() : "*Unsaved Session*";
