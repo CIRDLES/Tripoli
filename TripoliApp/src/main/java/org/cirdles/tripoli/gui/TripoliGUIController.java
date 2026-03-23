@@ -24,6 +24,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
@@ -52,6 +56,7 @@ import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.imports.OgTripoliImporter;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
@@ -64,6 +69,7 @@ import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -71,11 +77,14 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.ogTripoliPreviewPlotsWindow;
@@ -845,6 +854,37 @@ public class TripoliGUIController implements Initializable {
         ClipboardContent content = new ClipboardContent();
         content.putString(clipBoardString);
         clipboard.setContent(content);
+    }
+
+    public void cyclesExportAction() throws IOException {
+        ArrayList<String> fileContents = analysis.prepareFractionForCyclesExport(tripoliSession);
+        String dataFilepath = analysis.getDataFilePathString();
+        String analysisName = analysis.getAnalysisName();
+
+        Path filepath = Path.of(dataFilepath.substring(0, dataFilepath.lastIndexOf(File.separator) + 1) + Objects.requireNonNull(tripoliSession).getSessionName() + "-" + analysisName + "-report.tsv");
+        String proceed = TripoliMessageDialog.showSavedAsDialog(new File(filepath.toUri()), primaryStage);
+        if (proceed == null) return;
+        if (proceed.equals(ButtonType.CANCEL.getText())) {
+            System.out.println("User cancelled the file save operation.");
+            return;
+        }
+
+        try {
+            Files.createFile(filepath);
+            System.out.println("File created: " + filepath);
+        }
+        catch (FileAlreadyExistsException e) {
+            System.out.println("File at " + filepath + " already exists, overwriting...");
+            Files.writeString(filepath, "");
+        }
+
+        for (String line : fileContents) {
+            Files.writeString(filepath, line, StandardOpenOption.APPEND);
+        }
+
+        if (proceed.equals("Save and Open")) {
+            Desktop.getDesktop().open(new File(filepath.toUri()));
+        }
     }
 
     public void showTripoliDiscussionsAction() {

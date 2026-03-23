@@ -24,6 +24,7 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
@@ -35,6 +36,7 @@ import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -220,6 +222,8 @@ public interface AnalysisInterface {
 
     int getAnalysisCaseNumber();
 
+    ArrayList<String> prepareFractionForCyclesExport(@Nullable Session tripoliSession);
+
     ETReduxFraction prepareFractionForETReduxExport();
 
     String prepareFractionForClipboardExport();
@@ -229,5 +233,6 @@ public interface AnalysisInterface {
     List<UserFunction> getUserFunctions();
 
     void setUserFunctions(List<UserFunction> userFunctions);
+
 
 }
