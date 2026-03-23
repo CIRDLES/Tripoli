@@ -856,26 +856,12 @@ public class TripoliGUIController implements Initializable {
         clipboard.setContent(content);
     }
 
-    /**
-     * Serializes Cycle data into a Tab-Delimited .tsv file
-     * @throws IOException
-     */
-    public void tabDelimitedSerializer() throws IOException {
-        Comparator<UserFunction> columnIndexComparator = Comparator.comparingInt(UserFunction::getColumnIndex);
-        analysis.getUserFunctions().sort(columnIndexComparator);
-        List<UserFunction> userFunctions = analysis.getUserFunctions();
-        String dataFilepath = AnalysisManagerController.analysis.getDataFilePathString();
-        String analysisName = AnalysisManagerController.analysis.getAnalysisName();
-        String sessionFilepath = null;
-        if (tripoliSession != null) {
-            sessionFilepath = !Objects.equals(tripoliSession.getSessionFilePathAsString(), "") ? tripoliSession.getSessionFilePathAsString() : "*Unsaved Session*";
-        }
+    public void cyclesExportAction() throws IOException {
+        ArrayList<String> fileContents = analysis.prepareFractionForCyclesExport(tripoliSession);
+        String dataFilepath = analysis.getDataFilePathString();
+        String analysisName = analysis.getAnalysisName();
 
-        Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = analysis.getMapOfBlockIdToRawDataLiteOne();
-
-        String currDate = new SimpleDateFormat("MM/dd/yy HH:mm:ss").format(new Date());
-
-        Path filepath = Path.of(dataFilepath.substring(0, dataFilepath.lastIndexOf(File.separator) + 1) + tripoliSession.getSessionName() + "-" + analysisName + "-report.tsv");
+        Path filepath = Path.of(dataFilepath.substring(0, dataFilepath.lastIndexOf(File.separator) + 1) + Objects.requireNonNull(tripoliSession).getSessionName() + "-" + analysisName + "-report.tsv");
         String proceed = TripoliMessageDialog.showSavedAsDialog(new File(filepath.toUri()), primaryStage);
         if (proceed == null) return;
         if (proceed.equals(ButtonType.CANCEL.getText())) {
@@ -892,77 +878,13 @@ public class TripoliGUIController implements Initializable {
             Files.writeString(filepath, "");
         }
 
-        Files.writeString(filepath, "New Tripoli tab-delimited output of processed data for:\n", StandardOpenOption.APPEND);
-        // What is the default session name?
-        Files.writeString(filepath, "Session: " + sessionFilepath + "\n", StandardOpenOption.APPEND);
-        Files.writeString(filepath, "Analysis: " + dataFilepath + "\n", StandardOpenOption.APPEND);
-        Files.writeString(filepath, "produced on: " + currDate + "\n\n", StandardOpenOption.APPEND);
-        Files.writeString(filepath, "Data is presented by cycles.\n", StandardOpenOption.APPEND);
-        Files.writeString(filepath, "Any discarded values are wrapped in &s.\n", StandardOpenOption.APPEND);
-        Files.writeString(filepath, "Any missing values are represented as a blank entry.\n\n", StandardOpenOption.APPEND);
-
-        // Write the UserFunctions to the file
-        Files.writeString(filepath, tabJoin(userFunctions, UserFunction::getName) + "\n", StandardOpenOption.APPEND);
-
-        // Write the Cycle Data to the file
-        for (int i = 1; i <= mapOfBlockIdToRawDataLiteOne.size(); i++) {
-            SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = mapOfBlockIdToRawDataLiteOne.get(i);
-            double[][] blockRawDataLiteArray = singleBlockRawDataLiteSetRecord.blockRawDataLiteArray();
-            boolean[][] blockRawDataLiteIncludedArray = singleBlockRawDataLiteSetRecord.blockRawDataLiteIncludedArray();
-
-            for (int j = 0; j < blockRawDataLiteArray.length; j++) {
-                Files.writeString(filepath, tabJoin(Stream.of(formatCycleData(blockRawDataLiteArray[j], blockRawDataLiteIncludedArray[j])).collect(Collectors.toList()), null) + "\n", StandardOpenOption.APPEND);
-            }
+        for (String line : fileContents) {
+            Files.writeString(filepath, line, StandardOpenOption.APPEND);
         }
 
         if (proceed.equals("Save and Open")) {
             Desktop.getDesktop().open(new File(filepath.toUri()));
         }
-
-    }
-
-    /**
-     * Takes in an array and its respective inclusion array and formats the data into a string
-     * @param arr
-     * @param includedArr
-     * @return a String array of the values. Wrapped if not included
-     */
-    public String[] formatCycleData(double[] arr, boolean[] includedArr) {
-        String[] formattedArray = new String[arr.length];
-
-        for (int i = 0; i < arr.length; i++) {
-            // Converts Cycle column into integers
-            if (i == 0 && includedArr[i]) {
-                formattedArray[i] = Integer.toString((int) arr[i]);
-            }
-            else if (includedArr[i]) {
-                formattedArray[i] = Double.toString(arr[i]);
-            } else {
-                formattedArray[i] = "&" + arr[i] + "&";
-            }
-        }
-        return formattedArray;
-    }
-
-    /**
-     * Takes in a generic list of objects and joins them with a tab delimiter.
-     * @param items Generic list of objects
-     * @param action Action to perform on each item to get the desired String
-     * @return String of tab-delimited items
-     * @param <T>
-     */
-    public <T> String tabJoin(List<T> items, Function<T, String> action) {
-        StringBuilder joinedString = new StringBuilder();
-        for (T item : items) {
-            String value = action == null ? item.toString() : action.apply(item);
-
-            joinedString.append(String.format("%-17s", value)).append("\t");
-        }
-        return joinedString.toString().trim();
-    }
-
-    public void cyclesExportAction() throws IOException {
-        tabDelimitedSerializer();
     }
 
     public void showTripoliDiscussionsAction() {
