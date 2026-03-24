@@ -48,7 +48,7 @@ public enum BlockEnsemblesPlotter {
             AnalysisInterface analysis) {
 
         PlotBuilder[][] plotBuilders = analysis.getMapOfBlockIdToPlots().get(blockID);
-        int initialModelsBurnCount = analysis.getMapOfBlockIdToModelsBurnCount().get(blockID).intValue();
+        int initialModelsBurnCount = analysis.getMapOfBlockIdToModelsBurnCount().get(blockID);
 
         List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = analysis.getMapBlockIDToEnsembles().get(blockID);
         int countOfEnsemblesUsed = ensembleRecordsList.size() - initialModelsBurnCount;

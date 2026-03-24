@@ -50,7 +50,7 @@ public enum SingleBlockModelInitForMCMC {
         int totalIntensityCount = baselineCount + onPeakFaradayCount + onPeakPhotoMultCount;
         int countOfIsotopes = analysisMethod.getSpeciesList().size();
 
-        if (null != analysisMethod && (null == ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(singleBlockRawDataSetRecord.blockID()))) {
+        if (null == ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(singleBlockRawDataSetRecord.blockID())) {
             boolean[][] blockIncludedOnPeak = new boolean[countOfIsotopes][];
             for (int index = 0; index < countOfIsotopes; index++) {
                 boolean[] row = new boolean[analysis.getMassSpecExtractedData().getBlocksDataFull().get(singleBlockRawDataSetRecord.blockID()).onPeakIntensities().length];
@@ -89,7 +89,7 @@ public enum SingleBlockModelInitForMCMC {
             intensityIndex++;
         }
 
-        double[] baselineMeansArray = new double[mapBaselineDetectorIndicesToStatistics.keySet().size()];
+        double[] baselineMeansArray = new double[mapBaselineDetectorIndicesToStatistics.size()];
         double[] baselineStandardDeviationsArray = new double[baselineMeansArray.length];
         int faradayIndex = 0;
         DescriptiveStatistics meanOfBaseLineMeansStdDevDescriptiveStatistics = new DescriptiveStatistics();
@@ -318,7 +318,7 @@ public enum SingleBlockModelInitForMCMC {
         // postprocess to correct by denominator isotope as per ViewCycles in matlab
         for (IsotopicRatio iRatio : mapLogRatiosToCycleStats.keySet()) {
             Map<Integer, double[]> numeratorMapCyclesToStats = mapLogRatiosToCycleStats.get(iRatio);
-            for (int cycleIndex = 0; cycleIndex < numeratorMapCyclesToStats.keySet().size(); cycleIndex++) {
+            for (int cycleIndex = 0; cycleIndex < numeratorMapCyclesToStats.size(); cycleIndex++) {
                 if ((numeratorMapCyclesToStats.get(cycleIndex)[0] != 0.0) && (denominatorMapCyclesToStats.get(cycleIndex)[0] != 0.0)) {
                     numeratorMapCyclesToStats.get(cycleIndex)[0] /= denominatorMapCyclesToStats.get(cycleIndex)[0]; //line 59
                     numeratorMapCyclesToStats.get(cycleIndex)[1] =
@@ -661,16 +661,16 @@ public enum SingleBlockModelInitForMCMC {
             double covarianceFactor = Math.pow(0.1, 2) * (1.0 / countOfParameters);
             double[][] diagC0 = new double[countOfParameters][countOfParameters];
             int diagIndex = 0;
-            for (int i = 0; i < logRatioVar.length; i++) {
-                diagC0[diagIndex][diagIndex] = StrictMath.sqrt(logRatioVar[i]) * covarianceFactor;
+            for (double v : logRatioVar) {
+                diagC0[diagIndex][diagIndex] = StrictMath.sqrt(v) * covarianceFactor;
                 diagIndex++;
             }
-            for (int i = 0; i < intensityVar.length; i++) {
-                diagC0[diagIndex][diagIndex] = StrictMath.sqrt(intensityVar[i]) * covarianceFactor;
+            for (double v : intensityVar) {
+                diagC0[diagIndex][diagIndex] = StrictMath.sqrt(v) * covarianceFactor;
                 diagIndex++;
             }
-            for (int i = 0; i < baseLineVar.length; i++) {
-                diagC0[diagIndex][diagIndex] = StrictMath.sqrt(baseLineVar[i]) * covarianceFactor;
+            for (double v : baseLineVar) {
+                diagC0[diagIndex][diagIndex] = StrictMath.sqrt(v) * covarianceFactor;
                 diagIndex++;
             }
             diagC0[diagIndex][diagIndex] = StrictMath.sqrt(dfGainVar) * covarianceFactor;

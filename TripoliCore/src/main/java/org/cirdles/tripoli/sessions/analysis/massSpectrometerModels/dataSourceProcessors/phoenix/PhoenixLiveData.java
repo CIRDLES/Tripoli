@@ -203,7 +203,7 @@ public class PhoenixLiveData {
                             true,
                             singleBlockRawDataLiteSetRecord.assembleCyclesIncludedForUserFunction(userFunction),
                             singleBlockRawDataLiteSetRecord.assembleCycleMeansForUserFunction(userFunction),
-                            singleBlockRawDataLiteSetRecord.assembleCycleStdDevForUserFunction(userFunction),
+                            singleBlockRawDataLiteSetRecord.assembleCycleStdDevForUserFunction(),
                             new String[]{userFunction.getName()},
                             true,
                             userFunction.isTreatAsIsotopicRatio()).getBlockCyclesRecord()

@@ -34,12 +34,13 @@ import java.util.stream.Collectors;
 
 
 public class Report implements Serializable, Comparable<Report> {
+    @Serial
     private static final long serialVersionUID = 1064098835718283672L;
     public static boolean supressContents = false;
     public final String FIXED_REPORT_NAME = "Full Report";
     private String reportName;
-    private String methodName;
-    private Set<ReportCategory> categorySet;
+    private final String methodName;
+    private final Set<ReportCategory> categorySet;
 
     public Report(String reportName, String methodName, Set<ReportCategory> categorySet) {
         this.reportName = reportName;
