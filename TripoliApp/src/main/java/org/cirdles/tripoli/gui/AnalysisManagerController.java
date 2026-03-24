@@ -2204,12 +2204,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
         Path directoryPath = Paths.get(sampleMetaDataFolderPath);
         try {
-            // Files.createDirectories(directoryPath);
             List<Path> xmlFiles;
             try (Stream<Path> walk = Files.walk(directoryPath)) {
                 xmlFiles = walk
                         .filter(Files::isRegularFile)
-                        .filter(p -> p.toString().toLowerCase().endsWith(".xml"))
+                        .filter(p -> p.toString().endsWith(etReduxFraction.getSampleName() + ".xml"))
                         .toList();
             }
             // should be only one file
