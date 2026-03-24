@@ -56,7 +56,6 @@ import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.imports.OgTripoliImporter;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
@@ -78,13 +77,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.ogTripoliPreviewPlotsWindow;
@@ -147,10 +144,6 @@ public class TripoliGUIController implements Initializable {
     Thread liveDataStatusThread;
     FileWatcher liveDataStatusWatcher;
     PhoenixLiveData phoenixLiveData;
-    @FXML // ResourceBundle that was given to the FXMLLoader
-    private ResourceBundle resources;
-    @FXML // URL location of the FXML file that was given to the FXMLLoader
-    private URL location;
     @FXML // fx:id="versionBuildDate"
     private Label versionBuildDate; // Value injected by FXMLLoader
     @FXML // fx:id="versionLabel"
@@ -168,10 +161,6 @@ public class TripoliGUIController implements Initializable {
     @FXML
     private Menu analysisMenu;
     @FXML
-    private Menu settingsMenu;
-    @FXML
-    private MenuItem settingsMenuMenuItem;
-    @FXML
     private AnchorPane splashAnchor;
 
     public static void quit() {
@@ -187,10 +176,13 @@ public class TripoliGUIController implements Initializable {
     }
 
     public static void handleExpressionsInSavedSession() {
-        List<AnalysisInterface> listOfAnalyses = tripoliSession.getMapOfAnalyses().values().stream().toList();
+        List<AnalysisInterface> listOfAnalyses = new ArrayList<>();
+        if (tripoliSession != null) {
+            listOfAnalyses = tripoliSession.getMapOfAnalyses().values().stream().toList();
+        }
 
         StringBuilder expressionDiffReport = new StringBuilder();
-        String headerLeft = "[" + tripoliSession.getSessionName() + "]";
+        String headerLeft = "[" + (tripoliSession != null ? tripoliSession.getSessionName() : "no session") + "]";
         String headerRight = "Method Defaults";
         expressionDiffReport.append(String.format("%-" + 60 + "s%s%n", headerLeft, headerRight));
 
@@ -323,9 +315,7 @@ public class TripoliGUIController implements Initializable {
         detectLatestVersion();
 
         // March 2024 implement drag n drop of files ===================================================================
-        splashAnchor.setOnDragOver(event -> {
-            event.acceptTransferModes(TransferMode.MOVE);
-        });
+        splashAnchor.setOnDragOver(event -> event.acceptTransferModes(TransferMode.MOVE));
         splashAnchor.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
             if ((tripoliSession == null) && event.getDragboard().hasFiles()) {
@@ -401,7 +391,7 @@ public class TripoliGUIController implements Initializable {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream()));
             String inputLine;
-            StringBuffer content = new StringBuffer();
+            StringBuilder content = new StringBuilder();
             while ((inputLine = in.readLine()) != null) {
                 if (inputLine.contains("val mavenVersion")) {
                     content.append(inputLine);
@@ -524,17 +514,13 @@ public class TripoliGUIController implements Initializable {
 
         Report fullReport = Report.createFullReport("Full Report", analysis);
         MenuItem menuItem = new MenuItem(fullReport.getReportName());
-        menuItem.setOnAction((ActionEvent t) -> {
-            openCustomReport(fullReport);
-        });
+        menuItem.setOnAction((ActionEvent t) -> openCustomReport(fullReport));
         customReportMenu.getItems().add(0, menuItem);
 
         for (Report report : reportTreeList) {
             customReportMenu.getItems().add(1, new SeparatorMenuItem());
             menuItem = new MenuItem(report.getReportName());
-            menuItem.setOnAction((ActionEvent t) -> {
-                openCustomReport(report);
-            });
+            menuItem.setOnAction((ActionEvent t) -> openCustomReport(report));
             customReportMenu.getItems().add(menuItem);
         }
     }
@@ -871,8 +857,7 @@ public class TripoliGUIController implements Initializable {
         try {
             Files.createFile(filepath);
             System.out.println("File created: " + filepath);
-        }
-        catch (FileAlreadyExistsException e) {
+        } catch (FileAlreadyExistsException e) {
             System.out.println("File at " + filepath + " already exists, overwriting...");
             Files.writeString(filepath, "");
         }
@@ -1096,7 +1081,7 @@ public class TripoliGUIController implements Initializable {
 
     // ------------------ Import from ogTripoli -----------------------------------------------
 
-    public void importAnalysisAction() throws TripoliException {
+    public void importAnalysisAction() {
         File ogTripoliFile = selectImportFile(primaryStageWindow);
         if (ogTripoliFile == null) {
             return;

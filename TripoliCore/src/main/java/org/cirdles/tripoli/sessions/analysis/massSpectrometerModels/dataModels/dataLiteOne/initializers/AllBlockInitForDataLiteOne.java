@@ -65,7 +65,7 @@ public class AllBlockInitForDataLiteOne {
                                 true, // TODO: not needed here
                                 singleBlockRawDataLiteSetRecords[blockIndex].assembleCyclesIncludedForUserFunction(userFunction),
                                 singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleMeansForUserFunction(userFunction),
-                                singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleStdDevForUserFunction(userFunction),
+                                singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleStdDevForUserFunction(),
                                 new String[]{userFunction.getName()},
                                 true,
                                 userFunction.isTreatAsIsotopicRatio()).getBlockCyclesRecord()));
@@ -99,8 +99,8 @@ public class AllBlockInitForDataLiteOne {
                         new boolean[massSpecOutputBlockRecordLite.cycleData().length]
                                 [massSpecOutputBlockRecordLite.cycleData()[0].length]
                         : new boolean[0][0];
-        for (int row = 0; row < rawDataIncluded.length; row++) {
-            Arrays.fill(rawDataIncluded[row], true);
+        for (boolean[] booleans : rawDataIncluded) {
+            Arrays.fill(booleans, true);
         }
 
         return new SingleBlockRawDataLiteSetRecord(
