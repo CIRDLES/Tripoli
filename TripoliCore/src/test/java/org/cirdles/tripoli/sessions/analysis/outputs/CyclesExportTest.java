@@ -3,7 +3,6 @@ package org.cirdles.tripoli.sessions.analysis.outputs;
 import jakarta.xml.bind.JAXBException;
 import org.apache.commons.io.FileUtils;
 import org.cirdles.tripoli.reports.ReportData;
-import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -14,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Objects;
 
 import static org.cirdles.tripoli.sessions.analysis.Analysis.suppressContents;
@@ -23,6 +21,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CyclesExportTest {
 
+    /**
+     * Uses a filepath to generate a cycles export report and then asserts it to a premade Oracle made with the same analysis name
+     * @param dataFilepath
+     * @param reportData
+     * @return
+     * @throws JAXBException
+     * @throws TripoliException
+     * @throws URISyntaxException
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     */
     public String[] cyclesExportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         suppressContents = true;
         AnalysisInterface analysis = reportData.getAnalysis();
