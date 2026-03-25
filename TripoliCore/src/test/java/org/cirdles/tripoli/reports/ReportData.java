@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.reports;
 
 import jakarta.xml.bind.JAXBException;
+import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.Session;
@@ -27,9 +28,12 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -127,5 +131,33 @@ public class ReportData {
         System.out.println("✅ Report Data generated successfully!\n");
 
         return reportData;
+    }
+
+    /**
+     * Generates a list of filepaths to all Tripoli Test Data files in the dataFiles directory
+     * @return
+     * @throws URISyntaxException
+     */
+    public static Stream<String> generateFilepaths() throws URISyntaxException {
+        System.out.println("🗃️ Generating file paths...");
+
+        String dataFilesDir = "/org/cirdles/tripoli/core/reporting/dataFiles/";
+        Path dataFilesDirPath = Paths.get(Objects.requireNonNull(Tripoli.class.getResource(dataFilesDir)).toURI());
+
+        try {
+            // Recursively visits all files within dataFilesDirPath
+            Stream<Path> pathStream = Files.walk(dataFilesDirPath);
+            System.out.println("✅ File paths generated successfully!");
+            // Filters out oracles generated at build and converts paths into usable filepaths for .getResource()
+            return pathStream
+                    .filter(Files::isRegularFile)
+                    .filter(p -> !p.getFileName().toString().startsWith("New Session-"))
+                    .map(Path::toString)
+                    .map(p -> p.replace("\\", "/"))
+                    .map(p -> p.substring(p.indexOf("/org/")));
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+            return Stream.empty();
+        }
     }
 }
