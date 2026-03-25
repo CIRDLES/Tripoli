@@ -139,7 +139,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
     private List<Integer> memberAnalysisBorderFlags;
 
     // suppresses variables for testing
-    public static boolean suppressContents = false;
+    public static boolean suppressContents = true;
 
     protected Analysis(String analysisName,
                        AnalysisMethod analysisMethod,
@@ -714,11 +714,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
     }
 
     public final ArrayList<String> prepareFractionForCyclesExport(Session tripoliSession) {
-
-
         Comparator<UserFunction> columnIndexComparator = Comparator.comparingInt(UserFunction::getColumnIndex);
-        getUserFunctions().sort(columnIndexComparator);
-        List<UserFunction> userFunctions = getUserFunctions();
+        if (!suppressContents) userFunctions.sort(columnIndexComparator);
         String dataFilepath = getDataFilePathString();
         String sessionFilepath = null;
         String currDate = new SimpleDateFormat("MM/dd/yy HH:mm:ss").format(new Date());

@@ -18,7 +18,6 @@ package org.cirdles.tripoli.sessions.analysis.outputs;
 
 import jakarta.xml.bind.JAXBException;
 import org.apache.commons.io.FileUtils;
-import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.reports.ReportData;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
@@ -30,11 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

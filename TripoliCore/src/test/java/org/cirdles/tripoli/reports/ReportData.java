@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -121,7 +122,8 @@ public class ReportData {
         }
 
         assertNotNull(analysis);
-        analysis.getUserFunctions().sort(null);
+        Comparator<UserFunction> columnIndexComparator = Comparator.comparingInt(UserFunction::getColumnIndex);
+        analysis.getUserFunctions().sort(columnIndexComparator);
         List<UserFunction> userFunctions = analysis.getUserFunctions();
 
         userFunctions = userFunctions.stream().filter(uf -> uf.getCustomExpression() == null).toList();
