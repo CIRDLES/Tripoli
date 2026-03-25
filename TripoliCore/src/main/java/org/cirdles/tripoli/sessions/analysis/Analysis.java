@@ -138,6 +138,9 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
     private AnalysisInterface[] memberAnalyses;
     private List<Integer> memberAnalysisBorderFlags;
 
+    // suppresses variables for testing
+    public static boolean suppressContents = false;
+
     protected Analysis(String analysisName,
                        AnalysisMethod analysisMethod,
                        String analysisSampleName) throws TripoliException {
@@ -711,12 +714,16 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
     }
 
     public final ArrayList<String> prepareFractionForCyclesExport(Session tripoliSession) {
+
+
         Comparator<UserFunction> columnIndexComparator = Comparator.comparingInt(UserFunction::getColumnIndex);
         getUserFunctions().sort(columnIndexComparator);
         List<UserFunction> userFunctions = getUserFunctions();
         String dataFilepath = getDataFilePathString();
         String sessionFilepath = null;
-        if (tripoliSession != null) {
+        String currDate = new SimpleDateFormat("MM/dd/yy HH:mm:ss").format(new Date());
+
+        if (tripoliSession != null && !suppressContents) {
             if (!Objects.equals(tripoliSession.getSessionFilePathAsString(), "")) {
                 sessionFilepath = tripoliSession.getSessionFilePathAsString().substring(0, tripoliSession.getSessionFilePathAsString().lastIndexOf(File.separator) + 1) + String.join("_", tripoliSession.getSessionName().split(" ")) + ".tripoli";
             }
@@ -724,10 +731,13 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
                 sessionFilepath = "*Unsaved Session*";
             }
         }
+        else if (suppressContents) {
+            sessionFilepath = "*Unsaved Session*";
+            dataFilepath = "";
+            currDate = "";
+        }
 
         Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = getMapOfBlockIdToRawDataLiteOne();
-
-        String currDate = new SimpleDateFormat("MM/dd/yy HH:mm:ss").format(new Date());
         ArrayList<String> fileContents = new ArrayList<>();
 
         fileContents.add("New Tripoli tab-delimited output of processed data for:\n");
