@@ -4,12 +4,14 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
-<fx:root type="ScrollPane" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
-    <VBox fx:id="vBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="536.0">
-        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="42.0" prefWidth="536.0" style="-fx-font-weight: bold; -fx-text-fill: red; -fx-font-size: 24;" text="Plots Color Controls" textAlignment="CENTER">
+<fx:root xmlns:fx="http://javafx.com/fxml/1" type="ScrollPane" xmlns="http://javafx.com/javafx/20.0.1">
+    <VBox fx:id="vBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+          prefHeight="450.0" prefWidth="536.0">
+        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="42.0" prefWidth="536.0"
+               style="-fx-font-weight: bold; -fx-text-fill: red; -fx-font-size: 24;" text="Plots Color Controls"
+               textAlignment="CENTER">
             <font>
-                <Font size="22.0" />
+                <Font size="22.0"/>
             </font>
         </Label>
     </VBox>

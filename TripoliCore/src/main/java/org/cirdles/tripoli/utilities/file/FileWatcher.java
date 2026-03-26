@@ -30,7 +30,7 @@ public class FileWatcher implements Runnable {
     private final Path pathToWatch;
     private final FileWatcherCallbackInterface callback;
     private volatile boolean running = true;
-    private long timeoutSeconds;
+    private final long timeoutSeconds;
     private long lastEventTime;
 
     public FileWatcher(Path pathToWatch, FileWatcherCallbackInterface callback) {
@@ -40,37 +40,8 @@ public class FileWatcher implements Runnable {
         lastEventTime = System.currentTimeMillis();
     }
 
-    /**
-     * If set, the watcher will signal the callback if no events occur for the specified number of seconds. The signal
-     * returned event will have a null path and kind. This represents an idle state.
-     *
-     * @param seconds Number of seconds to wait before signaling the callback.
-     */
-    public void setTimeoutSeconds(long seconds) {
-        timeoutSeconds = seconds * 1000;
-    }
-
-    /**
-     * Resets the timeout interval. This is useful if the timeout is called and the user does not
-     * wish to halt the service.
-     */
-    public void resetTimeout() {
-        lastEventTime = System.currentTimeMillis();
-    }
-
     public Path getPath() {
         return pathToWatch;
-    }
-
-    public void processExistingFiles() {
-        try {
-            List<Path> existingFiles = FileUtilities.listRegularFiles(pathToWatch);
-            for (Path entry : existingFiles) {
-                callback.onFileEvent(entry, ENTRY_CREATE);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public void processExistingFiles(Comparator<Path> comparator) {

@@ -42,8 +42,7 @@ public class FormatterForSigFigN {
             DecimalFormat df = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
             df.setMaximumFractionDigits(8);
             String roundedString = df.format(rounded);
-            int scale = roundedString.split("\\.")[1].length();
-            countOfTrailingDigitsForSigFig = scale;
+            countOfTrailingDigitsForSigFig = roundedString.split("\\.")[1].length();
         }
         return countOfTrailingDigitsForSigFig;
     }
@@ -56,18 +55,16 @@ public class FormatterForSigFigN {
      * @return String pattern to be used in DecimalFormat
      */
     public static String generatePattern(double rounded, int sigFig) {
-        String pattern = "#.";
+        StringBuilder pattern = new StringBuilder("#.");
         if (Double.isFinite(rounded)) {
             // Converts the decimal value to a BigDecimal to find the scale
             BigDecimal valueBD = new BigDecimal(String.valueOf(rounded));
             int scale = sigFig - (valueBD.precision() - valueBD.scale());
 
             // Allows for a trailing zero in each decimal place within the scale
-            for (int i = 0; i < scale; i++) {
-                pattern += "0";
-            }
+            pattern.append("0".repeat(Math.max(0, scale)));
 
-            return pattern;
+            return pattern.toString();
         }
 
         // Returns default pattern if rounded number is infinite
@@ -75,7 +72,7 @@ public class FormatterForSigFigN {
     }
 
     /**
-     * see https://docs.google.com/document/d/14PPEDEJPylNMavpJDpYSuemNb0gF5dz_To3Ek1Y_Agw/edit#bookmark=id.bf8wjg6paqcw
+     * see <a href="https://docs.google.com/document/d/14PPEDEJPylNMavpJDpYSuemNb0gF5dz_To3Ek1Y_Agw/edit#bookmark=id.bf8wjg6paqcw">...</a>
      *
      * @param mean
      * @param stdErr

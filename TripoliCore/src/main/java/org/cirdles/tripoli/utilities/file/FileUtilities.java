@@ -17,11 +17,8 @@
 package org.cirdles.tripoli.utilities.file;
 
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,57 +40,6 @@ public enum FileUtilities {
                 .forEach(File::delete);
     }
 
-    public static boolean isFileClosedWindows(File file) {
-        return file.renameTo(file);
-    }
-
-    public static boolean isFileClosedUnix(File file) {
-        try {
-            Process plsof = new ProcessBuilder("lsof", "|", "grep", file.getAbsolutePath()).start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(plsof.getInputStream(), StandardCharsets.UTF_8));
-            String line;
-            while (null != (line = reader.readLine())) {
-                if (line.contains(file.getAbsolutePath())) {
-                    reader.close();
-                    plsof.destroy();
-                    return false;
-                }
-            }
-            reader.close();
-            plsof.destroy();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        return true;
-    }
-
-    /*
-    public static void unpackZipFile(File archive, File targetDirectory)
-            throws IOException {
-        ZipFile zipFile = new ZipFile(archive);
-        Enumeration<? extends ZipEntry> entries = zipFile.entries();
-        // Dec 2021 this fix comes from https://cwe.mitre.org/data/definitions/23.html and SNYK CODE
-        // via https://app.snyk.io/org/bowring/project/7dd848fc-362b-4514-a91c-3c04628633ac
-        while (entries.hasMoreElements()) {
-            ZipEntry entry = entries.nextElement();
-            Path entryPath = targetDirectory.toPath().resolve(entry.getName());
-            if (!entryPath.normalize().startsWith(targetDirectory.toPath()))
-                throw new IOException("Zip entry contained path traversal");
-            if (entry.isDirectory()) {
-                Files.createDirectories(entryPath);
-            } else {
-                Files.createDirectories(entryPath.getParent());
-                try (InputStream in = zipFile.getInputStream(entry)) {
-                    try (OutputStream out = new FileOutputStream(entryPath.toFile())) {
-                        IOUtils.copy(in, out);
-                    }
-                }
-            }
-        }
-    }
-     */
-
     public static List<Path> listRegularFiles(Path directory) throws IOException {
         List<Path> files = new ArrayList<>();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory)) {
@@ -105,6 +51,4 @@ public enum FileUtilities {
         }
         return files;
     }
-
-
 }

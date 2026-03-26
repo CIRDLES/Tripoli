@@ -34,6 +34,7 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Objects;
 
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_STARTING_YELLOW;
 
@@ -79,13 +80,15 @@ public class TripoliGUI extends Application {
 //    |_____| [___]   [___]| ;.__/  '.__.'[___][___]
 //                        [__|
 
-        String logo = "        _________          _                  __    _   \n" +
-                "       |  _   _  |        (_)                [  |  (_)  \n" +
-                "       |_/ | | \\_|_ .--.  __  _ .--.    .--.  | |  __   \n" +
-                "           | |   [ `/'`\\][  |[ '/'`\\ \\/ .'`\\ \\| | [  |  \n" +
-                "          _| |_   | |     | | | \\__/ || \\__. || |  | |  \n" +
-                "         |_____| [___]   [___]| ;.__/  '.__.'[___][___] \n" +
-                "                             [__|                       \n";
+        String logo = """
+                        _________          _                  __    _  \s
+                       |  _   _  |        (_)                [  |  (_) \s
+                       |_/ | | \\_|_ .--.  __  _ .--.    .--.  | |  __  \s
+                           | |   [ `/'`\\][  |[ '/'`\\ \\/ .'`\\ \\| | [  | \s
+                          _| |_   | |     | | | \\__/ || \\__. || |  | | \s
+                         |_____| [___]   [___]| ;.__/  '.__.'[___][___]\s
+                                             [__|                      \s
+                """;
         System.out.println(logo);
 
 
@@ -128,7 +131,8 @@ public class TripoliGUI extends Application {
 
         primaryStage.setMinHeight(scene.getHeight() + 15);
         primaryStage.setMinWidth(scene.getWidth());
-        primaryStage.getIcons().add(new Image(TripoliGUI.class.getResourceAsStream(Tripoli_LOGO_SANS_TEXT_URL)));
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(
+                TripoliGUI.class.getResourceAsStream(Tripoli_LOGO_SANS_TEXT_URL))));
 
         tripoliAboutWindow = new TripoliAboutWindow(primaryStage);
 

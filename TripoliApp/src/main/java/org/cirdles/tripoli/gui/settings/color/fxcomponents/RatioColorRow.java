@@ -43,7 +43,7 @@ public class RatioColorRow extends HBox {
             RatiosPlotColorFlavor plotColorFlavor
     ) {
         setAlignment(Pos.CENTER);
-        setPadding(new Insets(0,20,0,20));
+        setPadding(new Insets(0, 20, 0, 20));
         Label title = new Label(plotColorFlavor.getName());
         title.setFont(Font.font("Consolas", FontWeight.BOLD, 16));
         title.setPrefWidth(TITLE_WIDTH);

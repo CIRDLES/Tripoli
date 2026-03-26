@@ -467,7 +467,7 @@ public class TripoliGUIController implements Initializable {
     private void launchSessionManager() throws IOException, TripoliException {
         removeAllManagers();
 
-        sessionManagerUI = FXMLLoader.load(getClass().getResource("SessionManager.fxml"));
+        sessionManagerUI = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("SessionManager.fxml")));
         sessionManagerUI.setId("SessionManager");
 
         AnchorPane.setLeftAnchor(sessionManagerUI, 0.0);
@@ -627,7 +627,7 @@ public class TripoliGUIController implements Initializable {
 
     private void saveAsSession() throws TripoliException {
         try {
-            tripoliSession.setExpressionRefreshed(false);
+            Objects.requireNonNull(tripoliSession).setExpressionRefreshed(false);
             File sessionFile = saveSessionFile(tripoliSession, primaryStageWindow);
             if (null != sessionFile) {
                 sessionFileName = sessionFile.getPath();
@@ -674,7 +674,7 @@ public class TripoliGUIController implements Initializable {
             alert.showAndWait().ifPresent((t) -> {
                 if (t.equals(ButtonType.YES)) {
                     try {
-                        saveSessionFile(tripoliSession, primaryStageWindow);
+                        saveSessionFile(Objects.requireNonNull(tripoliSession), primaryStageWindow);
                     } catch (IOException iOException) {
                         TripoliMessageDialog.showWarningDialog("Tripoli cannot access the target file.\n",
                                 null);
@@ -703,7 +703,7 @@ public class TripoliGUIController implements Initializable {
                 ((Analysis) analysis).updateConcatenatedAnalysis();
             }
 
-            analysesManagerUI = FXMLLoader.load(getClass().getResource("AnalysesManager.fxml"));
+            analysesManagerUI = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("AnalysesManager.fxml")));
             analysesManagerUI.setId("AnalysesManager");
 
             AnchorPane.setLeftAnchor(analysesManagerUI, 0.0);
@@ -1026,7 +1026,7 @@ public class TripoliGUIController implements Initializable {
                 Path newLiveDataFolder = PhoenixLiveData.getLiveDataFolderPath(parentFolder.toFile());
 
                 // Update MRU path
-                tripoliPersistentState.setMRUDataFileFolderPath(newLiveDataFolder.getParent().toString());
+                tripoliPersistentState.setMRUDataFileFolderPath(Objects.requireNonNull(newLiveDataFolder).getParent().toString());
 
                 // Resume normal live data processing on new folder
                 Platform.runLater(() -> {

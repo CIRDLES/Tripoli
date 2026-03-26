@@ -18,6 +18,7 @@ package org.cirdles.tripoli.valueModels;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -29,6 +30,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.DEFAULT_OBJECT_NAME
  */
 public class ValueModel implements Serializable, Comparable<ValueModel>, ValueModelInterface {
 
+    @Serial
     private static final long serialVersionUID = -2165611302657545964L;
 
     protected String name;
