@@ -400,7 +400,7 @@ public class TripoliGUIController implements Initializable {
             con.disconnect();
             String[] contentString = content.toString().split("\"");
             String latestVersion = contentString[1];
-            if (Tripoli.VERSION.compareToIgnoreCase(latestVersion) == -1) {
+            if (Tripoli.VERSION.compareToIgnoreCase(latestVersion) < 0) {
                 latestVersionHBox.setVisible(true);
                 newVersionLabel.setText("New Version v" + latestVersion + " at:");
             } else {
