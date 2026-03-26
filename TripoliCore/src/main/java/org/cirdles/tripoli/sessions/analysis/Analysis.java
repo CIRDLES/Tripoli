@@ -120,7 +120,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
     // note: Path is not serializable
     private String dataFilePathString;
     private MassSpecExtractedData massSpecExtractedData;
-    private boolean mutable;
+    private final boolean mutable;
     private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[0];
     private double analysisDalyFaradayGainMean;
     private double analysisDalyFaradayGainMeanOneSigmaAbs;
@@ -960,10 +960,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
     public boolean isMutable() {
         return mutable;
-    }
-
-    public void setMutable(boolean mutable) {
-        this.mutable = mutable;
     }
 
     public Map<Integer, Integer> getMapOfBlockIdToProcessStatus() {

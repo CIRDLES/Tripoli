@@ -41,7 +41,7 @@ public class AllBlockInitForMCMC {
         MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
 
-        int countOfBlocks = analysis.getMapOfBlockIdToProcessStatus().keySet().size();
+        int countOfBlocks = analysis.getMapOfBlockIdToProcessStatus().size();
         SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[countOfBlocks];
         SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[countOfBlocks];
 
@@ -49,9 +49,8 @@ public class AllBlockInitForMCMC {
             singleBlockRawDataSetRecords[blockIndex] = prepareSingleBlockDataForMCMC(blockIndex + 1, massSpecExtractedData, analysisMethod);
             analysis.getMapOfBlockIdToRawData().put(blockIndex + 1, singleBlockRawDataSetRecords[blockIndex]);
 
-            if (null == ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().get(blockIndex + 1)) {
-                ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().put(blockIndex + 1, singleBlockRawDataSetRecords[blockIndex].blockIncludedIntensitiesArray());
-            }
+            int finalBlockIndex = blockIndex;
+            ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().computeIfAbsent(blockIndex + 1, k -> singleBlockRawDataSetRecords[finalBlockIndex].blockIncludedIntensitiesArray());
 
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithNoCov;
             try {

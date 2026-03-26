@@ -48,16 +48,8 @@ public record SingleBlockRawDataLiteSetRecord(
         return cycleMeans;
     }
 
-    public double[] assembleCycleStdDevForUserFunction(UserFunction userFunction) {
+    public double[] assembleCycleStdDevForUserFunction() {
         return new double[blockRawDataLiteArray.length];
-    }
-
-    public SingleBlockRawDataLiteSetRecord changeBlockIDforConcat(int blockID) {
-        return new SingleBlockRawDataLiteSetRecord(
-                blockID,
-                isIncluded,
-                blockRawDataLiteArray,
-                blockRawDataLiteIncludedArray);
     }
 
     public SingleBlockRawDataLiteSetRecord resetAllDataIncluded(UserFunction userFunction) {
@@ -111,14 +103,6 @@ public record SingleBlockRawDataLiteSetRecord(
                 blockRawDataLiteArray,
                 blockRawDataLiteIncludedArrayUpdated);
     }
-
-//    public boolean calcBlockIncludedForUserFunc(UserFunction userFunction) {
-//        boolean retVal = false;
-//        for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {
-//            retVal = retVal || blockRawDataLiteIncludedArray[row][userFunction.getColumnIndex()];
-//        }
-//        return retVal;
-//    }
 
     public SingleBlockRawDataLiteSetRecord synchronizeIncludedToUserFunc(UserFunction userFunction) {
         boolean[][] blockRawDataLiteIncludedArrayUpdated = blockRawDataLiteIncludedArray.clone();

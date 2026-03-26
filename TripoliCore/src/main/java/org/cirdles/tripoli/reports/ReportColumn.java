@@ -23,6 +23,7 @@ import org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -33,6 +34,7 @@ import java.util.Objects;
 import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
 
 public class ReportColumn implements Serializable, Comparable<ReportColumn> {
+    @Serial
     private static final long serialVersionUID = 3378567673921898881L;
     public String FIXED_COLUMN_NAME = "Analysis Name";
 
@@ -40,8 +42,8 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn> {
     private int positionIndex;
     private boolean visible;
     private String methodName;
-    private boolean isUserFunction;
-    private boolean isRatio;
+    private final boolean isUserFunction;
+    private final boolean isRatio;
 
     public ReportColumn(String title, int positionIndex, String methodName) {
         columnName = title;

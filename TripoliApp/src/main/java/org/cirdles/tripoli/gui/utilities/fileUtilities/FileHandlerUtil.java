@@ -193,7 +193,7 @@ public enum FileHandlerUtil {
             if (!ensembleRecordsList.isEmpty()) {
                 Path path = Paths.get(directory + File.separator + "EnsemblesForBlock_" + blockID + ".csv");
                 OutputStream stream = Files.newOutputStream(path);
-                stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV("Index", analysis.getAnalysisMethod().getIsotopicRatiosList()).getBytes());
+                stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV(analysis.getAnalysisMethod().getIsotopicRatiosList()).getBytes());
                 for (EnsemblesStore.EnsembleRecord ensembleRecord : ensembleRecordsList) {
                     stream.write(ensembleRecord.prettyPrintAsCSV().getBytes());
                 }

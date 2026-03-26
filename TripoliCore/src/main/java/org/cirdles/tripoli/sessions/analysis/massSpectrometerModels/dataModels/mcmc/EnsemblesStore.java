@@ -222,8 +222,8 @@ public class EnsemblesStore implements Serializable {
         // postprocess to correct by denominator isotope as per ViewCycles in matlab
         for (IsotopicRatio iRatio : mapLogRatiosToCycleStats.keySet()) {
             Map<Integer, double[]> numeratorMapCyclesToStats = mapLogRatiosToCycleStats.get(iRatio);
-            if (denominatorMapCyclesToStats.size() > 0) {
-                for (int cycleIndex = 0; cycleIndex < numeratorMapCyclesToStats.keySet().size(); cycleIndex++) {
+            if (!denominatorMapCyclesToStats.isEmpty()) {
+                for (int cycleIndex = 0; cycleIndex < numeratorMapCyclesToStats.size(); cycleIndex++) {
                     numeratorMapCyclesToStats.get(cycleIndex)[0] /= denominatorMapCyclesToStats.get(cycleIndex)[0];
                     double calcSterrCycleRatio =
                             numeratorMapCyclesToStats.get(cycleIndex)[1] = StrictMath.sqrt(StrictMath.pow(numeratorMapCyclesToStats.get(cycleIndex)[1], 2.0)
@@ -266,40 +266,40 @@ public class EnsemblesStore implements Serializable {
             double errorWeighted,
             double errorUnWeighted
     ) implements Serializable {
-        public String prettyPrintHeaderAsCSV(String indexTitle, List<IsotopicRatio> isotopicRatiosList) {
-            String header = "";
+        public String prettyPrintHeaderAsCSV(List<IsotopicRatio> isotopicRatiosList) {
+            StringBuilder header = new StringBuilder();
             for (int i = 0; i < logRatios.length; i++) {
-                header += isotopicRatiosList.get(i).prettyPrint().replaceAll(" ", "") + ",";
+                header.append(isotopicRatiosList.get(i).prettyPrint().replaceAll(" ", "")).append(",");
             }
             for (int i = 0; i < I0.length; i++) {
-                header += "I-" + i + ",";
+                header.append("I-").append(i).append(",");
             }
             for (int i = 0; i < baseLine.length; i++) {
-                header += "BL-" + i + ",";
+                header.append("BL-").append(i).append(",");
             }
-            header += "DFGain,";
-            header += "errorWeighted,";
-            header += "errorUnWeighted \n";
+            header.append("DFGain,");
+            header.append("errorWeighted,");
+            header.append("errorUnWeighted \n");
 
-            return header;
+            return header.toString();
         }
 
         public String prettyPrintAsCSV() {
-            String data = "";
-            for (int i = 0; i < logRatios.length; i++) {
-                data += logRatios[i] + ",";
+            StringBuilder data = new StringBuilder();
+            for (double logRatio : logRatios) {
+                data.append(logRatio).append(",");
             }
-            for (int i = 0; i < I0.length; i++) {
-                data += I0[i] + ",";
+            for (double v : I0) {
+                data.append(v).append(",");
             }
-            for (int i = 0; i < baseLine.length; i++) {
-                data += baseLine[i] + ",";
+            for (double v : baseLine) {
+                data.append(v).append(",");
             }
-            data += dfGain() + ",";
-            data += errorWeighted + ",";
-            data += errorUnWeighted + "\n";
+            data.append(dfGain()).append(",");
+            data.append(errorWeighted).append(",");
+            data.append(errorUnWeighted).append("\n");
 
-            return data;
+            return data.toString();
         }
     }
 }

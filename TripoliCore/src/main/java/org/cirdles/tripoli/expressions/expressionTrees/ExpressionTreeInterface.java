@@ -28,8 +28,6 @@ public interface ExpressionTreeInterface {
 
     Double[][] eval(String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite);
 
-    int getOperationPrecedence();
-
     String getName();
 
     void setName(String newName);

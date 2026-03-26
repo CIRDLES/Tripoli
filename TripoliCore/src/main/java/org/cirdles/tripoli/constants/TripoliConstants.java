@@ -42,10 +42,6 @@ public enum TripoliConstants {
     public static final File SYNTHETIC_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "syntheticData");
     public static final File SYNTHETIC_DATA_FOLDER_2ISOTOPE
             = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "TwoIsotopeSyntheticData");
-    public static final File SYNTHETIC_DATA_FOLDER_DATA
-            = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "data");
-    public static final File SYNTHETIC_DATA_FOLDER_METHODS
-            = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "methods");
     public static final File SYNTHETIC_DATA_FOLDER_SYNTHETICFORTRIPOLI
             = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "SyntheticOutToTripoli");
     public static final File NUCLIDESCHART_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "NuclidesChartData");

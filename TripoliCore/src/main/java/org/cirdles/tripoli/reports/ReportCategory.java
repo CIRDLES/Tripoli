@@ -19,16 +19,18 @@ package org.cirdles.tripoli.reports;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ReportCategory implements Serializable, Comparable<ReportCategory> {
+    @Serial
     private static final long serialVersionUID = 6830475493400638448L;
     public final String FIXED_CATEGORY_NAME = "Analysis Info";
-    private String categoryName;
+    private final String categoryName;
     private int positionIndex;
-    private Set<ReportColumn> columnSet;
+    private final Set<ReportColumn> columnSet;
     private boolean visible;
 
     // Handle importing existing category

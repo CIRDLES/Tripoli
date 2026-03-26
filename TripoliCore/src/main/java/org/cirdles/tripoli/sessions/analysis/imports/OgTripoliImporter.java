@@ -214,7 +214,8 @@ public class OgTripoliImporter {
         }
     }
 
-    public static MassSpecExtractedData extractMassSpecDataFromOGTripoli(Path inputFilePath) throws TripoliException, IOException {
+    @SuppressWarnings("unused")
+    public static MassSpecExtractedData extractMassSpecDataFromOGTripoli(Path inputFilePath) {
         return Objects.requireNonNull(importTripolizedData(inputFilePath.toFile())).getMassSpecExtractedData();
     }
 }
