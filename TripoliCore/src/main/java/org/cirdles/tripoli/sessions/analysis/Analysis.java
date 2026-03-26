@@ -715,7 +715,9 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
     public final ArrayList<String> prepareFractionForCyclesExport(Session tripoliSession) {
         Comparator<UserFunction> columnIndexComparator = Comparator.comparingInt(UserFunction::getColumnIndex);
-        if (!suppressContents) userFunctions.sort(columnIndexComparator);
+        List<UserFunction> userFunctions = new ArrayList<>(getUserFunctions());
+        userFunctions.sort(columnIndexComparator);
+        setUserFunctions(userFunctions);
         String dataFilepath = getDataFilePathString();
         String sessionFilepath = null;
         String currDate = new SimpleDateFormat("MM/dd/yy HH:mm:ss").format(new Date());

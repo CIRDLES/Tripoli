@@ -122,10 +122,7 @@ public class ReportData {
         }
 
         assertNotNull(analysis);
-        Comparator<UserFunction> columnIndexComparator = Comparator.comparingInt(UserFunction::getColumnIndex);
-        analysis.getUserFunctions().sort(columnIndexComparator);
         List<UserFunction> userFunctions = analysis.getUserFunctions();
-
         userFunctions = userFunctions.stream().filter(uf -> uf.getCustomExpression() == null).toList();
         analysis.setUserFunctions(userFunctions);
 

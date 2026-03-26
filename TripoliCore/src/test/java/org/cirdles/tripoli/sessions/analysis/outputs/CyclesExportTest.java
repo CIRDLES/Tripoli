@@ -2,6 +2,7 @@ package org.cirdles.tripoli.sessions.analysis.outputs;
 
 import jakarta.xml.bind.JAXBException;
 import org.apache.commons.io.FileUtils;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.reports.ReportData;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
@@ -13,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static org.cirdles.tripoli.sessions.analysis.Analysis.suppressContents;
@@ -38,6 +41,11 @@ public class CyclesExportTest {
         AnalysisInterface analysis = reportData.getAnalysis();
         String analysisName = reportData.getAnalysisName();
         File dataFile = reportData.getDataFile();
+
+        // Sort UserFunctions
+        List<UserFunction> userFunctions = new ArrayList<>(analysis.getUserFunctions());
+        userFunctions.sort(null);
+        analysis.setUserFunctions(userFunctions);
 
         System.out.println("📝 Generating Cycles Export Report for " + dataFile.getName() + "...");
         // Create the report to test against the Oracle

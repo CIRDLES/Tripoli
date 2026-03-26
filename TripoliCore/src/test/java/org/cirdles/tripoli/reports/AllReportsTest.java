@@ -18,6 +18,7 @@ package org.cirdles.tripoli.reports;
 
 import jakarta.xml.bind.JAXBException;
 import org.apache.commons.io.FileUtils;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
@@ -29,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,6 +56,11 @@ public class AllReportsTest {
         String analysisName = reportData.getAnalysisName();
         Session tripoliSession = reportData.getTripoliSession();
         File dataFile = reportData.getDataFile();
+
+        // Sort UserFunctions
+        List<UserFunction> userFunctions = new ArrayList<>(analysis.getUserFunctions());
+        userFunctions.sort(null);
+        analysis.setUserFunctions(userFunctions);
 
         System.out.println("📝 Generating Full Report for " + dataFile.getName() + "...");
         // Create a Full Report to test against the Oracle
@@ -116,6 +123,11 @@ public class AllReportsTest {
         String analysisName = reportData.getAnalysisName();
         File dataFile = reportData.getDataFile();
 
+        // Sort UserFunctions
+        List<UserFunction> userFunctions = new ArrayList<>(analysis.getUserFunctions());
+        userFunctions.sort(null);
+        analysis.setUserFunctions(userFunctions);
+
         System.out.println("📝 Generating Short Report for " + dataFile.getName() + "...");
         // Create the report to test against the Oracle
         String actualReport = "";
@@ -136,12 +148,6 @@ public class AllReportsTest {
 
         return new String[]{expectedReport, actualReport};
     }
-
-//    public String[] cycleReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-//        AnalysisInterface analysis = reportData.getAnalysis();
-//        String analysisName = reportData.getAnalysisName();
-//
-//    }
 
     @ParameterizedTest
     @MethodSource("org.cirdles.tripoli.reports.ReportData#generateFilepaths")
