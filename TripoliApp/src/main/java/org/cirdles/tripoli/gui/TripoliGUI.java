@@ -72,14 +72,6 @@ public class TripoliGUI extends Application {
             verbose = args[0].startsWith("-v");
         }
 //  http://patorjk.com/software/taag/#p=display&c=c%2B%2B&f=Varsity&t=Tripoli
-//   _________          _                  __    _
-//  |  _   _  |        (_)                [  |  (_)
-//  |_/ | | \_|_ .--.  __  _ .--.    .--.  | |  __
-//      | |   [ `/'`\][  |[ '/'`\ \/ .'`\ \| | [  |
-//     _| |_   | |     | | | \__/ || \__. || |  | |
-//    |_____| [___]   [___]| ;.__/  '.__.'[___][___]
-//                        [__|
-
         String logo = """
                         _________          _                  __    _  \s
                        |  _   _  |        (_)                [  |  (_) \s
@@ -92,7 +84,7 @@ public class TripoliGUI extends Application {
         System.out.println(logo);
 
 
-        // detect if running from jar file
+        // detect if running from a jar file
         if (!verbose && (ClassLoader.getSystemResource("org/cirdles/tripoli/gui/TripoliGUI.class").toExternalForm().startsWith("jar"))) {
             System.out.println(
                     "Running Tripoli from Jar file ... suppressing terminal output.\n"
@@ -138,7 +130,7 @@ public class TripoliGUI extends Application {
 
         primaryStage.show();
 
-        // create stops for color gradient
+        // create stops for the color gradient
         Stop[] stop = {new Stop(0, TRIPOLI_STARTING_YELLOW),
 //                new Stop(0.5, new Color(24.0/256.0, 162.0/256.0, 74.0/256.0, 1.0)),
                 new Stop(1, new Color(236.0 / 256.0, 123.0 / 256.0, 56.0 / 256.0, 1.0))};
