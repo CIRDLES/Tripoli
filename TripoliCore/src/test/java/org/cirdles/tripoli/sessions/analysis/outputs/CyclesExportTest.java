@@ -73,17 +73,6 @@ public class CyclesExportTest {
     @ParameterizedTest
     @MethodSource("org.cirdles.tripoli.reports.ReportData#generateFilepaths")
     public void cyclesExportTestResults(String dataFilepath) {
-
-        // Ignore test cases with broken oracles
-        List<String> brokenOracles = new ArrayList<>(Arrays.asList(
-                "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/BoiseState/B998_F11_13223M02 iz1 Pb1-14973.xls",
-                "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH233A z31 U-643.TIMSDP",
-                "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH233B z1 Pb-669.TIMSDP"
-        ));
-
-        assumeFalse(brokenOracles.contains(dataFilepath), "Oracle broken for " + dataFilepath + "! Skipping test.");
-
-
         System.out.println("-----------------------------------------------------------------------------------------------------------------");
         try {
             ReportData reportData = new ReportData();
