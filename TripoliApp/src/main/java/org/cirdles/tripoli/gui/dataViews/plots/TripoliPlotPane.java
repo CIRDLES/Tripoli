@@ -290,13 +290,6 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
                 });
                 plotToolBar.getItems().add(synchButton);
             }
-
-            // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
-            // cycleCB = new CheckBox("Cycle");
-            // plotToolBar.getItems().add(cycleCB);
-            // cycleCB.setSelected(!((AnalysisBlockCyclesPlotI) plot).getBlockMode());
-            // cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
-
             setBottom(plotToolBar);
         }
 

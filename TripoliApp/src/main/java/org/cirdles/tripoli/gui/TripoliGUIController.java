@@ -897,7 +897,7 @@ public class TripoliGUIController implements Initializable {
 
         Path liveDataFolderPath = null;
         // Check for MRU Folder
-        // Prompt if MRU doesnt exist
+        // Prompt if MRU doesn't exist
         while (liveDataFolderPath == null) {
             if (tripoliPersistentState == null || tripoliPersistentState.getMRUDataFileFolderPath() == null) {
                 File methodFolder = selectMethodFolder(primaryStageWindow);

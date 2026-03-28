@@ -31,6 +31,7 @@ import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
+import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectLiveDataStatusTxtFile;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectSampleMetaDataFolder;
 
 public class SettingsWindowController implements Initializable {
@@ -43,6 +44,7 @@ public class SettingsWindowController implements Initializable {
     public ComboBox<MassSpectrometerContextEnum> massSpecComboBox;
     public TextArea sampleMetaDataFolderTextArea;
     public Button selectSampleMetaDataFolderButton;
+    public TextArea liveDataStatusTxtFileTextArea;
     @FXML
     private TabPane settingsTabPane;
     @FXML
@@ -88,6 +90,8 @@ public class SettingsWindowController implements Initializable {
 
         sampleMetaDataFolderTextArea.setText(tripoliPersistentState
                 .getTripoliPersistentParameters().getSampleMetaDataFolderPath());
+        liveDataStatusTxtFileTextArea.setText(tripoliPersistentState
+                .getTripoliPersistentParameters().getLiveDataStatusTxtFilePath());
     }
 
     public AnchorPane getRatioColorSelectionAnchorPane() {
@@ -170,9 +174,17 @@ public class SettingsWindowController implements Initializable {
         return sampleMetaDataFolderTextArea;
     }
 
+    public TextArea getLiveDataStatusTxtFileTextArea() {return liveDataStatusTxtFileTextArea;}
+
     public void selectSampleMetaDataFolderButtonAction() {
         File sampleMetaDataFolder = selectSampleMetaDataFolder(primaryStageWindow);
         if (sampleMetaDataFolder == null) return;
         sampleMetaDataFolderTextArea.setText(sampleMetaDataFolder.getAbsolutePath());
+    }
+
+    public void selectLiveDataStatusTxtFileAction() {
+        File liveDataStatusTxtFile = selectLiveDataStatusTxtFile(primaryStageWindow);
+        if (liveDataStatusTxtFile == null) return;
+        liveDataStatusTxtFileTextArea.setText(liveDataStatusTxtFile.getAbsolutePath());
     }
 }

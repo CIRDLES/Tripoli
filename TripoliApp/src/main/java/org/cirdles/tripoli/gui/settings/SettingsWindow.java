@@ -258,6 +258,7 @@ public class SettingsWindow {
         initMassSpecCombo();
         initScalingDotSizeSpinners();
         initSampleMetaDataFolderTextArea();
+        initLiveDataStatusTxtFileTextArea();
     }
 
     private void initMassSpecCombo() {
@@ -305,6 +306,14 @@ public class SettingsWindow {
         sampleMetaDataFolderTextArea.setText(analysis.getParameters().getSampleMetaDataFolderPath());
         sampleMetaDataFolderTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
             analysis.getParameters().setSampleMetaDataFolderPath(newValue);
+        });
+    }
+
+    private void initLiveDataStatusTxtFileTextArea() {
+        TextArea liveDataStatusTxtFileTextArea = settingsWindowController.getLiveDataStatusTxtFileTextArea();
+        liveDataStatusTxtFileTextArea.setText(analysis.getParameters().getLiveDataStatusTxtFilePath());
+        liveDataStatusTxtFileTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
+            analysis.getParameters().setLiveDataStatusTxtFilePath(newValue);
         });
     }
 
@@ -589,6 +598,8 @@ public class SettingsWindow {
 
                 tripoliPersistentState.getTripoliPersistentParameters()
                         .setSampleMetaDataFolderPath(analysis.getParameters().getSampleMetaDataFolderPath());
+                tripoliPersistentState.getTripoliPersistentParameters()
+                        .setLiveDataStatusTxtFilePath(analysis.getParameters().getLiveDataStatusTxtFilePath());
                 tripoliPersistentState.getTripoliPersistentParameters().setMassSpectrometerContext(
                         analysis.getParameters().getMassSpectrometerContext());
                 tripoliPersistentState.getTripoliPersistentParameters().setChauvenetRejectionProbability(
