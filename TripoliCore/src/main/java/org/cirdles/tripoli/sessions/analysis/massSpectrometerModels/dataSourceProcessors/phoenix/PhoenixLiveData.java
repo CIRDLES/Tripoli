@@ -202,12 +202,18 @@ public class PhoenixLiveData {
 
                     // Preserve existing rejection state when refreshing live data
                     PlotBlockCyclesRecord existingRecord = userFunction.getMapBlockIdToBlockCyclesRecord().get(blockIndex);
-                    boolean blockIncluded = true;
                     if (existingRecord != null) {
-                        blockIncluded = existingRecord.blockIncluded();
                         boolean[] existingCyclesIncluded = existingRecord.cyclesIncluded();
                         int copyLen = Math.min(existingCyclesIncluded.length, cyclesIncluded.length);
                         System.arraycopy(existingCyclesIncluded, 0, cyclesIncluded, 0, copyLen);
+                    }
+                    // Recompute blockIncluded: block is included if any cycle is included
+                    boolean blockIncluded = false;
+                    for (boolean included : cyclesIncluded) {
+                        if (included) {
+                            blockIncluded = true;
+                            break;
+                        }
                     }
 
                     userFunction.getMapBlockIdToBlockCyclesRecord().put(blockIndex, BlockCyclesBuilder.initializeBlockCycles(
