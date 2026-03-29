@@ -206,18 +206,18 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
         analysisConcat.setAnalysisStartTime(analysisTime);
         analysisConcat.setUserFunctions(analysisConcat.getAnalysisMethod().createUserFunctions());
 
-        analysisConcat.updateConcatenatedAnalysis();
-
-        AllBlockInitForDataLiteOne.initBlockModels(analysisConcat);
-
         MassSpecExtractedData massSpecExtractedData = analysisConcat.getMassSpecExtractedData();
         massSpecExtractedData.setMassSpectrometerContext(analyses[0].getMassSpecExtractedData().getMassSpectrometerContext());
         massSpecExtractedData.setHeader(analyses[0].getMassSpecExtractedData().getHeader());
         // TODO: modify header
         massSpecExtractedData.setColumnHeaders(analyses[0].getMassSpecExtractedData().getColumnHeaders());
 
+        analysisConcat.updateConcatenatedAnalysis();
         massSpecExtractedData.setBlocksDataLite(
                 MassSpecExtractedData.concatenateBlocksDataLite(analyses));
+
+        AllBlockInitForDataLiteOne.initBlockModels(analysisConcat);
+
         return analysisConcat;
     }
 
