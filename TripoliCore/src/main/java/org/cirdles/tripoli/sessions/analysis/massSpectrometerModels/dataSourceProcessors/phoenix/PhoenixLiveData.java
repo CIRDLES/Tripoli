@@ -20,6 +20,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesBuilder;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
@@ -197,11 +198,23 @@ public class PhoenixLiveData {
                             blockIndex,
                             massSpecExtractedData
                     );
+                    boolean[] cyclesIncluded = singleBlockRawDataLiteSetRecord.assembleCyclesIncludedForUserFunction(userFunction);
+
+                    // Preserve existing rejection state when refreshing live data
+                    PlotBlockCyclesRecord existingRecord = userFunction.getMapBlockIdToBlockCyclesRecord().get(blockIndex);
+                    boolean blockIncluded = true;
+                    if (existingRecord != null) {
+                        blockIncluded = existingRecord.blockIncluded();
+                        boolean[] existingCyclesIncluded = existingRecord.cyclesIncluded();
+                        int copyLen = Math.min(existingCyclesIncluded.length, cyclesIncluded.length);
+                        System.arraycopy(existingCyclesIncluded, 0, cyclesIncluded, 0, copyLen);
+                    }
+
                     userFunction.getMapBlockIdToBlockCyclesRecord().put(blockIndex, BlockCyclesBuilder.initializeBlockCycles(
                             blockIndex,
+                            blockIncluded,
                             true,
-                            true,
-                            singleBlockRawDataLiteSetRecord.assembleCyclesIncludedForUserFunction(userFunction),
+                            cyclesIncluded,
                             singleBlockRawDataLiteSetRecord.assembleCycleMeansForUserFunction(userFunction),
                             singleBlockRawDataLiteSetRecord.assembleCycleStdDevForUserFunction(),
                             new String[]{userFunction.getName()},
