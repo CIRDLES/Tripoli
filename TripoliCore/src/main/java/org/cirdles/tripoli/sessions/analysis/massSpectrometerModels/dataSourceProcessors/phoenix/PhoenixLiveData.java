@@ -25,6 +25,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.d
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
+import org.cirdles.tripoli.utilities.comparators.LiveDataEntryComparator;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.BufferedReader;
@@ -37,10 +38,14 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.createAnalysisMethodFromCase1;
 
 public class PhoenixLiveData {
+    private static final Pattern FILE_PATTERN = Pattern.compile(".*-B(\\d+)-C(\\d+)\\.TXT", Pattern.CASE_INSENSITIVE);
+
     AnalysisInterface liveDataAnalysis;
     boolean initMetaData = true;
     MassSpecOutputBlockRecordLite blockRecordLite;
@@ -53,6 +58,9 @@ public class PhoenixLiveData {
     int cyclesPerBlock = 0;
     int r270_267ColumnIndex = -1;
     int r265_267ColumnIndex = -1;
+    private int lastProcessedBlock = -1;
+    private int lastProcessedCycle = 0;
+    private final TreeSet<Path> pendingFiles = new TreeSet<>(LiveDataEntryComparator.blockCycleComparator);
 
     /**
      * Contains all the logic for operating on live data files output by Phoenix mass spectrometer.
@@ -144,7 +152,41 @@ public class PhoenixLiveData {
         return liveDataAnalysis;
     }
 
+    private int[] extractBlockCycle(Path path) {
+        Matcher m = FILE_PATTERN.matcher(path.getFileName().toString());
+        if (m.matches()) {
+            return new int[]{Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2))};
+        }
+        return null;
+    }
+
+    private boolean isNextExpected(int block, int cycle) {
+        if (lastProcessedBlock == -1) return cycle == 1;
+        if (block == lastProcessedBlock) return cycle == lastProcessedCycle + 1;
+        if (block > lastProcessedBlock) return cycle == 1;
+        return false;
+    }
+
     public AnalysisInterface readLiveDataFile(Path filePath) {
+        pendingFiles.add(filePath);
+        AnalysisInterface result = null;
+        while (!pendingFiles.isEmpty()) {
+            Path next = pendingFiles.first();
+            int[] blockCycle = extractBlockCycle(next);
+            if (blockCycle == null || !isNextExpected(blockCycle[0], blockCycle[1])) {
+                break;
+            }
+            pendingFiles.remove(next);
+            result = processFile(next);
+            if (result != null) {
+                lastProcessedBlock = blockCycle[0];
+                lastProcessedCycle = blockCycle[1];
+            }
+        }
+        return result;
+    }
+
+    private AnalysisInterface processFile(Path filePath) {
         File liveDataFile = filePath.toFile();
         analysisNumber = liveDataFile.getName().split("-")[0];
 
