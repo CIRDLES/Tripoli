@@ -50,12 +50,14 @@ import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.gui.utilities.events.SaveCurrentSessionEvent;
 import org.cirdles.tripoli.gui.utilities.events.SaveSessionAsEvent;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.imports.OgTripoliImporter;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
@@ -77,10 +79,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
@@ -92,6 +92,7 @@ import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.*;
 import static org.cirdles.tripoli.sessions.SessionBuiltinFactory.TRIPOLI_DEMONSTRATION_SESSION;
 import static org.cirdles.tripoli.sessions.analysis.AnalysisInterface.initializeNewAnalysis;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData.findLiveDataFolderPath;
 import static org.cirdles.tripoli.utilities.comparators.LiveDataEntryComparator.blockCycleComparator;
 import static org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer.serializeObjectToFile;
 
@@ -895,37 +896,28 @@ public class TripoliGUIController implements Initializable {
             return;
         }
 
-        Path liveDataFolderPath = null;
-        // Check for MRU Folder
-        // Prompt if MRU doesn't exist
-        while (liveDataFolderPath == null) {
-            if (tripoliPersistentState == null || tripoliPersistentState.getMRUDataFileFolderPath() == null) {
-                File methodFolder = selectMethodFolder(primaryStageWindow);
-                if (methodFolder == null) return; // User cancelled, bail
-                liveDataFolderPath = PhoenixLiveData.getLiveDataFolderPath(methodFolder);
-                // Handle data file folder
-            } else if (new File(Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent() + File.separator + "LiveDataStatus.txt").exists()) {
-                Path mruDataFolderPath = Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent();
-                liveDataFolderPath = PhoenixLiveData.getLiveDataFolderPath(mruDataFolderPath.toFile());
-                // Handle root folder
-            } else if (new File(Path.of(tripoliPersistentState.getMRUDataFileFolderPath()) + File.separator + "LiveDataStatus.txt").exists()) {
-                Path mruDataFolderPath = Path.of(tripoliPersistentState.getMRUDataFileFolderPath());
-                liveDataFolderPath = PhoenixLiveData.getLiveDataFolderPath(mruDataFolderPath.toFile());
-            } else {
-                tripoliPersistentState.setMRUDataFileFolderPath(null);
-            }
-        }
-        tripoliPersistentState.setMRUDataFileFolderPath(liveDataFolderPath.getParent().toString());
+        Path liveDataStatusTxtFilePath = Path.of(tripoliPersistentState.getTripoliPersistentParameters().getLiveDataStatusTxtFilePath());
+        if (!liveDataStatusTxtFilePath.toString().isBlank()
+                && Files.exists(liveDataStatusTxtFilePath)) {
 
-        Path methodFolderPath = liveDataFolderPath.getParent().getParent();
-        boolean finalFileExists = PhoenixLiveData.getFinishedFile(methodFolderPath.toFile()).exists();
-        if (finalFileExists) {
-            waitForLiveDataStatusUpdate(methodFolderPath);
-            TripoliMessageDialog.showInfoDialog("Finished analysis was found in current directory. Waiting for new analysis to start...", primaryStageWindow);
+            Path liveDataFolderPath = findLiveDataFolderPath(liveDataStatusTxtFilePath);
+
+            tripoliPersistentState.setMRUDataFileFolderPath(liveDataFolderPath.getParent().toString());
+
+            Path massSpecDataHomePath = liveDataFolderPath.getParent().getParent();
+            boolean finalFileExists = PhoenixLiveData.getFinishedFile(massSpecDataHomePath.toFile()).exists();
+            if (finalFileExists) {
+                waitForLiveDataStatusUpdate(massSpecDataHomePath);
+                TripoliMessageDialog.showInfoDialog(
+                        "Finished analysis was found in current directory. Waiting for new analysis to start...", primaryStageWindow);
+            } else {
+                processLiveDataOnNewFolder(liveDataFolderPath);
+            }
+            processLiveDataMenuItem.textProperty().set("Stop LiveData");
         } else {
-            processLiveDataOnNewFolder(liveDataFolderPath);
+            TripoliMessageDialog.showWarningDialog(
+                    "Please specify LiveDataStatus.txt file in Settings/Parameters.", primaryStageWindow);
         }
-        processLiveDataMenuItem.textProperty().set("Stop LiveData");
     }
 
     private void attachAnalysisToSession(AnalysisInterface newAnalysis) {
@@ -935,7 +927,11 @@ public class TripoliGUIController implements Initializable {
                     .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(2);
             menuItemSessionNew.fire();
         }
-        tripoliSession.addAnalysis(newAnalysis);
+        try {
+            tripoliSession.addAnalysis(newAnalysis);
+        } catch (Exception e) {
+            //throw new RuntimeException(e);
+        }
         analysis = newAnalysis;
 
         MenuItem menuItemSessionManager = ((MenuBar) primaryStage.getScene()
@@ -960,22 +956,59 @@ public class TripoliGUIController implements Initializable {
      * @param liveDataAnalysis The analysis that holds the livedata points
      */
     public void onLiveDataUpdated(AnalysisInterface liveDataAnalysis) {
-        if (tripoliSession == null || !tripoliSession.getMapOfAnalyses().containsKey(liveDataAnalysis.getAnalysisName())) {
-            attachAnalysisToSession(liveDataAnalysis);
+        try {
+            if (tripoliSession == null || !tripoliSession.getMapOfAnalyses().containsKey(liveDataAnalysis.getAnalysisName())) {
+                attachAnalysisToSession(liveDataAnalysis);
+            }
+        } catch (Exception e) {
+            //throw new RuntimeException(e);
         }
 
-        liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne().clear();
-        AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(liveDataAnalysis);
+        try {
+            Map<Integer, SingleBlockRawDataLiteSetRecord> savedMapBeforeNewDatum = Collections.synchronizedSortedMap(new TreeMap<>());
+            savedMapBeforeNewDatum = Map.copyOf(liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne());
 
-        if (plottingData != null) {
-            OGTripoliViewController.analysis = liveDataAnalysis;
-            if (ogTripoliPreviewPlotsWindow != null) {
-                ogTripoliPreviewPlotsWindow.setPlottingData(plottingData);
-                ogTripoliPreviewPlotsWindow.getOgTripoliViewController().replotAllPlots();
-            } else {
-                ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(primaryStage, null, plottingData);
-                ogTripoliPreviewPlotsWindow.loadPlotsWindow();
+            // restore discards
+            List<UserFunction> currentUserFunctions = analysis.getUserFunctions();
+            List<UserFunction> liveUserFunctions = liveDataAnalysis.getUserFunctions();
+            for(UserFunction currentUserFunction : currentUserFunctions) {
+                Optional<UserFunction> liveUserFunction = liveUserFunctions.stream()
+                        .filter(product -> product.getName().equals(currentUserFunction.getName()))
+                        .findFirst();
+
+                Map<Integer, PlotBlockCyclesRecord> currentBlockMap = currentUserFunction.getMapBlockIdToBlockCyclesRecord();
+                Map<Integer, PlotBlockCyclesRecord> liveBlockMap = liveUserFunction.get().getMapBlockIdToBlockCyclesRecord();
+
+                for(int blockId : currentBlockMap.keySet()) {
+                    PlotBlockCyclesRecord currentPlotBlockCyclesRecord = currentBlockMap.get(blockId);
+                    boolean[] currentBlockIncludes = currentPlotBlockCyclesRecord.cyclesIncluded();
+
+                    PlotBlockCyclesRecord livePlotBlockCyclesRecord = liveBlockMap.get(blockId);
+                    boolean[] liveBlockIncludes = livePlotBlockCyclesRecord.cyclesIncluded();
+
+                    System.arraycopy(currentBlockIncludes, 0, liveBlockIncludes, 0, currentBlockIncludes.length);
+                }
+
             }
+
+            analysis = liveDataAnalysis;
+            tripoliSession.getMapOfAnalyses().put(liveDataAnalysis.getAnalysisName(), liveDataAnalysis);
+
+            liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne().clear();
+            AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(liveDataAnalysis);
+
+            if (plottingData != null) {
+                OGTripoliViewController.analysis = liveDataAnalysis;
+                if (ogTripoliPreviewPlotsWindow != null) {
+                    ogTripoliPreviewPlotsWindow.setPlottingData(plottingData);
+                    ogTripoliPreviewPlotsWindow.getOgTripoliViewController().replotAllPlots();
+                } else {
+                    ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(primaryStage, null, plottingData);
+                    ogTripoliPreviewPlotsWindow.loadPlotsWindow();
+                }
+            }
+        } catch (Exception e) {
+            // throw new RuntimeException(e);
         }
     }
 
@@ -984,7 +1017,7 @@ public class TripoliGUIController implements Initializable {
             return;
         }
         String finishedFileName = newFilePath.getFileName().toString();
-        if (finishedFileName.endsWith(".TIMSDP")) {
+        if (finishedFileName.toUpperCase(Locale.getDefault()).endsWith(".TIMSDP")) {
             AnalysisInterface analysisProposed;
             try {
                 // Make finished analysis
@@ -1045,8 +1078,17 @@ public class TripoliGUIController implements Initializable {
     }
 
     private void processLiveDataOnNewFolder(Path liveDataFolderPath) throws TripoliException {
-        phoenixLiveData = new PhoenixLiveData();
-        ogTripoliPreviewPlotsWindow = null;
+        if (tripoliSession == null) {
+            MenuItem menuItemSessionNew = ((MenuBar) primaryStage.getScene()
+                    .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(2);
+            menuItemSessionNew.fire();
+        }
+
+        if (phoenixLiveData == null) {
+            phoenixLiveData = new PhoenixLiveData(tripoliSession.getMapOfAnalyses().get(0));
+            ogTripoliPreviewPlotsWindow = null;
+        }
+
         AtomicReference<AnalysisInterface> liveDataAnalysis = new AtomicReference<>(phoenixLiveData.getLiveDataAnalysis());
         liveDataAnalysis.get().setDataFilePathString(liveDataFolderPath.toString());
 
@@ -1062,7 +1104,11 @@ public class TripoliGUIController implements Initializable {
             if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
                 liveDataAnalysis.set(phoenixLiveData.readLiveDataFile(filePath));
                 if (liveDataAnalysis.get() != null) {
-                    Platform.runLater(() -> onLiveDataUpdated(liveDataAnalysis.get()));
+                    try {
+                        Platform.runLater(() -> onLiveDataUpdated(liveDataAnalysis.get()));
+                    } catch (Exception e) {
+                        //throw new RuntimeException(e);
+                    }
                 }
             }
         });

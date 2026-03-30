@@ -59,8 +59,9 @@ public class PhoenixLiveData {
      *
      * @throws TripoliException Thrown by analysis initialization
      */
-    public PhoenixLiveData() throws TripoliException {
-        liveDataAnalysis = AnalysisInterface.initializeNewAnalysis(0);
+    public PhoenixLiveData(AnalysisInterface liveAnalysis) throws TripoliException {
+        liveDataAnalysis = (liveAnalysis == null)
+                ? AnalysisInterface.initializeNewAnalysis(0) : liveAnalysis;
         massSpecExtractedData = new MassSpecExtractedData();
         massSpecExtractedData.setColumnHeaders(new String[]{"Cycle", "Time"});
         MassSpectrometerContextEnum massSpectrometerContext = liveDataAnalysis.getParameters().getMassSpectrometerContext();
@@ -69,25 +70,25 @@ public class PhoenixLiveData {
     }
 
     /**
-     * Checks methodfolder and its parent for the existence of LiveDataStatus.txt, retrieves the active livedata location
+     * Checks massSpecDataFolder and its parent for the existence of LiveDataStatus.txt, retrieves the active livedata location
      * from the txt and returns the path of it.
      *
-     * @param methodFolder user/mru supplied folder file
+     * @param massSpecDataFolder user/mru supplied folder file
      * @return Path of the active LiveData folder
      */
-    public static Path getLiveDataFolderPath(File methodFolder) {
-        File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
-        File parentLiveDataStatusFile = new File(methodFolder.getParentFile(), "LiveDataStatus.txt");
+    public static Path getLiveDataFolderPath(File massSpecDataFolder) {
+        File liveDataStatusFile = new File(massSpecDataFolder, "LiveDataStatus.txt");
+        File parentLiveDataStatusFile = new File(massSpecDataFolder.getParentFile(), "LiveDataStatus.txt");
 
-        File mutatableMethodFolder = methodFolder;
+        File mutatableMethodFolder = massSpecDataFolder;
         if (!liveDataStatusFile.exists() && !parentLiveDataStatusFile.exists()) {
             return null;
         }
 
-        // Prefer methodFolder, fallback to parent
+        // Prefer massSpecDataFolder, fallback to parent
         if (!liveDataStatusFile.exists()) {
             liveDataStatusFile = parentLiveDataStatusFile;
-            mutatableMethodFolder = methodFolder.getParentFile();
+            mutatableMethodFolder = massSpecDataFolder.getParentFile();
         }
 
         String line = "";
@@ -104,6 +105,24 @@ public class PhoenixLiveData {
         String methodName = methodParts[methodParts.length - 2].replace("\"", "");
 
         return Path.of(mutatableMethodFolder + File.separator + methodName + File.separator + "LiveData");
+    }
+
+    public static Path findLiveDataFolderPath(Path liveDataStatusTxtFile) {
+        Path mutatableMassSpecDataFolder = liveDataStatusTxtFile.getParent();
+
+        String line = "";
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusTxtFile.toFile()));
+            do {
+                line = bufferedReader.readLine();
+            } while (!Objects.equals(line.split(",")[0], "Method"));
+        } catch (IOException ignored) {
+        }
+
+        String[] methodParts = line.split("\\\\");
+        String sampleFolder = methodParts[methodParts.length - 2].replace("\"", "");
+
+        return Path.of(mutatableMassSpecDataFolder + File.separator + sampleFolder + File.separator + "LiveData");
     }
 
     public static File getFinishedFile(File methodFolder) {
