@@ -174,7 +174,9 @@ public class SettingsWindowController implements Initializable {
         return sampleMetaDataFolderTextArea;
     }
 
-    public TextArea getLiveDataStatusTxtFileTextArea() {return liveDataStatusTxtFileTextArea;}
+    public TextArea getLiveDataStatusTxtFileTextArea() {
+        return liveDataStatusTxtFileTextArea;
+    }
 
     public void selectSampleMetaDataFolderButtonAction() {
         File sampleMetaDataFolder = selectSampleMetaDataFolder(primaryStageWindow);

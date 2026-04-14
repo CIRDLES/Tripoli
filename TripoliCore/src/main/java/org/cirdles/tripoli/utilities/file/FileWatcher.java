@@ -29,8 +29,8 @@ public class FileWatcher implements Runnable {
 
     private final Path pathToWatch;
     private final FileWatcherCallbackInterface callback;
-    private volatile boolean running = true;
     private final long timeoutSeconds;
+    private volatile boolean running = true;
     private long lastEventTime;
 
     public FileWatcher(Path pathToWatch, FileWatcherCallbackInterface callback) {

@@ -86,6 +86,8 @@ public class SessionManagerController implements Initializable {
                 tripoliSession = Session.initializeDefaultSession();
             } catch (JAXBException e) {
                 //
+            } catch (TripoliException e) {
+                throw new RuntimeException(e);
             }
         }
 
@@ -209,8 +211,8 @@ public class SessionManagerController implements Initializable {
         String methodNameForConcat = listOfSelectedAnalyses.get(0).getMethod().getMethodName();
         List<AnalysisInterface> analysesWithSameMethodList = new ArrayList<>();
         for (AnalysisInterface analysis : listOfSelectedAnalyses) {
-            if (analysis.getMethod().getMethodName().equals(methodNameForConcat)) {
-                //&& !((Analysis) analysis).hasMemberAnalyses()) {
+            if ((analysis.getMethod().getMethodName().equals(methodNameForConcat))
+                    && (!analysis.getAnalysisName().contains("(Live Data)"))){
                 analysesWithSameMethodList.add(analysis);
             }
         }
@@ -248,6 +250,11 @@ public class SessionManagerController implements Initializable {
                     boolean proceed = TripoliMessageDialog.showChoiceDialog("Live Data is still running. Would you like to stop and delete the analysis?", primaryStageWindow);
                     if (!proceed) return;
                     liveDataMenuItem.fire();
+                    try {
+                        tripoliSession.resetPhoenixLiveData();
+                    } catch (TripoliException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
                 tripoliSession.getMapOfAnalyses().remove(getItem().getAnalysisName());
                 AnalysisManagerController.analysis = null;

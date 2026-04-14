@@ -40,7 +40,12 @@ public enum SessionBuiltinFactory {
     public static final String TRIPOLI_DEMONSTRATION_SESSION = "Tripoli Demonstration Session";
 
     static {
-        Session tripoliDemonstrationSession = Session.initializeSession(TRIPOLI_DEMONSTRATION_SESSION);
+        Session tripoliDemonstrationSession = null;
+        try {
+            tripoliDemonstrationSession = Session.initializeSession(TRIPOLI_DEMONSTRATION_SESSION);
+        } catch (TripoliException e) {
+            // throw new RuntimeException(e);
+        }
         tripoliDemonstrationSession.setAnalystName("Team Tripoli");
         tripoliDemonstrationSession.setMutable(false);
         sessionsBuiltinMap.put(tripoliDemonstrationSession.getSessionName(), tripoliDemonstrationSession);

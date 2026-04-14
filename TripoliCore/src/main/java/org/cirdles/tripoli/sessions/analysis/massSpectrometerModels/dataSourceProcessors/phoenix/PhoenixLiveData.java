@@ -20,6 +20,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesBuilder;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
@@ -27,10 +28,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourcePr
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
@@ -40,7 +38,9 @@ import java.util.*;
 
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.createAnalysisMethodFromCase1;
 
-public class PhoenixLiveData {
+public class PhoenixLiveData implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -8981972960059300836L;
     AnalysisInterface liveDataAnalysis;
     boolean initMetaData = true;
     MassSpecOutputBlockRecordLite blockRecordLite;
@@ -53,7 +53,6 @@ public class PhoenixLiveData {
     int cyclesPerBlock = 0;
     int r270_267ColumnIndex = -1;
     int r265_267ColumnIndex = -1;
-
     /**
      * Contains all the logic for operating on live data files output by Phoenix mass spectrometer.
      *
@@ -68,6 +67,19 @@ public class PhoenixLiveData {
         massSpecExtractedData.setMassSpectrometerContext(massSpectrometerContext);
         liveDataAnalysis.setMassSpecExtractedData(massSpecExtractedData);
     }
+
+/*
+    private void readObject(ObjectInputStream stream) throws IOException,
+           ClassNotFoundException {
+        stream.defaultReadObject();
+
+        ObjectStreamClass myObject = ObjectStreamClass.lookup(
+               Class.forName(PhoenixLiveData.class.getCanonicalName()));
+        long theSUID = myObject.getSerialVersionUID();
+
+        System.err.println("Customized De-serialization of PhoenixLiveData "
+               + theSUID);
+    }*/
 
     /**
      * Checks massSpecDataFolder and its parent for the existence of LiveDataStatus.txt, retrieves the active livedata location
@@ -163,6 +175,10 @@ public class PhoenixLiveData {
         return liveDataAnalysis;
     }
 
+    public void setLiveDataAnalysis(AnalysisInterface liveDataAnalysis) {
+        this.liveDataAnalysis = liveDataAnalysis;
+    }
+
     public AnalysisInterface readLiveDataFile(Path filePath) {
         File liveDataFile = filePath.toFile();
         analysisNumber = liveDataFile.getName().split("-")[0];
@@ -216,11 +232,30 @@ public class PhoenixLiveData {
                             blockIndex,
                             massSpecExtractedData
                     );
+
+                    boolean[] cyclesIncluded = singleBlockRawDataLiteSetRecord.assembleCyclesIncludedForUserFunction(userFunction);
+
+                    // Preserve existing rejection state when refreshing live data
+                    PlotBlockCyclesRecord existingRecord = userFunction.getMapBlockIdToBlockCyclesRecord().get(blockIndex);
+                    if (existingRecord != null) {
+                        boolean[] existingCyclesIncluded = existingRecord.cyclesIncluded();
+                        int copyLen = Math.min(existingCyclesIncluded.length, cyclesIncluded.length);
+                        System.arraycopy(existingCyclesIncluded, 0, cyclesIncluded, 0, copyLen);
+                    }
+                    // Recompute blockIncluded: block is included if any cycle is included
+                    boolean blockIncluded = false;
+                    for (boolean included : cyclesIncluded) {
+                        if (included) {
+                            blockIncluded = true;
+                            break;
+                        }
+                    }
+
                     userFunction.getMapBlockIdToBlockCyclesRecord().put(blockIndex, BlockCyclesBuilder.initializeBlockCycles(
                             blockIndex,
+                            blockIncluded,
                             true,
-                            true,
-                            singleBlockRawDataLiteSetRecord.assembleCyclesIncludedForUserFunction(userFunction),
+                            cyclesIncluded,
                             singleBlockRawDataLiteSetRecord.assembleCycleMeansForUserFunction(userFunction),
                             singleBlockRawDataLiteSetRecord.assembleCycleStdDevForUserFunction(),
                             new String[]{userFunction.getName()},
