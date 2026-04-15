@@ -29,4 +29,5 @@ module Tripoli.TripoliApp {
     requires com.google.common;
     requires java.logging;
     requires org.antlr.antlr4.runtime;
+    requires org.jspecify;
 }

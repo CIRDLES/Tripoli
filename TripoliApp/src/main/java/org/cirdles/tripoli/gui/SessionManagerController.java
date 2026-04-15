@@ -87,7 +87,7 @@ public class SessionManagerController implements Initializable {
             } catch (JAXBException e) {
                 //
             } catch (TripoliException e) {
-                throw new RuntimeException(e);
+                //throw new RuntimeException(e);
             }
         }
 

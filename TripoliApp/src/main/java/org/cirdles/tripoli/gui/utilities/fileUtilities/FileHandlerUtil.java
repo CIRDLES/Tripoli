@@ -137,17 +137,6 @@ public enum FileHandlerUtil {
         return retVal;
     }
 
-    public static File selectMethodFolder(Window ownerWindow) {
-
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Select Analysis Method folder");
-        File initDirectory = new File(tripoliPersistentState.getMRUMethodXMLFolderPath());
-        directoryChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
-
-        return directoryChooser.showDialog(ownerWindow);
-
-    }
-
     public static File selectSampleMetaDataFolder(Window ownerWindow) {
 
         DirectoryChooser directoryChooser = new DirectoryChooser();
@@ -287,7 +276,6 @@ public enum FileHandlerUtil {
     }
 
     public static File selectLiveDataStatusTxtFile(Window ownerWindow) {
-        File retVal = null;
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select LiveDataStatus.txt file");
