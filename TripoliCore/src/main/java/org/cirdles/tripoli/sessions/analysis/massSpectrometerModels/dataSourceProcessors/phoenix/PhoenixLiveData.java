@@ -60,7 +60,7 @@ public class PhoenixLiveData implements Serializable {
     int r265_267ColumnIndex = -1;
     private int lastProcessedBlock = -1;
     private int lastProcessedCycle = 0;
-    private final TreeSet<Path> pendingFiles = new TreeSet<>(LiveDataEntryComparator.blockCycleComparator);
+    private transient final TreeSet<Path> pendingFiles = new TreeSet<>(LiveDataEntryComparator.blockCycleComparator);
 
     /**
      * Contains all the logic for operating on live data files output by Phoenix mass spectrometer.
