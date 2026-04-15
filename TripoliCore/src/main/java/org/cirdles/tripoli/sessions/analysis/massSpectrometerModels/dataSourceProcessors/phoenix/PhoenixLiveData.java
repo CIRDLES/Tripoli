@@ -40,12 +40,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.createAnalysisMethodFromCase1;
-    
+
 
 public class PhoenixLiveData implements Serializable {
     @Serial
     private static final long serialVersionUID = -8981972960059300836L;
-   private static final Pattern FILE_PATTERN = Pattern.compile(".*-B(\\d+)-C(\\d+)\\.TXT", Pattern.CASE_INSENSITIVE);
+    private static final Pattern FILE_PATTERN = Pattern.compile(".*-B(\\d+)-C(\\d+)\\.TXT", Pattern.CASE_INSENSITIVE);
+    private transient final TreeSet<Path> pendingFiles = new TreeSet<>(LiveDataEntryComparator.blockCycleComparator);
     AnalysisInterface liveDataAnalysis;
     boolean initMetaData = true;
     MassSpecOutputBlockRecordLite blockRecordLite;
@@ -60,7 +61,6 @@ public class PhoenixLiveData implements Serializable {
     int r265_267ColumnIndex = -1;
     private int lastProcessedBlock = -1;
     private int lastProcessedCycle = 0;
-    private transient final TreeSet<Path> pendingFiles = new TreeSet<>(LiveDataEntryComparator.blockCycleComparator);
 
     /**
      * Contains all the logic for operating on live data files output by Phoenix mass spectrometer.
@@ -76,19 +76,6 @@ public class PhoenixLiveData implements Serializable {
         massSpecExtractedData.setMassSpectrometerContext(massSpectrometerContext);
         liveDataAnalysis.setMassSpecExtractedData(massSpecExtractedData);
     }
-
-/*
-    private void readObject(ObjectInputStream stream) throws IOException,
-           ClassNotFoundException {
-        stream.defaultReadObject();
-
-        ObjectStreamClass myObject = ObjectStreamClass.lookup(
-               Class.forName(PhoenixLiveData.class.getCanonicalName()));
-        long theSUID = myObject.getSerialVersionUID();
-
-        System.err.println("Customized De-serialization of PhoenixLiveData "
-               + theSUID);
-    }*/
 
     /**
      * Checks massSpecDataFolder and its parent for the existence of LiveDataStatus.txt, retrieves the active livedata location
@@ -184,6 +171,10 @@ public class PhoenixLiveData implements Serializable {
         return liveDataAnalysis;
     }
 
+    public void setLiveDataAnalysis(AnalysisInterface liveDataAnalysis) {
+        this.liveDataAnalysis = liveDataAnalysis;
+    }
+
     private int[] extractBlockCycle(Path path) {
         Matcher m = FILE_PATTERN.matcher(path.getFileName().toString());
         if (m.matches()) {
@@ -197,10 +188,6 @@ public class PhoenixLiveData implements Serializable {
         if (block == lastProcessedBlock) return cycle == lastProcessedCycle + 1;
         if (block > lastProcessedBlock) return cycle == 1;
         return false;
-    }
-  
-    public void setLiveDataAnalysis(AnalysisInterface liveDataAnalysis) {
-        this.liveDataAnalysis = liveDataAnalysis;
     }
 
     public AnalysisInterface readLiveDataFile(Path filePath) {

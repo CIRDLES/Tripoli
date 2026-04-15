@@ -15,19 +15,18 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 import static org.cirdles.tripoli.sessions.analysis.Analysis.suppressContents;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class CyclesExportTest {
 
     /**
      * Uses a filepath to generate a cycles export report and then asserts it to a premade Oracle made with the same analysis name
+     *
      * @param dataFilepath
      * @param reportData
      * @return
