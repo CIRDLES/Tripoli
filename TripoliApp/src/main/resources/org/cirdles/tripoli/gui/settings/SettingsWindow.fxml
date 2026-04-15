@@ -14,7 +14,7 @@
     <children>
         <TabPane fx:id="settingsTabPane" prefWidth="414.0">
             <tabs>
-                <Tab fx:id="ratiosColorTab" closable="false" text="Ratios Color Controls">
+                <Tab fx:id="ratiosColorTab" closable="false" text="Plots Color Controls">
                     <content>
                         <AnchorPane fx:id="ratioColorSelectionAnchorPane" prefHeight="367.0" prefWidth="536.0"/>
                     </content>
@@ -26,15 +26,15 @@
                                 <HBox prefHeight="36.0" prefWidth="536.0">
                                     <children>
                                         <Region prefHeight="36.0" prefWidth="137.0"/>
-                                        <Label alignment="CENTER" prefHeight="35.0" prefWidth="166.0" text="Data Color"
-                                               textAlignment="JUSTIFY">
+                                        <Label alignment="CENTER" prefHeight="35.0" prefWidth="166.0"
+                                               style="-fx-text-fill: red;" text="Data Color" textAlignment="JUSTIFY">
                                             <font>
                                                 <Font name="Consolas Bold" size="24.0"/>
                                             </font>
                                         </Label>
                                         <Region prefHeight="36.0" prefWidth="55.0"/>
-                                        <Label alignment="CENTER" prefHeight="43.0" prefWidth="146.0" text="Model Color"
-                                               textAlignment="CENTER">
+                                        <Label alignment="CENTER" prefHeight="43.0" prefWidth="146.0"
+                                               style="-fx-text-fill: red;" text="Model Color" textAlignment="CENTER">
                                             <font>
                                                 <Font name="Consolas Bold" size="24.0"/>
                                             </font>
@@ -97,11 +97,12 @@
                     <content>
                         <AnchorPane fx:id="parameterControlAnchorPane" prefHeight="474.0" prefWidth="536.0">
                             <children>
-                                <VBox prefHeight="425.0" prefWidth="526.0" AnchorPane.leftAnchor="0.0">
-                                    <HBox alignment="CENTER" prefHeight="64.0" prefWidth="536.0">
+                                <VBox prefHeight="425.0" prefWidth="526.0" spacing="2.0"
+                                      style="-fx-background-color: white;" AnchorPane.leftAnchor="0.0">
+                                    <HBox alignment="CENTER" prefHeight="50.0" prefWidth="536.0">
                                         <children>
-                                            <Label alignment="CENTER" prefHeight="64.0" prefWidth="538.0"
-                                                   style="-fx-background-color: white; -fx-text-fill: red;"
+                                            <Label alignment="CENTER" prefHeight="11.0" prefWidth="526.0"
+                                                   style="-fx-background-color: white; -fx-text-fill: red; -fx-font-size: 24;"
                                                    text="Parameter Controls" textAlignment="CENTER">
                                                 <font>
                                                     <Font size="24.0"/>
@@ -109,59 +110,10 @@
                                             </Label>
                                         </children>
                                     </HBox>
-                                    <VBox style="-fx-background-color: white;">
-                                        <Label prefHeight="38.0" prefWidth="520.0" text="Chauvenet's Criteria"
-                                               textAlignment="CENTER">
-                                            <font>
-                                                <Font size="20.0"/>
-                                            </font>
-                                            <opaqueInsets>
-                                                <Insets top="-9.0"/>
-                                            </opaqueInsets>
-                                        </Label>
-                                        <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
-                                            <children>
-                                                <Label alignment="CENTER_RIGHT" prefHeight="34.0" prefWidth="239.0"
-                                                       text="Rejection Probability:">
-                                                    <font>
-                                                        <Font size="16.0"/>
-                                                    </font>
-                                                </Label>
-                                                <Region prefHeight="36.0" prefWidth="50.0"/>
-                                                <Spinner fx:id="chauvenetRejectionProbabilitySpinner" prefHeight="25.0"
-                                                         prefWidth="100.0"/>
-                                            </children>
-                                            <padding>
-                                                <Insets left="15.0"/>
-                                            </padding>
-                                        </HBox>
-                                        <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
-                                            <children>
-                                                <Label alignment="CENTER_RIGHT" prefHeight="34.0" prefWidth="239.0"
-                                                       text="Minimum Datum Count:">
-                                                    <font>
-                                                        <Font size="16.0"/>
-                                                    </font>
-                                                </Label>
-                                                <Region prefHeight="36.0" prefWidth="50.0"/>
-                                                <Spinner fx:id="chauvenetMinimumDatumCountSpinner" prefHeight="25.0"
-                                                         prefWidth="100.0"/>
-                                            </children>
-                                            <padding>
-                                                <Insets left="15.0"/>
-                                            </padding>
-                                        </HBox>
-                                        <padding>
-                                            <Insets bottom="10.0" left="15.0"/>
-                                        </padding>
-                                    </VBox>
-                                    <VBox layoutX="10.0" layoutY="194.0" style="-fx-background-color: white;">
-                                        <padding>
-                                            <Insets left="15.0"/>
-                                        </padding>
+                                    <HBox style="-fx-border-color: black; -fx-border-width: 2;">
                                         <children>
-                                            <Label layoutX="17.0" layoutY="189.0" prefHeight="38.0" prefWidth="520.0"
-                                                   text="Mass Spectrometer Context" textAlignment="CENTER">
+                                            <Label prefHeight="26.0" prefWidth="260.0" text="Mass Spectrometer Context:"
+                                                   textAlignment="CENTER">
                                                 <font>
                                                     <Font size="20.0"/>
                                                 </font>
@@ -169,23 +121,95 @@
                                                     <Insets top="-9.0"/>
                                                 </opaqueInsets>
                                             </Label>
-                                            <HBox alignment="CENTER_LEFT" layoutX="17.0" layoutY="227.0"
-                                                  prefHeight="36.0" prefWidth="521.0" spacing="10.0">
-                                                <children>
-                                                    <Label alignment="CENTER_RIGHT" prefHeight="34.0" prefWidth="158.0"
-                                                           text="Current Type:">
-                                                        <font>
-                                                            <Font size="16.0"/>
-                                                        </font>
-                                                    </Label>
-                                                    <ComboBox fx:id="massSpecComboBox" prefHeight="25.0"
-                                                              prefWidth="260.0"/>
-                                                </children>
-                                                <padding>
-                                                    <Insets left="15.0"/>
-                                                </padding>
-                                            </HBox>
+                                            <ComboBox fx:id="massSpecComboBox" prefHeight="26.0" prefWidth="266.0"/>
                                         </children>
+                                        <padding>
+                                            <Insets bottom="2.0" left="10.0" right="10.0" top="2.0"/>
+                                        </padding>
+                                    </HBox>
+                                    <HBox style="-fx-border-color: black; -fx-border-width: 2;">
+                                        <children>
+                                            <Label prefHeight="38.0" prefWidth="381.0" text="Chauvenet's Criteria:"
+                                                   textAlignment="CENTER">
+                                                <font>
+                                                    <Font size="20.0"/>
+                                                </font>
+                                                <opaqueInsets>
+                                                    <Insets top="-9.0"/>
+                                                </opaqueInsets>
+                                            </Label>
+                                            <VBox>
+                                                <children>
+                                                    <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
+                                                        <children>
+                                                            <Label alignment="CENTER_RIGHT" prefHeight="34.0"
+                                                                   prefWidth="167.0" text="Rejection Probability:">
+                                                                <font>
+                                                                    <Font size="16.0"/>
+                                                                </font>
+                                                            </Label>
+                                                            <Region prefHeight="36.0" prefWidth="50.0"/>
+                                                            <Spinner fx:id="chauvenetRejectionProbabilitySpinner"
+                                                                     prefHeight="25.0" prefWidth="100.0"/>
+                                                        </children>
+                                                        <padding>
+                                                            <Insets left="15.0"/>
+                                                        </padding>
+                                                    </HBox>
+                                                    <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
+                                                        <children>
+                                                            <Label alignment="CENTER_RIGHT" prefHeight="34.0"
+                                                                   prefWidth="170.0" text="Minimum Datum Count:">
+                                                                <font>
+                                                                    <Font size="16.0"/>
+                                                                </font>
+                                                            </Label>
+                                                            <Region prefHeight="36.0" prefWidth="50.0"/>
+                                                            <Spinner fx:id="chauvenetMinimumDatumCountSpinner"
+                                                                     prefHeight="25.0" prefWidth="100.0"/>
+                                                        </children>
+                                                        <padding>
+                                                            <Insets left="15.0"/>
+                                                        </padding>
+                                                    </HBox>
+                                                </children>
+                                            </VBox>
+                                        </children>
+                                        <padding>
+                                            <Insets left="10.0" right="10.0"/>
+                                        </padding>
+                                    </HBox>
+                                    <VBox alignment="CENTER" layoutX="10.0" layoutY="194.0" spacing="5.0"
+                                          style="-fx-background-color: beige; -fx-border-color: black; -fx-border-width: 2;">
+                                        <padding>
+                                            <Insets bottom="5.0" left="10.0" right="10.0" top="5.0"/>
+                                        </padding>
+                                        <children>
+                                            <Label alignment="CENTER" layoutX="17.0" layoutY="189.0" prefHeight="17.0"
+                                                   prefWidth="502.0" text="LiveDataStatus.txt file"
+                                                   textAlignment="CENTER">
+                                                <font>
+                                                    <Font size="20.0"/>
+                                                </font>
+                                                <opaqueInsets>
+                                                    <Insets top="-9.0"/>
+                                                </opaqueInsets>
+                                            </Label>
+                                            <TextArea fx:id="liveDataStatusTxtFileTextArea" prefHeight="28.0"
+                                                      prefWidth="507.0"
+                                                      promptText="Path to LiveDataStatus.txt file will appear here"
+                                                      wrapText="true"/>
+                                            <Button mnemonicParsing="false"
+                                                    onAction="#selectLiveDataStatusTxtFileAction"
+                                                    style="-fx-text-fill: blue;" text="Select LiveDataStatus.txt file">
+                                                <font>
+                                                    <Font size="16.0"/>
+                                                </font>
+                                            </Button>
+                                        </children>
+                                        <opaqueInsets>
+                                            <Insets/>
+                                        </opaqueInsets>
                                     </VBox>
                                     <VBox alignment="CENTER" prefHeight="167.0" prefWidth="512.0" spacing="5.0"
                                           style="-fx-background-color: beige; -fx-border-color: black; -fx-border-width: 2;">
@@ -296,7 +320,7 @@
                                     <HBox alignment="CENTER" prefHeight="64.0" prefWidth="536.0">
                                         <children>
                                             <Label alignment="CENTER" prefHeight="64.0" prefWidth="538.0"
-                                                   style="-fx-background-color: white; -fx-text-fill: red;"
+                                                   style="-fx-background-color: white; -fx-text-fill: red; -fx-font-size: 24;"
                                                    text="Plot AnyTwo Controls" textAlignment="CENTER">
                                                 <font>
                                                     <Font size="24.0"/>

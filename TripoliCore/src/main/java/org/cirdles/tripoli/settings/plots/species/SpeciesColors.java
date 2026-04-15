@@ -52,18 +52,10 @@ public record SpeciesColors(
         String faradayModel = faradayModelHexColor;
         String pmModel = pmModelHexColor;
         switch (plotFlavor) {
-            case PM_DATA -> {
-                pm = hexColor;
-            }
-            case PM_MODEL -> {
-                pmModel = hexColor;
-            }
-            case FARADAY_DATA -> {
-                faraday = hexColor;
-            }
-            case FARADAY_MODEL -> {
-                faradayModel = hexColor;
-            }
+            case PM_DATA -> pm = hexColor;
+            case PM_MODEL -> pmModel = hexColor;
+            case FARADAY_DATA -> faraday = hexColor;
+            case FARADAY_MODEL -> faradayModel = hexColor;
         }
         return new SpeciesColors(faraday, pm, faradayModel, pmModel);
     }

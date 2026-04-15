@@ -18,6 +18,7 @@ package org.cirdles.tripoli.gui.settings.color.fxcomponents;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -31,22 +32,22 @@ import static org.cirdles.tripoli.constants.TripoliConstants.RatiosPlotColorFlav
 
 public class RatioColorRow extends HBox {
     private static final double TITLE_WIDTH = 260;
-    private static final double PADDING = 81;
+    private static final double PADDING = 40;
     private static final double COLOR_WIDTH = 140;
-
 
     private final RatiosPlotColorFlavor plotColorFlavor;
     private final ObjectProperty<Color> colorObjectProperty;
-
 
     public RatioColorRow(
             RatiosColors ratiosColors,
             RatiosPlotColorFlavor plotColorFlavor
     ) {
+        setAlignment(Pos.CENTER);
+        setPadding(new Insets(0, 20, 0, 20));
         Label title = new Label(plotColorFlavor.getName());
-        title.setFont(Font.font("Consolas", FontWeight.BOLD, 14));
+        title.setFont(Font.font("Consolas", FontWeight.BOLD, 16));
         title.setPrefWidth(TITLE_WIDTH);
-        title.setAlignment(Pos.CENTER);
+        title.setAlignment(Pos.BOTTOM_CENTER);
         getChildren().add(title);
 
         Region spacer = new Region();

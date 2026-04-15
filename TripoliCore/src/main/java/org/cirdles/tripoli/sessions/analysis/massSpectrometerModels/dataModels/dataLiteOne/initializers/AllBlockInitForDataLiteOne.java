@@ -97,7 +97,7 @@ public class AllBlockInitForDataLiteOne {
         boolean[][] rawDataIncluded =
                 (massSpecOutputBlockRecordLite.cycleData().length > 0) ?
                         new boolean[massSpecOutputBlockRecordLite.cycleData().length]
-                                [massSpecOutputBlockRecordLite.cycleData()[0].length]
+                        [massSpecOutputBlockRecordLite.cycleData()[0].length]
                         : new boolean[0][0];
         for (boolean[] booleans : rawDataIncluded) {
             Arrays.fill(booleans, true);

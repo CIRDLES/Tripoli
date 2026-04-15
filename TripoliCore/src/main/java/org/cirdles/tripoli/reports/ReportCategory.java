@@ -29,8 +29,8 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
     private static final long serialVersionUID = 6830475493400638448L;
     public final String FIXED_CATEGORY_NAME = "Analysis Info";
     private final String categoryName;
-    private int positionIndex;
     private final Set<ReportColumn> columnSet;
+    private int positionIndex;
     private boolean visible;
 
     // Handle importing existing category

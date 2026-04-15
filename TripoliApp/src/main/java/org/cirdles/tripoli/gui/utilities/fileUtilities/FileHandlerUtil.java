@@ -286,4 +286,23 @@ public enum FileHandlerUtil {
         return retVal;
     }
 
+    public static File selectLiveDataStatusTxtFile(Window ownerWindow) {
+        File retVal = null;
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select LiveDataStatus.txt file");
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("LiveDataStatus.txt file", "LiveDataStatus.txt"));
+        File initDirectory = new File("");
+        if (tripoliPersistentState.getMRUDataFileFolderPath() != null) {
+            initDirectory = new File(tripoliPersistentState.getMRUDataFileFolderPath());
+        }
+        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+
+        File dataFile = fileChooser.showOpenDialog(ownerWindow);
+        if ((null != dataFile) && dataFile.getName().toLowerCase(Locale.US).endsWith("livedatastatus.txt")) {
+            return dataFile;
+        } else {
+            return null;
+        }
+    }
 }
