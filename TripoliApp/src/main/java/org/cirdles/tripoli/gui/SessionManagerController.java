@@ -212,7 +212,7 @@ public class SessionManagerController implements Initializable {
         List<AnalysisInterface> analysesWithSameMethodList = new ArrayList<>();
         for (AnalysisInterface analysis : listOfSelectedAnalyses) {
             if ((analysis.getMethod().getMethodName().equals(methodNameForConcat))
-                    && (!analysis.getAnalysisName().contains("(Live Data)"))){
+                    && (!analysis.getAnalysisName().contains("(Live Data)"))) {
                 analysesWithSameMethodList.add(analysis);
             }
         }

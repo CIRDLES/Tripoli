@@ -53,6 +53,7 @@ public class PhoenixLiveData implements Serializable {
     int cyclesPerBlock = 0;
     int r270_267ColumnIndex = -1;
     int r265_267ColumnIndex = -1;
+
     /**
      * Contains all the logic for operating on live data files output by Phoenix mass spectrometer.
      *
