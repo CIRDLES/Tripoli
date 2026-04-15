@@ -144,7 +144,6 @@ public enum MatLab {
                     newDiff[i][j] = mat.get(i, j + 1) - mat.get(i, j);
                 }
             }
-            return Primitive64Store.FACTORY.rows(newDiff);
         } else {
             newDiff = new double[row - 1][col + 1];
             for (int i = 0; i < row - 1; i++) {
@@ -152,8 +151,8 @@ public enum MatLab {
                     newDiff[i][j] = mat.get(i + 1, j) - mat.get(i, j);
                 }
             }
-            return Primitive64Store.FACTORY.rows(newDiff);
         }
+        return Primitive64Store.FACTORY.rows(newDiff);
     }
 
     /**
@@ -338,16 +337,6 @@ public enum MatLab {
         }
         return Primitive64Store.FACTORY.rows(d);
     }
-
-    /**
-     * Finds indices and values of nonzero elements and returns a vector of them
-     * depending on param dir is 'last' finds the last n indices corresponding to nonzero elements in mat. And if param
-     * dir is 'first' finds the first n indices corresponding to nonzero elements.
-     *
-     * @param mat Matrix mat
-     * @param num Number of indices to find
-     * @param dir Direction
-     */
 
     /**
      * Generates a linearly spaced vector of n points of (max - min)/(points - 1)
@@ -663,7 +652,7 @@ public enum MatLab {
             //System.out.println(z.size() + " " + p.size());
             MatrixStore<Double> w = A.transpose().multiply(b.subtract(A.multiply(x)));
             //w.print(7, 5);
-            if (0 == z.size() || isAllNegative(w)) {
+            if (z.isEmpty() || isAllNegative(w)) {
                 //System.out.println("Computation should break");
                 //We are done with the computation. Break here!
                 break;//Should break out of the outer while loop.
@@ -689,7 +678,6 @@ public enum MatLab {
                         Ep.set(j, i, A.get(j, p.get(i)));
                 SolverTask<Double> solverTask = SolverTask.PRIMITIVE.make(Ep, b);
                 MatrixStore<Double> Zprime = solverTask.solve(Ep, b);
-                Ep = null;
                 Primitive64Store Z = storeFactory.make(xm, xn);
                 for (i = 0; i < p.size(); i++)
                     Z.set((long) p.get(i), 0, Zprime.get(i, 0));
