@@ -21,7 +21,6 @@ import org.apache.commons.io.FileUtils;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.outputs.CyclesExportTest;
 import org.cirdles.tripoli.sessions.analysis.outputs.OutputTest;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;

@@ -91,7 +91,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
     public static final int RUN = 1;
     @Serial
     private static final long serialVersionUID = 5737165372498262402L;
-
+    // suppresses variables for testing
+    public static boolean suppressContents = true;
     private final Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, PlotBuilder[]> mapOfBlockIdToPeakPlots = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
@@ -125,20 +126,14 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
     private double analysisDalyFaradayGainMeanOneSigmaAbs;
     private ETReduxExportTypeEnum etReduxExportType = ETReduxExportTypeEnum.NONE;
     private String analysisStartTime = "01/01/2001 00:00:00";
-
+    // END Block Stats color hex
     // Block Color Hex
     private RatiosColors ratiosColors;
-    // END Block Stats color hex
-
     // Parameters
     private Parameters analysisParameters;
-
     // concatenation support
     private AnalysisInterface[] memberAnalyses;
     private List<Integer> memberAnalysisBorderFlags;
-
-    // suppresses variables for testing
-    public static boolean suppressContents = true;
 
     protected Analysis(String analysisName,
                        AnalysisMethod analysisMethod,
@@ -728,8 +723,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
             } else {
                 sessionFilepath = "*Unsaved Session*";
             }
-        }
-        else if (suppressContents) {
+        } else if (suppressContents) {
             sessionFilepath = "*Unsaved Session*";
             dataFilepath = "";
             currDate = "";
