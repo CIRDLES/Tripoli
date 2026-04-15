@@ -105,6 +105,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final boolean mutable;
     private TripoliSpeciesColorMap analysisMapOfSpeciesToColors;
     private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
     private Session parentSession;
@@ -112,7 +113,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
     private String analystName;
     private String labName;
     private AnalysisMethod analysisMethod;
-
     private List<UserFunction> userFunctions;
     private String analysisSampleName;
     private String analysisFractionName;
@@ -120,7 +120,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
     // note: Path is not serializable
     private String dataFilePathString;
     private MassSpecExtractedData massSpecExtractedData;
-    private final boolean mutable;
     private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[0];
     private double analysisDalyFaradayGainMean;
     private double analysisDalyFaradayGainMeanOneSigmaAbs;
@@ -137,6 +136,9 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
     // concatenation support
     private AnalysisInterface[] memberAnalyses;
     private List<Integer> memberAnalysisBorderFlags;
+
+    // suppresses variables for testing
+    public static boolean suppressContents = true;
 
     protected Analysis(String analysisName,
                        AnalysisMethod analysisMethod,
@@ -207,18 +209,18 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
         analysisConcat.setAnalysisStartTime(analysisTime);
         analysisConcat.setUserFunctions(analysisConcat.getAnalysisMethod().createUserFunctions());
 
-        analysisConcat.updateConcatenatedAnalysis();
-
-        AllBlockInitForDataLiteOne.initBlockModels(analysisConcat);
-
         MassSpecExtractedData massSpecExtractedData = analysisConcat.getMassSpecExtractedData();
         massSpecExtractedData.setMassSpectrometerContext(analyses[0].getMassSpecExtractedData().getMassSpectrometerContext());
         massSpecExtractedData.setHeader(analyses[0].getMassSpecExtractedData().getHeader());
         // TODO: modify header
         massSpecExtractedData.setColumnHeaders(analyses[0].getMassSpecExtractedData().getColumnHeaders());
 
+        analysisConcat.updateConcatenatedAnalysis();
         massSpecExtractedData.setBlocksDataLite(
                 MassSpecExtractedData.concatenateBlocksDataLite(analyses));
+
+        AllBlockInitForDataLiteOne.initBlockModels(analysisConcat);
+
         return analysisConcat;
     }
 
@@ -672,6 +674,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
     /**
      * Takes in an array and its respective inclusion array and formats the data into a string
+     *
      * @param arr
      * @param includedArr
      * @return a String array of the values. Wrapped if not included
@@ -683,8 +686,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
             // Converts Cycle column into integers
             if (i == 0 && includedArr[i]) {
                 formattedArray[i] = Integer.toString((int) arr[i]);
-            }
-            else if (includedArr[i]) {
+            } else if (includedArr[i]) {
                 formattedArray[i] = Double.toString(arr[i]);
             } else {
                 formattedArray[i] = "&" + arr[i] + "&";
@@ -695,10 +697,11 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
     /**
      * Takes in a generic list of objects and joins them with a tab delimiter.
-     * @param items Generic list of objects
+     *
+     * @param items  Generic list of objects
      * @param action Action to perform on each item to get the desired String
-     * @return String of tab-delimited items
      * @param <T>
+     * @return String of tab-delimited items
      */
     public <T> String tabJoin(List<T> items, Function<T, String> action) {
         StringBuilder joinedString = new StringBuilder();
@@ -712,22 +715,27 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
     public final ArrayList<String> prepareFractionForCyclesExport(Session tripoliSession) {
         Comparator<UserFunction> columnIndexComparator = Comparator.comparingInt(UserFunction::getColumnIndex);
-        getUserFunctions().sort(columnIndexComparator);
-        List<UserFunction> userFunctions = getUserFunctions();
+        List<UserFunction> userFunctions = new ArrayList<>(getUserFunctions());
+        userFunctions.sort(columnIndexComparator);
+        setUserFunctions(userFunctions);
         String dataFilepath = getDataFilePathString();
         String sessionFilepath = null;
-        if (tripoliSession != null) {
+        String currDate = new SimpleDateFormat("MM/dd/yy HH:mm:ss").format(new Date());
+
+        if (tripoliSession != null && !suppressContents) {
             if (!Objects.equals(tripoliSession.getSessionFilePathAsString(), "")) {
                 sessionFilepath = tripoliSession.getSessionFilePathAsString().substring(0, tripoliSession.getSessionFilePathAsString().lastIndexOf(File.separator) + 1) + String.join("_", tripoliSession.getSessionName().split(" ")) + ".tripoli";
-            }
-            else {
+            } else {
                 sessionFilepath = "*Unsaved Session*";
             }
         }
+        else if (suppressContents) {
+            sessionFilepath = "*Unsaved Session*";
+            dataFilepath = "";
+            currDate = "";
+        }
 
         Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = getMapOfBlockIdToRawDataLiteOne();
-
-        String currDate = new SimpleDateFormat("MM/dd/yy HH:mm:ss").format(new Date());
         ArrayList<String> fileContents = new ArrayList<>();
 
         fileContents.add("New Tripoli tab-delimited output of processed data for:\n");

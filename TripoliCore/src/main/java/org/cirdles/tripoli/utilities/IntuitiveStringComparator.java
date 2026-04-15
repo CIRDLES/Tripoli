@@ -121,7 +121,7 @@ public class IntuitiveStringComparator<T extends CharSequence>
             } else {
                 result = Character.isDigit(ch2) ? 1
                         : Character.isLetter(ch2) ? -1
-                        : compareOther(false);
+                          : compareOther(false);
             }
 
             if (0 != result) {

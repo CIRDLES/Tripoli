@@ -18,10 +18,12 @@ package org.cirdles.tripoli.reports;
 
 import jakarta.xml.bind.JAXBException;
 import org.apache.commons.io.FileUtils;
-import org.cirdles.tripoli.Tripoli;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
+import org.cirdles.tripoli.sessions.analysis.outputs.CyclesExportTest;
+import org.cirdles.tripoli.sessions.analysis.outputs.OutputTest;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -30,41 +32,14 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AllReportsTest {
-    // Parameterized Test Source
-    public static Stream<String> generateFilepaths() throws URISyntaxException {
-        System.out.println("🗃️ Generating file paths...");
-
-        String dataFilesDir = "/org/cirdles/tripoli/core/reporting/dataFiles/";
-        Path dataFilesDirPath = Paths.get(Objects.requireNonNull(Tripoli.class.getResource(dataFilesDir)).toURI());
-
-        try {
-            // Recursively visits all files within dataFilesDirPath
-            Stream<Path> pathStream = Files.walk(dataFilesDirPath);
-            System.out.println("✅ File paths generated successfully!");
-            // Filters out oracles generated at build and converts paths into usable filepaths for .getResource()
-            return pathStream
-                    .filter(Files::isRegularFile)
-                    .filter(p -> !p.getFileName().toString().startsWith("New Session-"))
-                    .map(Path::toString)
-                    .map(p -> p.replace("\\", "/"))
-                    .map(p -> p.substring(p.indexOf("/org/")));
-        } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
-            return Stream.empty();
-        }
-    }
-
     /**
      * Uses a filepath to generate a full report and then asserts it to a premade Oracle made with the same analysis name
      *
@@ -83,6 +58,11 @@ public class AllReportsTest {
         String analysisName = reportData.getAnalysisName();
         Session tripoliSession = reportData.getTripoliSession();
         File dataFile = reportData.getDataFile();
+
+        // Sort UserFunctions
+        List<UserFunction> userFunctions = new ArrayList<>(analysis.getUserFunctions());
+        userFunctions.sort(null);
+        analysis.setUserFunctions(userFunctions);
 
         System.out.println("📝 Generating Full Report for " + dataFile.getName() + "...");
         // Create a Full Report to test against the Oracle
@@ -127,47 +107,8 @@ public class AllReportsTest {
 
     //####################################################################################################################//
 
-    /**
-     * Uses a filepath to generate a short report and then asserts it to a premade Oracle made with the same analysis name
-     *
-     * @param dataFilepath
-     * @param reportData
-     * @return
-     * @throws JAXBException
-     * @throws TripoliException
-     * @throws URISyntaxException
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
-     * @throws IllegalAccessException
-     */
-    public String[] shortReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        AnalysisInterface analysis = reportData.getAnalysis();
-        String analysisName = reportData.getAnalysisName();
-        File dataFile = reportData.getDataFile();
-
-        System.out.println("📝 Generating Short Report for " + dataFile.getName() + "...");
-        // Create the report to test against the Oracle
-        String actualReport = "";
-        String expectedReport = null;
-        String expectedReportPath = null;
-        try {
-            // Deserialize the Oracle report
-            expectedReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1).replace("dataFiles", "shortReports") + "Oracle-" + analysisName + ".txt";
-            expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8");
-
-            AllBlockInitForDataLiteOne.initBlockModels(analysis);
-            actualReport = analysis.prepareFractionForClipboardExport();
-        } catch (NullPointerException | IOException e) {
-            assertNotNull(expectedReport,
-                    "Oracle not found for file " + dataFile.getName() + " at: " + expectedReportPath);
-        } catch (ArrayIndexOutOfBoundsException ignored) {
-        }
-
-        return new String[]{expectedReport, actualReport};
-    }
-
     @ParameterizedTest
-    @MethodSource("generateFilepaths")
+    @MethodSource("org.cirdles.tripoli.reports.ReportData#generateFilepaths")
     public void allReportsTest(String dataFilePath) {
         System.out.println("-----------------------------------------------------------------------------------------------------------------");
         try {
@@ -178,9 +119,15 @@ public class AllReportsTest {
             assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!\n");
             System.out.println("✅ Full Report generated successfully!\n");
 
-            String[] shortReportTestResults = shortReportTest(dataFilePath, reportData);
+            OutputTest out = new OutputTest();
+            String[] shortReportTestResults = out.shortReportTest(dataFilePath, reportData);
             assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!\n");
             System.out.println("✅ Short Report generated successfully!\n");
+
+            CyclesExportTest cyc = new CyclesExportTest();
+            String[] cycleReportTestResults = cyc.cyclesExportTest(dataFilePath, reportData);
+            assertEquals(cycleReportTestResults[0], cycleReportTestResults[1], "❌ Cycle Export Report generation failed!\n");
+            System.out.println("✅ Cycle Export Report generated successfully!\n");
         } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException |
                  NoSuchMethodException | IllegalAccessException e) {
             System.out.println("Error: " + e.getMessage());

@@ -36,14 +36,13 @@ import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.gen
 public class ReportColumn implements Serializable, Comparable<ReportColumn> {
     @Serial
     private static final long serialVersionUID = 3378567673921898881L;
+    private final boolean isUserFunction;
+    private final boolean isRatio;
     public String FIXED_COLUMN_NAME = "Analysis Name";
-
     private String columnName;
     private int positionIndex;
     private boolean visible;
     private String methodName;
-    private final boolean isUserFunction;
-    private final boolean isRatio;
 
     public ReportColumn(String title, int positionIndex, String methodName) {
         columnName = title;

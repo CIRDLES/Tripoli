@@ -20,6 +20,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesBuilder;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
@@ -28,10 +29,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourcePr
 import org.cirdles.tripoli.utilities.comparators.LiveDataEntryComparator;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
@@ -42,10 +40,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.createAnalysisMethodFromCase1;
+    
 
-public class PhoenixLiveData {
-    private static final Pattern FILE_PATTERN = Pattern.compile(".*-B(\\d+)-C(\\d+)\\.TXT", Pattern.CASE_INSENSITIVE);
-
+public class PhoenixLiveData implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -8981972960059300836L;
+   private static final Pattern FILE_PATTERN = Pattern.compile(".*-B(\\d+)-C(\\d+)\\.TXT", Pattern.CASE_INSENSITIVE);
     AnalysisInterface liveDataAnalysis;
     boolean initMetaData = true;
     MassSpecOutputBlockRecordLite blockRecordLite;
@@ -67,8 +67,9 @@ public class PhoenixLiveData {
      *
      * @throws TripoliException Thrown by analysis initialization
      */
-    public PhoenixLiveData() throws TripoliException {
-        liveDataAnalysis = AnalysisInterface.initializeNewAnalysis(0);
+    public PhoenixLiveData(AnalysisInterface liveAnalysis) throws TripoliException {
+        liveDataAnalysis = (liveAnalysis == null)
+                ? AnalysisInterface.initializeNewAnalysis(0) : liveAnalysis;
         massSpecExtractedData = new MassSpecExtractedData();
         massSpecExtractedData.setColumnHeaders(new String[]{"Cycle", "Time"});
         MassSpectrometerContextEnum massSpectrometerContext = liveDataAnalysis.getParameters().getMassSpectrometerContext();
@@ -76,26 +77,39 @@ public class PhoenixLiveData {
         liveDataAnalysis.setMassSpecExtractedData(massSpecExtractedData);
     }
 
+/*
+    private void readObject(ObjectInputStream stream) throws IOException,
+           ClassNotFoundException {
+        stream.defaultReadObject();
+
+        ObjectStreamClass myObject = ObjectStreamClass.lookup(
+               Class.forName(PhoenixLiveData.class.getCanonicalName()));
+        long theSUID = myObject.getSerialVersionUID();
+
+        System.err.println("Customized De-serialization of PhoenixLiveData "
+               + theSUID);
+    }*/
+
     /**
-     * Checks methodfolder and its parent for the existence of LiveDataStatus.txt, retrieves the active livedata location
+     * Checks massSpecDataFolder and its parent for the existence of LiveDataStatus.txt, retrieves the active livedata location
      * from the txt and returns the path of it.
      *
-     * @param methodFolder user/mru supplied folder file
+     * @param massSpecDataFolder user/mru supplied folder file
      * @return Path of the active LiveData folder
      */
-    public static Path getLiveDataFolderPath(File methodFolder) {
-        File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
-        File parentLiveDataStatusFile = new File(methodFolder.getParentFile(), "LiveDataStatus.txt");
+    public static Path getLiveDataFolderPath(File massSpecDataFolder) {
+        File liveDataStatusFile = new File(massSpecDataFolder, "LiveDataStatus.txt");
+        File parentLiveDataStatusFile = new File(massSpecDataFolder.getParentFile(), "LiveDataStatus.txt");
 
-        File mutatableMethodFolder = methodFolder;
+        File mutatableMethodFolder = massSpecDataFolder;
         if (!liveDataStatusFile.exists() && !parentLiveDataStatusFile.exists()) {
             return null;
         }
 
-        // Prefer methodFolder, fallback to parent
+        // Prefer massSpecDataFolder, fallback to parent
         if (!liveDataStatusFile.exists()) {
             liveDataStatusFile = parentLiveDataStatusFile;
-            mutatableMethodFolder = methodFolder.getParentFile();
+            mutatableMethodFolder = massSpecDataFolder.getParentFile();
         }
 
         String line = "";
@@ -112,6 +126,24 @@ public class PhoenixLiveData {
         String methodName = methodParts[methodParts.length - 2].replace("\"", "");
 
         return Path.of(mutatableMethodFolder + File.separator + methodName + File.separator + "LiveData");
+    }
+
+    public static Path findLiveDataFolderPath(Path liveDataStatusTxtFile) {
+        Path mutatableMassSpecDataFolder = liveDataStatusTxtFile.getParent();
+
+        String line = "";
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusTxtFile.toFile()));
+            do {
+                line = bufferedReader.readLine();
+            } while (!Objects.equals(line.split(",")[0], "Method"));
+        } catch (IOException ignored) {
+        }
+
+        String[] methodParts = line.split("\\\\");
+        String sampleFolder = methodParts[methodParts.length - 2].replace("\"", "");
+
+        return Path.of(mutatableMassSpecDataFolder + File.separator + sampleFolder + File.separator + "LiveData");
     }
 
     public static File getFinishedFile(File methodFolder) {
@@ -165,6 +197,10 @@ public class PhoenixLiveData {
         if (block == lastProcessedBlock) return cycle == lastProcessedCycle + 1;
         if (block > lastProcessedBlock) return cycle == 1;
         return false;
+    }
+  
+    public void setLiveDataAnalysis(AnalysisInterface liveDataAnalysis) {
+        this.liveDataAnalysis = liveDataAnalysis;
     }
 
     public AnalysisInterface readLiveDataFile(Path filePath) {
@@ -239,11 +275,30 @@ public class PhoenixLiveData {
                             blockIndex,
                             massSpecExtractedData
                     );
+
+                    boolean[] cyclesIncluded = singleBlockRawDataLiteSetRecord.assembleCyclesIncludedForUserFunction(userFunction);
+
+                    // Preserve existing rejection state when refreshing live data
+                    PlotBlockCyclesRecord existingRecord = userFunction.getMapBlockIdToBlockCyclesRecord().get(blockIndex);
+                    if (existingRecord != null) {
+                        boolean[] existingCyclesIncluded = existingRecord.cyclesIncluded();
+                        int copyLen = Math.min(existingCyclesIncluded.length, cyclesIncluded.length);
+                        System.arraycopy(existingCyclesIncluded, 0, cyclesIncluded, 0, copyLen);
+                    }
+                    // Recompute blockIncluded: block is included if any cycle is included
+                    boolean blockIncluded = false;
+                    for (boolean included : cyclesIncluded) {
+                        if (included) {
+                            blockIncluded = true;
+                            break;
+                        }
+                    }
+
                     userFunction.getMapBlockIdToBlockCyclesRecord().put(blockIndex, BlockCyclesBuilder.initializeBlockCycles(
                             blockIndex,
+                            blockIncluded,
                             true,
-                            true,
-                            singleBlockRawDataLiteSetRecord.assembleCyclesIncludedForUserFunction(userFunction),
+                            cyclesIncluded,
                             singleBlockRawDataLiteSetRecord.assembleCycleMeansForUserFunction(userFunction),
                             singleBlockRawDataLiteSetRecord.assembleCycleStdDevForUserFunction(),
                             new String[]{userFunction.getName()},

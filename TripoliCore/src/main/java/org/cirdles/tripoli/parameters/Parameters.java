@@ -38,6 +38,9 @@ public class Parameters implements Serializable {
     // LiveWorkFlow
     private String sampleMetaDataFolderPath;
 
+    // LiveData
+    private String liveDataStatusTxtFilePath;
+
     public Parameters() {
         this.chauvenetRejectionProbability = CHAUVENETS_DEFAULT_REJECT_PROBABILITY;
         this.requiredMinDatumCount = CHAUVENETS_DEFAULT_MIN_DATUM_COUNT;
@@ -45,6 +48,7 @@ public class Parameters implements Serializable {
         this.scalingDotMinSize = SCALING_DOT_DEFAULT_MIN_SIZE;
         this.scalingDotMaxSize = SCALING_DOT_DEFAULT_MAX_SIZE;
         sampleMetaDataFolderPath = "";
+        liveDataStatusTxtFilePath = "";
     }
 
     // Copy Constructor
@@ -55,6 +59,7 @@ public class Parameters implements Serializable {
         this.scalingDotMinSize = other.getScalingDotMinSize();
         this.scalingDotMaxSize = other.getScalingDotMaxSize();
         this.sampleMetaDataFolderPath = other.getSampleMetaDataFolderPath();
+        this.liveDataStatusTxtFilePath = other.getLiveDataStatusTxtFilePath();
     }
 
     // Provides a deep copy of this instance
@@ -119,5 +124,16 @@ public class Parameters implements Serializable {
 
     public void setSampleMetaDataFolderPath(String sampleMetaDataFolderPath) {
         this.sampleMetaDataFolderPath = sampleMetaDataFolderPath;
+    }
+
+    public String getLiveDataStatusTxtFilePath() {
+        if (null == liveDataStatusTxtFilePath) {
+            liveDataStatusTxtFilePath = "";
+        }
+        return liveDataStatusTxtFilePath;
+    }
+
+    public void setLiveDataStatusTxtFilePath(String liveDataStatusTxtFilePath) {
+        this.liveDataStatusTxtFilePath = liveDataStatusTxtFilePath;
     }
 }
