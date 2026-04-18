@@ -61,7 +61,8 @@ public class MassSpecExtractedData implements Serializable {
             Map<Integer, MassSpecOutputBlockRecordLite> blocksData =
                     analyses[i].getMassSpecExtractedData().getBlocksDataLite();
             for (Integer blockID : blocksData.keySet()) {
-                blocksDataLiteConcatenated.put(blockID + blockIDOffset, blocksData.get(blockID).copyWithNewBlockID(blockID + blockIDOffset));
+                blocksDataLiteConcatenated.put(blockID + blockIDOffset,
+                        blocksData.get(blockID).copyWithNewBlockID(blockID + blockIDOffset));
             }
             blockIDOffset += blocksData.size();
         }

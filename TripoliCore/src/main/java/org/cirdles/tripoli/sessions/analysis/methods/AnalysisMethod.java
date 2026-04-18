@@ -66,7 +66,7 @@ public class AnalysisMethod implements Serializable {
     private List<UserFunction> userFunctionsModel;
     private boolean useLinearKnots;
 
-    private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
+    public AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
         this(methodName, massSpectrometerContext, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
     }
 

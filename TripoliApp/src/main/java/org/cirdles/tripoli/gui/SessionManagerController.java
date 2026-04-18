@@ -207,7 +207,20 @@ public class SessionManagerController implements Initializable {
     }
 
     public void concatenationAction() throws TripoliException {
-        // Check if analyses have the same method = use case 1
+        // generalized approach to concatenation where sample and fraction are the same
+        String sampleName = listOfSelectedAnalyses.get(0).getAnalysisSampleName();
+        String fractionName = listOfSelectedAnalyses.get(0).getAnalysisFractionName();
+        List<AnalysisInterface> analysesWithSameFractionList = new ArrayList<>();
+        for (AnalysisInterface analysis : listOfSelectedAnalyses) {
+            if ((analysis.getAnalysisSampleName().equals(sampleName))
+                    && (analysis.getAnalysisFractionName().equals(fractionName))) {
+                analysesWithSameFractionList.add(analysis);
+            }
+        }
+        AnalysisInterface[] analysesToConcatenate
+                = analysesWithSameFractionList.toArray(AnalysisInterface[]::new);
+
+        /*// Check if analyses have the same method = use case 1
         String methodNameForConcat = listOfSelectedAnalyses.get(0).getMethod().getMethodName();
         List<AnalysisInterface> analysesWithSameMethodList = new ArrayList<>();
         for (AnalysisInterface analysis : listOfSelectedAnalyses) {
@@ -218,7 +231,7 @@ public class SessionManagerController implements Initializable {
         }
         AnalysisInterface[] analysesToConcatenate
                 = analysesWithSameMethodList.toArray(AnalysisInterface[]::new);
-
+*/
         if (analysesToConcatenate.length > 1) {
             AnalysisInterface analysisConcat = Analysis.concatenateAnalysesLite(analysesToConcatenate);
             tripoliSession.getMapOfAnalyses().put(analysisConcat.getAnalysisName(), analysisConcat);
