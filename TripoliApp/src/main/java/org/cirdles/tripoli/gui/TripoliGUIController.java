@@ -842,32 +842,41 @@ public class TripoliGUIController implements Initializable {
     }
 
     public void cyclesExportAction() throws IOException {
-        ArrayList<String> fileContents = analysis.prepareFractionForCyclesExport(tripoliSession);
-        String dataFilepath = analysis.getDataFilePathString();
-        String analysisName = analysis.getAnalysisName();
+        if (!((Analysis) analysis).hasMemberAnalyses()) {
+            ArrayList<String> fileContents = analysis.prepareFractionForCyclesExport(tripoliSession);
+            String dataFilepath = analysis.getDataFilePathString();
+            String analysisName = analysis.getAnalysisName();
 
-        Path filepath = Path.of(dataFilepath.substring(0, dataFilepath.lastIndexOf(File.separator) + 1) + Objects.requireNonNull(tripoliSession).getSessionName() + "-" + analysisName + "-report.tsv");
-        String proceed = TripoliMessageDialog.showSavedAsDialog(new File(filepath.toUri()), primaryStage);
-        if (proceed == null) return;
-        if (proceed.equals(ButtonType.CANCEL.getText())) {
-            System.out.println("User cancelled the file save operation.");
-            return;
-        }
+            Path filepath = Path.of(
+                    (dataFilepath.substring(0, dataFilepath.lastIndexOf(File.separator) + 1)
+                            + Objects.requireNonNull(tripoliSession).getSessionName()
+                            + "-" + analysisName
+                            + "-report.tsv")
+                            .replaceAll("\\{", "")
+                            .replaceAll("\\}", "")
+                            .replaceAll("\\;", ""));
+            String proceed = TripoliMessageDialog.showSavedAsDialog(new File(filepath.toUri()), primaryStage);
+            if (proceed == null) return;
+            if (proceed.equals(ButtonType.CANCEL.getText())) {
+                System.out.println("User cancelled the file save operation.");
+                return;
+            }
 
-        try {
-            Files.createFile(filepath);
-            System.out.println("File created: " + filepath);
-        } catch (FileAlreadyExistsException e) {
-            System.out.println("File at " + filepath + " already exists, overwriting...");
-            Files.writeString(filepath, "");
-        }
+            try {
+                Files.createFile(filepath);
+                System.out.println("File created: " + filepath);
+            } catch (FileAlreadyExistsException e) {
+                System.out.println("File at " + filepath + " already exists, overwriting...");
+                Files.writeString(filepath, "");
+            }
 
-        for (String line : fileContents) {
-            Files.writeString(filepath, line, StandardOpenOption.APPEND);
-        }
+            for (String line : fileContents) {
+                Files.writeString(filepath, line, StandardOpenOption.APPEND);
+            }
 
-        if (proceed.equals("Save and Open")) {
-            Desktop.getDesktop().open(new File(filepath.toUri()));
+            if (proceed.equals("Save and Open")) {
+                Desktop.getDesktop().open(new File(filepath.toUri()));
+            }
         }
     }
 
@@ -882,6 +891,7 @@ public class TripoliGUIController implements Initializable {
     // ------------------ LiveData Methods ------------------------------------------------
 
     public void processLiveData() throws IOException, TripoliException {
+
         // Handles halting the processing. Two active cases are either:
         // Logs & Finish watchers are running OR Status watcher is running
         if (liveDataLogThread != null && liveDataLogThread.isAlive()) {
@@ -893,6 +903,7 @@ public class TripoliGUIController implements Initializable {
                             LiveData processing has been halted.
                             
                             Be sure to SaveAs your session to preserve sculpting choices.""", primaryStage);
+            TripoliGUI.updateStageTitle(true);
             return;
         } else if (liveDataStatusThread != null && liveDataStatusThread.isAlive()) {
             liveDataStatusWatcher.stop();
@@ -905,6 +916,7 @@ public class TripoliGUIController implements Initializable {
             return;
         }
 
+        TripoliGUI.updateStageTitle(false);
         Path liveDataStatusTxtFilePath = Path.of(tripoliPersistentState.getTripoliPersistentParameters().getLiveDataStatusTxtFilePath());
         if (!liveDataStatusTxtFilePath.toString().isBlank()
                 && Files.exists(liveDataStatusTxtFilePath)) {

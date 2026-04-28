@@ -166,10 +166,14 @@ public class SessionManagerController implements Initializable {
             menuItemReports.setDisable(false);
 
             listOfSelectedAnalyses.clear();
+            AnalysisInterface firstAnalysis = listViewOfAnalyses.getSelectionModel().getSelectedItems().get(0);
+            String samplePlusFractionName = ((Analysis) firstAnalysis).gitSamplePlusFractionName();
             listOfSelectedAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems().stream()
-                    .filter(p -> !((Analysis) p).hasMemberAnalyses())
+                    .filter(p -> !((Analysis) p).hasMemberAnalyses()
+                            && ((Analysis) p).gitSamplePlusFractionName().equals(samplePlusFractionName))
                     .toList());
-            concatenateButton.setDisable(listOfSelectedAnalyses.size() < 2);
+            concatenateButton.setDisable((listOfSelectedAnalyses.size() < 2)
+                    || (listViewOfAnalyses.getSelectionModel().getSelectedItems().size() > listOfSelectedAnalyses.size()));
             if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
                 if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
                     File dataFile = new File(analysisSelected.getDataFilePathString());
@@ -219,19 +223,6 @@ public class SessionManagerController implements Initializable {
         }
         AnalysisInterface[] analysesToConcatenate
                 = analysesWithSameFractionList.toArray(AnalysisInterface[]::new);
-
-        /*// Check if analyses have the same method = use case 1
-        String methodNameForConcat = listOfSelectedAnalyses.get(0).getMethod().getMethodName();
-        List<AnalysisInterface> analysesWithSameMethodList = new ArrayList<>();
-        for (AnalysisInterface analysis : listOfSelectedAnalyses) {
-            if ((analysis.getMethod().getMethodName().equals(methodNameForConcat))
-                    && (!analysis.getAnalysisName().contains("(Live Data)"))) {
-                analysesWithSameMethodList.add(analysis);
-            }
-        }
-        AnalysisInterface[] analysesToConcatenate
-                = analysesWithSameMethodList.toArray(AnalysisInterface[]::new);
-*/
         if (analysesToConcatenate.length > 1) {
             AnalysisInterface analysisConcat = Analysis.concatenateAnalysesLite(analysesToConcatenate);
             tripoliSession.getMapOfAnalyses().put(analysisConcat.getAnalysisName(), analysisConcat);

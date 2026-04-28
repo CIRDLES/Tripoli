@@ -176,7 +176,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
     public static AnalysisInterface concatenateAnalysesLite(
             AnalysisInterface[] analyses) throws TripoliException {
-        //all analyses have same sample and fraction
+        // all analyses have same sample and fraction
         List<String> analysisNames = new ArrayList<>();
         for (AnalysisInterface analysis : analyses) {
             analysisNames.add(analysis.getAnalysisName());
@@ -192,12 +192,13 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
         Analysis analysisConcat = new Analysis(
                 "Concatenated " + concatenatedName,
-                new AnalysisMethod("Concatenated Method", analyses[0].getMassSpecExtractedData().getMassSpectrometerContext()),
+                new AnalysisMethod("Concatenated Methods", analyses[0].getMassSpecExtractedData().getMassSpectrometerContext()),
                 analyses[0].getAnalysisSampleName());
+        analysisConcat.getMassSpecExtractedData().setMassSpectrometerContext(analyses[0].getMassSpecExtractedData().getMassSpectrometerContext());
         analysisConcat.setMemberAnalyses(analyses);
         analysisConcat.calculateMemberAnalysisBorderFlags();
         analysisConcat.setAnalysisSampleDescription("Concatenated analyses");
-        analysisConcat.setDataFilePathString("N/A");
+        analysisConcat.setDataFilePathString(analyses[0].getDataFilePathString());
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String analysisTime = df.format(new Date());
@@ -206,7 +207,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
         // TODO: modify header
         //massSpecExtractedData.setHeader(analyses[0].getMassSpecExtractedData().getHeader());
 
-        // find union of userFuntions
+        // find union of userFunctions
         List<String> concatUserFunctionNames = new ArrayList<>();
         List<UserFunction> concatUserFunctionBlanks = new ArrayList<>();
         for (AnalysisInterface analysis : analyses) {
@@ -220,10 +221,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
         }
 
         analysisConcat.setUserFunctions(concatUserFunctionBlanks);
-
-        analysisConcat.setMassSpecExtractedData(analyses[0].getMassSpecExtractedData());
-
-        analysisConcat.getMassSpecExtractedData().setColumnHeaders(new String[0]);
         analysisConcat.updateConcatenatedAnalysis();
         analysisConcat.getMassSpecExtractedData().setBlocksDataLite(
                 MassSpecExtractedData.concatenateBlocksDataLite(analyses));
@@ -255,25 +252,18 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
             for (int i = 0; i < getMemberAnalyses().length; i++) {
                 UserFunction ufFromAnalysis = ((Analysis) getMemberAnalyses()[i]).getUserFunctionByName(uf.getName());
-                if (ufFromAnalysis == null) {
+                boolean hasUserFunction = ufFromAnalysis != null;
+                if (!hasUserFunction) {
                     // assume cycle userFunction is available
                     ufFromAnalysis = ((Analysis) getMemberAnalyses()[i]).getUserFunctionByName("Cycle");
-                    // zero it out
-                    Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap =
-                            ufFromAnalysis.getMapBlockIdToBlockCyclesRecord();
-                    for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
-                        PlotBlockCyclesRecord record = entry.getValue().zeroCyclesRecord();
-                        userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, record.changeBlockIDforConcat(concatBlockId));
-                        concatBlockId++;
-                    }
-                } else {
-                    Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap =
-                            ufFromAnalysis.getMapBlockIdToBlockCyclesRecord();
-                    for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
-                        PlotBlockCyclesRecord record = entry.getValue().cloneCyclesRecord();
-                        userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, record.changeBlockIDforConcat(concatBlockId));
-                        concatBlockId++;
-                    }
+                }
+                Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap =
+                        ufFromAnalysis.getMapBlockIdToBlockCyclesRecord();
+                for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
+                    PlotBlockCyclesRecord record =
+                            hasUserFunction ? entry.getValue().cloneCyclesRecord() : entry.getValue().zeroCyclesRecord();
+                    userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, record.changeBlockIDforConcat(concatBlockId));
+                    concatBlockId++;
                 }
             }
             uf.setMapBlockIdToBlockCyclesRecord(userFunctionConcatMapBlockToCyclesRecord);
@@ -898,6 +888,10 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
     public void setAnalysisFractionName(String analysisFractionName) {
         this.analysisFractionName = analysisFractionName;
+    }
+
+    public String gitSamplePlusFractionName() {
+        return analysisSampleName + analysisFractionName;
     }
 
     public String getAnalysisSampleDescription() {

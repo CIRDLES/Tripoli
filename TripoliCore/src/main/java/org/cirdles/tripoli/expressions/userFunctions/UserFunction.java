@@ -238,7 +238,6 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
         return inverted ? invertedETReduxName : etReduxName;
     }
 
-
     public ExpressionTreeInterface getCustomExpression() {
         return customExpression;
     }
