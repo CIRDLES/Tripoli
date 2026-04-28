@@ -46,7 +46,6 @@ public class PhoenixLiveData implements Serializable {
     @Serial
     private static final long serialVersionUID = -8981972960059300836L;
     private static final Pattern FILE_PATTERN = Pattern.compile(".*-B(\\d+)-C(\\d+)\\.TXT", Pattern.CASE_INSENSITIVE);
-    private transient final TreeSet<Path> pendingFiles = new TreeSet<>(LiveDataEntryComparator.blockCycleComparator);
     AnalysisInterface liveDataAnalysis;
     boolean initMetaData = true;
     MassSpecOutputBlockRecordLite blockRecordLite;
@@ -59,6 +58,7 @@ public class PhoenixLiveData implements Serializable {
     int cyclesPerBlock = 0;
     int r270_267ColumnIndex = -1;
     int r265_267ColumnIndex = -1;
+    private transient TreeSet<Path> pendingFiles = new TreeSet<>(LiveDataEntryComparator.blockCycleComparator);
     private int lastProcessedBlock = -1;
     private int lastProcessedCycle = 0;
 
@@ -191,6 +191,9 @@ public class PhoenixLiveData implements Serializable {
     }
 
     public AnalysisInterface readLiveDataFile(Path filePath) {
+        if (pendingFiles == null) {
+            pendingFiles = new TreeSet<>(LiveDataEntryComparator.blockCycleComparator);
+        }
         pendingFiles.add(filePath);
         AnalysisInterface result = null;
         while (!pendingFiles.isEmpty()) {
@@ -246,6 +249,14 @@ public class PhoenixLiveData implements Serializable {
                         if (modelFunc.getName().equals("265/267")) {
                             r265_267ColumnIndex = modelFunc.getColumnIndex();
                         }
+
+                        liveDataAnalysis.getUserFunctions().stream()
+                                .filter(func -> func.getName().equals(modelFunc.getName()))
+                                .forEach(func -> func.setEtReduxName(modelFunc.getEtReduxName()));
+                        liveDataAnalysis.getUserFunctions().stream()
+                                .filter(func -> func.getName().equals(modelFunc.getName()))
+                                .forEach(func -> func.setInvertedETReduxName(modelFunc.getInvertedETReduxName()));
+
                     }
                     initMetaData = false;
                 }
@@ -351,15 +362,23 @@ public class PhoenixLiveData implements Serializable {
                 break;
             case "Cycle":
                 cycleIndex = Integer.parseInt(dataLineSplit[1]);
+
+                if (initMetaData) {
+                    UserFunction userFunction = new UserFunction("Cycle", 0);
+                    liveDataAnalysis.getUserFunctions().add(userFunction);
+                    userFunction = new UserFunction("Time", 1);
+                    liveDataAnalysis.getUserFunctions().add(userFunction);
+                }
+
                 if (cycleData == null || cycleData.length > cycleIndex) {
                     // Starting a new block, set the CPB and redo the header
                     if (cycleData != null && cyclesPerBlock == 0) {
                         cyclesPerBlock = cycleData.length;
                         setAnalysisHeader();
                     }
-                    cycleData = new double[cycleIndex][numOfFunctions];
+                    cycleData = new double[cycleIndex][numOfFunctions + 2];
                 } else { // Copy old data to new array
-                    double[][] expandedCycleData = new double[cycleIndex][numOfFunctions];
+                    double[][] expandedCycleData = new double[cycleIndex][numOfFunctions + 2];
                     for (int row = 0; row < cycleData.length; row++) {
                         System.arraycopy(cycleData[row], 0, expandedCycleData[row], 0, cycleData[row].length);
                     }
@@ -372,7 +391,7 @@ public class PhoenixLiveData implements Serializable {
                 break;
             default:
                 try {
-                    int columnIndex = Integer.parseInt(dataLineSplit[0]) - 1;
+                    int columnIndex = Integer.parseInt(dataLineSplit[0]) + 1;
                     String userFunctionName = dataLineSplit[1].substring(1, dataLineSplit[1].length() - 1);
                     double userFunctionValue = Double.parseDouble(dataLineSplit[2]);
                     if (initMetaData) {
@@ -380,12 +399,14 @@ public class PhoenixLiveData implements Serializable {
                         liveDataAnalysis.getUserFunctions().add(userFunction);
                         String[] headersExpanded = Arrays.copyOf(massSpecExtractedData.getColumnHeaders(),
                                 massSpecExtractedData.getColumnHeaders().length + 1);
-                        headersExpanded[columnIndex + 2] = userFunctionName;
+                        headersExpanded[columnIndex] = userFunctionName;
                         massSpecExtractedData.setColumnHeaders(headersExpanded);
                     }
                     cycleData[cycleIndex - 1][columnIndex] = userFunctionValue;
                 } catch (Exception ignore) {
                 }
+                cycleData[cycleIndex - 1][0] = cycleIndex;//Cycle
+                cycleData[cycleIndex - 1][1] = cycleIndex;//Time - not present in file
         }
     }
 

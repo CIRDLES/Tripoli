@@ -238,7 +238,6 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
         return inverted ? invertedETReduxName : etReduxName;
     }
 
-
     public ExpressionTreeInterface getCustomExpression() {
         return customExpression;
     }
@@ -246,5 +245,13 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
     public void setCustomExpression(ExpressionTreeInterface customExpression) {
         this.customExpression = customExpression;
 
+    }
+
+    public String getEtReduxName() {
+        return etReduxName;
+    }
+
+    public String getInvertedETReduxName() {
+        return invertedETReduxName;
     }
 }

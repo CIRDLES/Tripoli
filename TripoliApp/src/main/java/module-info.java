@@ -30,4 +30,5 @@ module Tripoli.TripoliApp {
     requires java.logging;
     requires org.antlr.antlr4.runtime;
     requires org.jspecify;
+    requires org.checkerframework.checker.qual;
 }

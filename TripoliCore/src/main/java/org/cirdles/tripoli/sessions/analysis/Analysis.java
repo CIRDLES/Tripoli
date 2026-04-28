@@ -176,7 +176,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
     public static AnalysisInterface concatenateAnalysesLite(
             AnalysisInterface[] analyses) throws TripoliException {
-        // use case 1 assume for now that these are two or more sequential runs with all the same metadata
+        // all analyses have same sample and fraction
         List<String> analysisNames = new ArrayList<>();
         for (AnalysisInterface analysis : analyses) {
             analysisNames.add(analysis.getAnalysisName());
@@ -192,26 +192,37 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
         Analysis analysisConcat = new Analysis(
                 "Concatenated " + concatenatedName,
-                analyses[0].getAnalysisMethod(),
+                new AnalysisMethod("Concatenated Methods", analyses[0].getMassSpecExtractedData().getMassSpectrometerContext()),
                 analyses[0].getAnalysisSampleName());
+        analysisConcat.getMassSpecExtractedData().setMassSpectrometerContext(analyses[0].getMassSpecExtractedData().getMassSpectrometerContext());
         analysisConcat.setMemberAnalyses(analyses);
         analysisConcat.calculateMemberAnalysisBorderFlags();
         analysisConcat.setAnalysisSampleDescription("Concatenated analyses");
-        analysisConcat.setDataFilePathString("N/A");
+        analysisConcat.setDataFilePathString(analyses[0].getDataFilePathString());
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String analysisTime = df.format(new Date());
         analysisConcat.setAnalysisStartTime(analysisTime);
-        analysisConcat.setUserFunctions(analysisConcat.getAnalysisMethod().createUserFunctions());
 
-        MassSpecExtractedData massSpecExtractedData = analysisConcat.getMassSpecExtractedData();
-        massSpecExtractedData.setMassSpectrometerContext(analyses[0].getMassSpecExtractedData().getMassSpectrometerContext());
-        massSpecExtractedData.setHeader(analyses[0].getMassSpecExtractedData().getHeader());
         // TODO: modify header
-        massSpecExtractedData.setColumnHeaders(analyses[0].getMassSpecExtractedData().getColumnHeaders());
+        //massSpecExtractedData.setHeader(analyses[0].getMassSpecExtractedData().getHeader());
 
+        // find union of userFunctions
+        List<String> concatUserFunctionNames = new ArrayList<>();
+        List<UserFunction> concatUserFunctionBlanks = new ArrayList<>();
+        for (AnalysisInterface analysis : analyses) {
+            List<UserFunction> userFunctionBlanks = analysis.getAnalysisMethod().createUserFunctions();
+            for (UserFunction userFunction : userFunctionBlanks) {
+                if (!concatUserFunctionNames.contains(userFunction.getName())) {
+                    concatUserFunctionNames.add(userFunction.getName());
+                    concatUserFunctionBlanks.add(userFunction);
+                }
+            }
+        }
+
+        analysisConcat.setUserFunctions(concatUserFunctionBlanks);
         analysisConcat.updateConcatenatedAnalysis();
-        massSpecExtractedData.setBlocksDataLite(
+        analysisConcat.getMassSpecExtractedData().setBlocksDataLite(
                 MassSpecExtractedData.concatenateBlocksDataLite(analyses));
 
         AllBlockInitForDataLiteOne.initBlockModels(analysisConcat);
@@ -241,10 +252,16 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
             for (int i = 0; i < getMemberAnalyses().length; i++) {
                 UserFunction ufFromAnalysis = ((Analysis) getMemberAnalyses()[i]).getUserFunctionByName(uf.getName());
+                boolean hasUserFunction = ufFromAnalysis != null;
+                if (!hasUserFunction) {
+                    // assume cycle userFunction is available
+                    ufFromAnalysis = ((Analysis) getMemberAnalyses()[i]).getUserFunctionByName("Cycle");
+                }
                 Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap =
                         ufFromAnalysis.getMapBlockIdToBlockCyclesRecord();
                 for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
-                    PlotBlockCyclesRecord record = entry.getValue().cloneCyclesRecord();
+                    PlotBlockCyclesRecord record =
+                            hasUserFunction ? entry.getValue().cloneCyclesRecord() : entry.getValue().zeroCyclesRecord();
                     userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, record.changeBlockIDforConcat(concatBlockId));
                     concatBlockId++;
                 }
@@ -871,6 +888,10 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
     public void setAnalysisFractionName(String analysisFractionName) {
         this.analysisFractionName = analysisFractionName;
+    }
+
+    public String gitSamplePlusFractionName() {
+        return analysisSampleName + analysisFractionName;
     }
 
     public String getAnalysisSampleDescription() {

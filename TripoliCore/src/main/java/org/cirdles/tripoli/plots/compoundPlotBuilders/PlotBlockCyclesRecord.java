@@ -177,4 +177,17 @@ public record PlotBlockCyclesRecord(
                 title.clone()
         );
     }
+
+    public PlotBlockCyclesRecord zeroCyclesRecord() {
+        return new PlotBlockCyclesRecord(
+                blockID,
+                isRatio,
+                processed,
+                false,
+                new boolean[cyclesIncluded.length],
+                new double[cycleMeansData.length],
+                new double[cycleOneSigmaData.length],
+                title.clone()
+        );
+    }
 }
