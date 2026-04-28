@@ -246,4 +246,12 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
         this.customExpression = customExpression;
 
     }
+
+    public String getEtReduxName() {
+        return etReduxName;
+    }
+
+    public String getInvertedETReduxName() {
+        return invertedETReduxName;
+    }
 }
