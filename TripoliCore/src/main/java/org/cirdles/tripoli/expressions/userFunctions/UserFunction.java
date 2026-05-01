@@ -126,14 +126,6 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
         return name;
     }
 
-    public void setEtReduxName(String etReduxName) {
-        this.etReduxName = etReduxName;
-    }
-
-    public void setInvertedETReduxName(String invertedETReduxName) {
-        this.invertedETReduxName = invertedETReduxName;
-    }
-
     public String showCorrectName() {
         String retVal = name;
         if (inverted && treatAsIsotopicRatio) {
@@ -251,7 +243,15 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
         return etReduxName;
     }
 
+    public void setEtReduxName(String etReduxName) {
+        this.etReduxName = etReduxName;
+    }
+
     public String getInvertedETReduxName() {
         return invertedETReduxName;
+    }
+
+    public void setInvertedETReduxName(String invertedETReduxName) {
+        this.invertedETReduxName = invertedETReduxName;
     }
 }

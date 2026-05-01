@@ -67,9 +67,8 @@ public class PhoenixLiveData implements Serializable {
      *
      * @throws TripoliException Thrown by analysis initialization
      */
-    public PhoenixLiveData(AnalysisInterface liveAnalysis) throws TripoliException {
-        liveDataAnalysis = (liveAnalysis == null)
-                ? AnalysisInterface.initializeNewAnalysis(0) : liveAnalysis;
+    public PhoenixLiveData() throws TripoliException {
+        liveDataAnalysis = AnalysisInterface.initializeNewAnalysis(0);
         massSpecExtractedData = new MassSpecExtractedData();
         massSpecExtractedData.setColumnHeaders(new String[]{"Cycle", "Time"});
         MassSpectrometerContextEnum massSpectrometerContext = liveDataAnalysis.getParameters().getMassSpectrometerContext();

@@ -19,7 +19,6 @@ package org.cirdles.tripoli.sessions;
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
 import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.collections.TripoliSessionAnalysisMap;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
@@ -42,34 +41,31 @@ public class Session implements Serializable {
     private static final long serialVersionUID = 6597752272434171800L;
 
     private static boolean sessionChanged;
+    //    private Map<String, AnalysisInterface> mapOfAnalyses;
+    private final TripoliSessionAnalysisMap mapOfAnalyses;
     private String sessionName;
     private String analystName;
     private String sessionFilePathAsString;
     private String sessionNotes;
-    //    private Map<String, AnalysisInterface> mapOfAnalyses;
-    private TripoliSessionAnalysisMap mapOfAnalyses;
     private boolean mutable;
     private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
     private Parameters sessionDefaultParameters;
     private boolean expressionRefreshed;
 
-
     // Color Strings for ratio plots
     private RatiosColors ratiosColors;
     // END OF ratio plot Color Strings
 
-    private PhoenixLiveData phoenixLiveData;
-
-    private Session() throws TripoliException {
+    private Session() {
         this("New Session");
         expressionRefreshed = true;
     }
 
-    private Session(String sessionName) throws TripoliException {
+    private Session(String sessionName) {
         this(sessionName, new TripoliSessionAnalysisMap());
     }
 
-    private Session(String sessionName, Map<String, AnalysisInterface> mapOfAnalyses) throws TripoliException {
+    private Session(String sessionName, Map<String, AnalysisInterface> mapOfAnalyses) {
         this.sessionName = sessionName;
         this.mapOfAnalyses = ((TripoliSessionAnalysisMap) mapOfAnalyses);
         this.mapOfAnalyses.setSession(this);
@@ -78,7 +74,6 @@ public class Session implements Serializable {
         sessionFilePathAsString = "";
         mutable = true;
         sessionChanged = false;
-        phoenixLiveData = new PhoenixLiveData(null);
     }
 
     public static Session initializeDefaultSession() throws JAXBException, TripoliException {
@@ -109,17 +104,6 @@ public class Session implements Serializable {
 
     public static void setSessionChanged(boolean mySessionChanged) {
         sessionChanged = mySessionChanged;
-    }
-
-    public PhoenixLiveData getPhoenixLiveData() throws TripoliException {
-        if (phoenixLiveData == null) {
-            phoenixLiveData = new PhoenixLiveData(null);
-        }
-        return phoenixLiveData;
-    }
-
-    public void resetPhoenixLiveData() throws TripoliException {
-        phoenixLiveData = new PhoenixLiveData(null);
     }
 
     public RatiosColors getBlockCyclesPlotColors() {
