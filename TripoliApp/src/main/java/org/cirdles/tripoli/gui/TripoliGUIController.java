@@ -853,8 +853,8 @@ public class TripoliGUIController implements Initializable {
                             + "-" + analysisName
                             + "-report.tsv")
                             .replaceAll("\\{", "")
-                            .replaceAll("\\}", "")
-                            .replaceAll("\\;", ""));
+                            .replace("}", "")
+                            .replace(";", ""));
             String proceed = TripoliMessageDialog.showSavedAsDialog(new File(filepath.toUri()), primaryStage);
             if (proceed == null) return;
             if (proceed.equals(ButtonType.CANCEL.getText())) {
@@ -1081,7 +1081,7 @@ public class TripoliGUIController implements Initializable {
             menuItemSessionNew.fire();
         }
 
-        phoenixLiveData = tripoliSession.getPhoenixLiveData();
+        phoenixLiveData = new PhoenixLiveData();
         ogTripoliPreviewPlotsWindow = null;
 
         AtomicReference<AnalysisInterface> liveDataAnalysis = new AtomicReference<>(phoenixLiveData.getLiveDataAnalysis());

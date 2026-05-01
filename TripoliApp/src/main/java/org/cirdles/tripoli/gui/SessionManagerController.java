@@ -254,11 +254,6 @@ public class SessionManagerController implements Initializable {
                     boolean proceed = TripoliMessageDialog.showChoiceDialog("Live Data is still running. Would you like to stop and delete the analysis?", primaryStageWindow);
                     if (!proceed) return;
                     liveDataMenuItem.fire();
-                    try {
-                        tripoliSession.resetPhoenixLiveData();
-                    } catch (TripoliException e) {
-                        throw new RuntimeException(e);
-                    }
                 }
                 tripoliSession.getMapOfAnalyses().remove(getItem().getAnalysisName());
                 AnalysisManagerController.analysis = null;
