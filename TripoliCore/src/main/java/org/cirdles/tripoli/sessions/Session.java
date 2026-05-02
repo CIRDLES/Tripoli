@@ -19,6 +19,7 @@ package org.cirdles.tripoli.sessions;
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
 import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.collections.TripoliSessionAnalysisMap;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
@@ -56,16 +57,18 @@ public class Session implements Serializable {
     private RatiosColors ratiosColors;
     // END OF ratio plot Color Strings
 
-    private Session() {
+    private PhoenixLiveData phoenixLiveData;
+
+    private Session() throws TripoliException {
         this("New Session");
         expressionRefreshed = true;
     }
 
-    private Session(String sessionName) {
+    private Session(String sessionName) throws TripoliException {
         this(sessionName, new TripoliSessionAnalysisMap());
     }
 
-    private Session(String sessionName, Map<String, AnalysisInterface> mapOfAnalyses) {
+    private Session(String sessionName, Map<String, AnalysisInterface> mapOfAnalyses) throws TripoliException {
         this.sessionName = sessionName;
         this.mapOfAnalyses = ((TripoliSessionAnalysisMap) mapOfAnalyses);
         this.mapOfAnalyses.setSession(this);
@@ -74,6 +77,7 @@ public class Session implements Serializable {
         sessionFilePathAsString = "";
         mutable = true;
         sessionChanged = false;
+        phoenixLiveData = new PhoenixLiveData();
     }
 
     public static Session initializeDefaultSession() throws JAXBException, TripoliException {
@@ -196,5 +200,16 @@ public class Session implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(sessionName, analystName, sessionNotes);
+    }
+
+    public PhoenixLiveData getPhoenixLiveData() throws TripoliException {
+        if (phoenixLiveData == null) {
+            phoenixLiveData = new PhoenixLiveData();
+        }
+        return phoenixLiveData;
+    }
+
+    public void resetPhoenixLiveData() throws TripoliException {
+        phoenixLiveData = new PhoenixLiveData();
     }
 }

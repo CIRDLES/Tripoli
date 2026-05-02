@@ -49,6 +49,7 @@ import java.util.ResourceBundle;
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
+import static org.cirdles.tripoli.gui.TripoliGUI.updateStageTitle;
 import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_SESSION_LINEN;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColorToHex;
@@ -141,6 +142,8 @@ public class SessionManagerController implements Initializable {
                 e.printStackTrace();
             }
         });
+
+        listViewOfAnalyses.getSelectionModel().select(analysis);
     }
 
     private void populateSessionManagerGridPane() {
@@ -193,6 +196,7 @@ public class SessionManagerController implements Initializable {
             }
         });
         listViewOfAnalyses.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        updateStageTitle();
     }
 
     private void setupListeners() {

@@ -36,6 +36,8 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Objects;
 
+import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
+import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliSession;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_STARTING_YELLOW;
 
 /**
@@ -47,28 +49,22 @@ public class TripoliGUI extends Application {
     public static Window primaryStageWindow;
     public static Stage primaryStage;
     protected static TripoliAboutWindow tripoliAboutWindow;
+    public static boolean isLiveDataOn = false;
 
-    public static void updateStageTitle(String fileName, MassSpectrometerContextEnum massSpecContext) {
-        String liveDataStatus = "Tripoli  *[LiveData: OFF]* ";
-        String fileSpec = " [Session File: NONE] ";
-        fileSpec = !fileName.isEmpty() ? fileSpec.replace("NONE", fileName) : fileSpec;
-        String massSpecSpec = " [Mass Spectrometer: UNKNOWN]";
+    public static void updateStageTitle(){
+        String liveDataStatus = "Tripoli  *[LiveData: " + ((isLiveDataOn ? "ON" : "OFF")) + "]* ";
+        String analysisSpec = " [Analysis: NONE] ";
+        String sessionSpec = " [Session: NONE] ";
+        String massSpecSpec = " [Mass Spec: UNKNOWN]";
+
+        String analysisName = ((AnalysisManagerController.analysis == null) ? "NONE" : AnalysisManagerController.analysis.getAnalysisName());
+        String sessionName = ((tripoliSession == null) ? "NONE" : tripoliSession.getSessionName());
+        MassSpectrometerContextEnum massSpecContext = tripoliPersistentState.getTripoliPersistentParameters().getMassSpectrometerContext();
         massSpecSpec = massSpecContext != null ? massSpecSpec.replace("UNKNOWN", massSpecContext.toString()) : massSpecSpec;
-        primaryStage.setTitle(liveDataStatus + fileSpec + massSpecSpec);
-    }
-
-    public static void updateStageTitle(MassSpectrometerContextEnum massSpecContext) {
-        String liveDataStatus = "Tripoli  *[LiveData: OFF]* ";
-        String fileSpec = " [Session File: NONE] ";
-        String sessionName = primaryStage.getTitle().substring(primaryStage.getTitle().indexOf(':') + 2, primaryStage.getTitle().indexOf("]"));
-        String massSpecSpec = " [Mass Spectrometer: UNKNOWN]";
-        massSpecSpec = massSpecContext != null ? massSpecSpec.replace("UNKNOWN", massSpecContext.toString()) : massSpecSpec;
-        primaryStage.setTitle(liveDataStatus + fileSpec.replace("NONE", sessionName) + massSpecSpec);
-    }
-
-    public static void updateStageTitle(boolean isLiveDataOn) {
-        primaryStage.setTitle(
-                primaryStage.getTitle().replace((isLiveDataOn ? "ON" : "OFF"), (isLiveDataOn ? "OFF" : "ON")));
+        primaryStage.setTitle(liveDataStatus
+                + analysisSpec.replace("NONE", analysisName)
+                + sessionSpec.replace("NONE", sessionName)
+                + massSpecSpec);
     }
 
     public static void main(String[] args) {
@@ -116,7 +112,7 @@ public class TripoliGUI extends Application {
         Parent root = new AnchorPane();
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
-        updateStageTitle("", null);
+        updateStageTitle();
 
         // this produces non-null window after .show()
         primaryStageWindow = primaryStage.getScene().getWindow();
