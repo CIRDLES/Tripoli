@@ -102,8 +102,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIEL
 import static org.cirdles.tripoli.expressions.operations.Operation.OPERATIONS_MAP;
 import static org.cirdles.tripoli.gui.SessionManagerController.listOfSelectedAnalyses;
 import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
-import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
-import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
+import static org.cirdles.tripoli.gui.TripoliGUI.*;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
 import static org.cirdles.tripoli.gui.utilities.UIUtilities.showTab;
@@ -453,6 +452,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         openConcatenatedButton.setVisible((null != concatenatedAnalysis)
                 && !((Analysis) analysis).hasMemberAnalyses());
+
+        updateStageTitle();
     }
 
     public void openConcatenatedAction() {

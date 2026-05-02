@@ -52,6 +52,7 @@ import java.util.Optional;
 
 import static javafx.event.Event.fireEvent;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
+import static org.cirdles.tripoli.gui.TripoliGUI.updateStageTitle;
 
 public class SettingsWindow {
 
@@ -295,7 +296,7 @@ public class SettingsWindow {
         msCombo.valueProperty().addListener((obs, oldValue, newValue) -> {
             if (newValue != null) {
                 analysis.getParameters().setMassSpectrometerContext(newValue);
-                TripoliGUI.updateStageTitle(newValue);
+                updateStageTitle();
                 handleLiveDataMenuHidden();
             }
         });
