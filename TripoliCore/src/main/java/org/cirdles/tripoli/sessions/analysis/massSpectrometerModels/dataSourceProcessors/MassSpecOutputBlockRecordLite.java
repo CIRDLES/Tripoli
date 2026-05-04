@@ -32,12 +32,12 @@ public record MassSpecOutputBlockRecordLite(
             cycleDataExpand[row] = new double[cycleData[row].length + 3];
             System.arraycopy(cycleData[row], 0, cycleDataExpand[row], 0, cycleData[row].length);
 
-            cycleDataExpand[row][cycleData[row].length + 0]
+            cycleDataExpand[row][cycleData[row].length]
                     = cycleData[row][r265_267ColumnIndex] / (1.0 - 2.0 * r18O_16O * cycleData[row][r265_267ColumnIndex]);
             cycleDataExpand[row][cycleData[row].length + 1]
                     = cycleData[row][r270_267ColumnIndex] / (1.0 - 2.0 * r18O_16O * cycleData[row][r270_267ColumnIndex]);
             cycleDataExpand[row][cycleData[row].length + 2]
-                    = cycleDataExpand[row][cycleData[row].length + 1] / cycleDataExpand[row][cycleData[row].length + 0];
+                    = cycleDataExpand[row][cycleData[row].length + 1] / cycleDataExpand[row][cycleData[row].length];
         }
         return new MassSpecOutputBlockRecordLite(blockID, cycleDataExpand);
     }
@@ -56,7 +56,7 @@ public record MassSpecOutputBlockRecordLite(
 
         } else { // Existing column
             for (int row = 0; row < cycleData.length; row++) {
-                cycleData[row][columnIndex - 0] = expressionData[row];
+                cycleData[row][columnIndex] = expressionData[row];
             }
 
             return new MassSpecOutputBlockRecordLite(blockID, cycleData);
@@ -65,16 +65,14 @@ public record MassSpecOutputBlockRecordLite(
     }
 
     public MassSpecOutputBlockRecordLite removeColumnForCustomExpression(int columnIndex) {
-        int arrayIndex = columnIndex - 0;
-
         double[][] cycleDataReduce = new double[cycleData.length][];
         for (int row = 0; row < cycleData.length; row++) {
             cycleDataReduce[row] = new double[cycleData[row].length - 1];
             // Copy elements before the column to be removed
-            System.arraycopy(cycleData[row], 0, cycleDataReduce[row], 0, arrayIndex);
+            System.arraycopy(cycleData[row], 0, cycleDataReduce[row], 0, columnIndex);
             // Copy elements after the column to be removed
-            System.arraycopy(cycleData[row], arrayIndex + 1, cycleDataReduce[row], arrayIndex,
-                    cycleData[row].length - (arrayIndex + 1));
+            System.arraycopy(cycleData[row], columnIndex + 1, cycleDataReduce[row], columnIndex,
+                    cycleData[row].length - (columnIndex + 1));
         }
         return new MassSpecOutputBlockRecordLite(blockID, cycleDataReduce);
     }

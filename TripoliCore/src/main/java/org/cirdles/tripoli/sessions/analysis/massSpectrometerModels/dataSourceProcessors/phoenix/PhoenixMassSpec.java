@@ -78,7 +78,7 @@ public enum PhoenixMassSpec {
         Date date = null;
         try {
             date = DateUtils.parseDate(analysisStartTime,
-                    new String[]{"yyyy-MM-dd hh:mm:ss", "dd/MM-yyyy", "E d MMMM yyyy hh:mm:ss", "MM/dd/yyyy hh:mm:ss", "dd.MM.yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "y/m/d"});
+                    "yyyy-MM-dd hh:mm:ss", "dd/MM-yyyy", "E d MMMM yyyy hh:mm:ss", "MM/dd/yyyy hh:mm:ss", "dd.MM.yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "y/m/d");
         } catch (Exception e) {
             //throw new RuntimeException(e);
         }
@@ -133,9 +133,7 @@ public enum PhoenixMassSpec {
             if (countedLastBlockCycles > 0) {
                 double[][] cycleDataCopy = new double[countedLastBlockCycles - 1][columnNamesFixedList.size()];
                 for (int cycleNum = 0; cycleNum < countedLastBlockCycles - 1; cycleNum++) {
-                    for (int col = 0; col < cycleData[cycleNum].length; col++) {
-                        cycleDataCopy[cycleNum][col] = cycleData[cycleNum][col];
-                    }
+                    System.arraycopy(cycleData[cycleNum], 0, cycleDataCopy[cycleNum], 0, cycleData[cycleNum].length);
                 }
                 cycleData = cycleDataCopy.clone();
             }

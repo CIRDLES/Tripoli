@@ -81,8 +81,8 @@ public enum TestDriver {
             }
 
 //        parfor iChain = 1:setup.nChains
-            double[][] outputModels = null;
-            double[] outputLogLiks = null;
+            double[][] outputModels;
+            double[] outputLogLiks;
 
             for (int iChain = 0; iChain < setup.chainsCount(); iChain++) {
                 MetropolisHastingsRecord metropolisHastingsRecord = metropolisHastings(
@@ -106,9 +106,7 @@ public enum TestDriver {
             double[][][] postBurnInChains = new double[setup.modelParameterCount()][modelChains[0].length - setup.burnIn()][setup.chainsCount()];
             for (int i = 0; i < setup.modelParameterCount(); i++) {
                 for (int j = 0; j < nSavedModels - setup.burnIn(); j++) {
-                    for (int k = 0; k < setup.chainsCount(); k++) {
-                        postBurnInChains[i][j][k] = modelChains[i][j + setup.burnIn()][k];
-                    }
+                    System.arraycopy(modelChains[i][j + setup.burnIn()], 0, postBurnInChains[i][j], 0, setup.chainsCount());
                 }
             }
 
@@ -184,14 +182,13 @@ public enum TestDriver {
     static double[] extractDoubleData(int iSim, String fileName) {
         List<String> contentsByLine = extractFileContentsByLine(iSim, fileName);
         String[] contentsByLineArray = contentsByLine.toArray(new String[0]);
-        double[] contentsAsDoubles = Arrays.stream(contentsByLineArray)
+        return Arrays.stream(contentsByLineArray)
                 .mapToDouble(Double::parseDouble)
                 .toArray();
-        return contentsAsDoubles;
     }
 
-    static boolean[] extractBooleanData(int iSim, String fileName) {
-        List<String> contentsByLine = extractFileContentsByLine(iSim, fileName);
+    static boolean[] extractBooleanData(int iSim) {
+        List<String> contentsByLine = extractFileContentsByLine(iSim, "data-isOP.txt");
         boolean[] contentsAsBooleans = new boolean[contentsByLine.size()];
         String[] contentsByLineArray = contentsByLine.toArray(new String[0]);
         for (int i = 0; i < contentsAsBooleans.length; i++) {

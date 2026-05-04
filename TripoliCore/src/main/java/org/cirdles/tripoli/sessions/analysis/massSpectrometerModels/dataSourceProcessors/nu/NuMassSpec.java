@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author James F. Bowring
@@ -67,7 +68,7 @@ public enum NuMassSpec {
             if (!line.trim().isBlank() && (phase >= 0)) {
                 if (line.startsWith("Caption")) {
                     if (phase == 0) {
-                        massSpecExtractedData.populateHeader(headerByLineSplit);
+                        Objects.requireNonNull(massSpecExtractedData).populateHeader(headerByLineSplit);
                         cyclesPerBlock = massSpecExtractedData.getHeader().cyclesPerBlock();
                         columnNamesSplit.add(line.split("\t")[1]);
                         phase = 1;
@@ -75,7 +76,7 @@ public enum NuMassSpec {
                         columnNamesSplit.add(line.split("\t")[1]);
                     }
                 } else if (NumberUtils.isCreatable(line.split("\t")[0])) {
-                    massSpecExtractedData.populateColumnNamesListNu(columnNamesSplit);
+                    Objects.requireNonNull(massSpecExtractedData).populateColumnNamesListNu(columnNamesSplit);
                     phase = 5;
                 } else if (line.startsWith("***")) {
                     phase = 8;
@@ -90,7 +91,7 @@ public enum NuMassSpec {
                         if (blockID != currentBlockID) {
                             dataByBlocks.add(dataByBlock);
                             massSpecExtractedData.addBlockLiteRecord(
-                                    parseAndBuildSingleBlockNuRecord(currentBlockID, cyclesPerBlock, dataByBlocks.get(currentBlockID - 1)));
+                                    parseAndBuildSingleBlockNuRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
                             currentBlockID++;
                             dataByBlock = new ArrayList<>();
                             // note: no time field in file, so time = 1.0
@@ -102,8 +103,8 @@ public enum NuMassSpec {
                     }
                     case 8 -> {
                         dataByBlocks.add(dataByBlock);
-                        massSpecExtractedData.addBlockLiteRecord(
-                                parseAndBuildSingleBlockNuRecord(currentBlockID, cyclesPerBlock, dataByBlocks.get(currentBlockID - 1)));
+                        Objects.requireNonNull(massSpecExtractedData).addBlockLiteRecord(
+                                parseAndBuildSingleBlockNuRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
                         phase = -1;
                     }
                 }
@@ -113,12 +114,10 @@ public enum NuMassSpec {
         return massSpecExtractedData;
     }
 
-    private static MassSpecOutputBlockRecordLite parseAndBuildSingleBlockNuRecord(int blockNumber, int cyclesPerBlock, List<String> blockData) {
-        List<String> timeStampByLineSplit = new ArrayList<>();
+    private static MassSpecOutputBlockRecordLite parseAndBuildSingleBlockNuRecord(int blockNumber, List<String> blockData) {
         List<String[]> cycleDataByLineSplit = new ArrayList<>();
         for (String line : blockData) {
             String[] lineSplit = line.split("\t");
-            timeStampByLineSplit.add(lineSplit[1].trim());
             cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 0, lineSplit.length));
         }
 
@@ -136,7 +135,7 @@ public enum NuMassSpec {
         for (String[] numbersAsStrings : cycleDataByLineSplit) {
             // TODO: wTF
             for (int i = 0; i < numbersAsStrings.length; i++) {
-                numbersAsStrings[i] = numbersAsStrings[i].replaceAll("X", "");
+                numbersAsStrings[i] = numbersAsStrings[i].replace("X", "");
             }
             cycleData[index] = Arrays.stream(numbersAsStrings)
                     .mapToDouble(Double::parseDouble)

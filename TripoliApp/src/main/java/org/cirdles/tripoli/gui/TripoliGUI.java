@@ -48,10 +48,10 @@ public class TripoliGUI extends Application {
     public static final String Tripoli_LOGO_SANS_TEXT_URL = "images/TripoliJune2022.png";
     public static Window primaryStageWindow;
     public static Stage primaryStage;
-    protected static TripoliAboutWindow tripoliAboutWindow;
     public static boolean isLiveDataOn = false;
+    protected static TripoliAboutWindow tripoliAboutWindow;
 
-    public static void updateStageTitle(){
+    public static void updateStageTitle() {
         String liveDataStatus = "Tripoli  *[LiveData: " + ((isLiveDataOn ? "ON" : "OFF")) + "]* ";
         String analysisSpec = " [Analysis: NONE] ";
         String sessionSpec = " [Session: NONE] ";

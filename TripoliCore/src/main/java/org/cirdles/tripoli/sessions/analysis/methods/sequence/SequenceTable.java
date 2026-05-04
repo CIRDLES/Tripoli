@@ -50,9 +50,8 @@ public class SequenceTable implements Serializable {
         To determine which species (isotopologues, isobars) are going into that collector, use a formula based on the MassSpec Model (™)
 
          */
-        SequenceTable sequenceTable = new SequenceTable();
 
-        return sequenceTable;
+        return new SequenceTable();
     }
 
     public SequenceCell accessSequenceCellForDetector(Detector detector, String sequenceName, int sequenceIndex, List<String> baselineRefsList) {

@@ -57,9 +57,9 @@ public class MassSpecExtractedData implements Serializable {
 
         Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenated = new TreeMap<>();
         int blockIDOffset = 0;
-        for (int i = 0; i < analyses.length; i++) {
+        for (AnalysisInterface analysis : analyses) {
             Map<Integer, MassSpecOutputBlockRecordLite> blocksData =
-                    analyses[i].getMassSpecExtractedData().getBlocksDataLite();
+                    analysis.getMassSpecExtractedData().getBlocksDataLite();
             for (Integer blockID : blocksData.keySet()) {
                 blocksDataLiteConcatenated.put(blockID + blockIDOffset,
                         blocksData.get(blockID).copyWithNewBlockID(blockID + blockIDOffset));
@@ -106,30 +106,26 @@ public class MassSpecExtractedData implements Serializable {
                         isCorrected = Boolean.parseBoolean(headerStrings[1].trim().toUpperCase().replace("YES", "TRUE"));
                 case "BCHANNELS" ->
                         hasBChannels = Boolean.parseBoolean(headerStrings[1].trim().toUpperCase().replace("YES", "TRUE"));
-                case "TIMEZERO" -> analysisStartTime = new StringBuilder(headerStrings[1].trim());
-                case "ANALYSISSTART" -> analysisStartTime = new StringBuilder(headerStrings[1].trim());
-                case "CYCLESTOMEASURE" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
-                case "SAMPLEID" -> {
-                    sampleName = headerStrings[1].trim();
-                }
+                case "TIMEZERO", "ANALYSISSTART", "DATE" ->
+                        analysisStartTime = new StringBuilder(headerStrings[1].trim());
+                case "CYCLESTOMEASURE", "NUMBER OF MEASUREMENTS PER BLOCK" ->
+                        cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
+                case "SAMPLEID", "SAMPLE NAME" -> sampleName = headerStrings[1].trim();
                 // Neptune
                 case "ANALYSIS DATE" -> analysisStartTime = new StringBuilder(headerStrings[1].trim());
                 case "ANALYSIS TIME" -> analysisStartTime.append(" ").append(headerStrings[1].trim());
 
                 // Triton
                 case "DATA VERSION" -> softwareVersion = headerStrings[1].trim();
-                case "DATE" -> analysisStartTime = new StringBuilder(headerStrings[1].trim());
 
                 // Nu
                 case "VERSION NUMBER" -> softwareVersion = headerStrings[1].trim();
-                case "SAMPLE NAME" -> sampleName = headerStrings[1].trim();
                 case "ANALYSIS FILE NAME" -> {
                     filename = headerStrings[1].trim();
                     if (methodName.isEmpty()) {
                         methodName = headerStrings[1].trim();
                     }
                 }
-                case "NUMBER OF MEASUREMENTS PER BLOCK" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
             }
         }
 
@@ -184,13 +180,11 @@ public class MassSpecExtractedData implements Serializable {
     }
 
     public String printHeader() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Software Version: " + header.softwareVersion() + "\n");
-        sb.append("Sample: " + header.sampleName + "\n");
-        sb.append("Fraction: " + header.sampleName + "\n");
-        sb.append("Method Name: " + header.methodName() + "\n");
-        sb.append("Start Time: " + header.analysisStartTime() + "\n\n");
-        return sb.toString();
+        return "Software Version: " + header.softwareVersion() + "\n" +
+                "Sample: " + header.sampleName + "\n" +
+                "Fraction: " + header.sampleName + "\n" +
+                "Method Name: " + header.methodName() + "\n" +
+                "Start Time: " + header.analysisStartTime() + "\n\n";
     }
 
     public void populateColumnNamesList(List<String[]> columnNames) {
@@ -266,12 +260,8 @@ public class MassSpecExtractedData implements Serializable {
     }
 
     public int[] assignBlockIdToSessionTimeLite() {
-//        int totalSize = 0;
-//        for (MassSpecOutputBlockRecordLite blockRecord : blocksDataLite.values()) {
-//            totalSize += blockRecord.cycleData().length;
-//        }
         int expectedCyclesPerBlock = blocksDataLite.get(1).cycleData().length;
-        int totalSize = blocksDataLite.keySet().size() * expectedCyclesPerBlock;
+        int totalSize = blocksDataLite.size() * expectedCyclesPerBlock;
         int[] blockIDs = new int[totalSize];
         totalSize = 0;
         for (MassSpecOutputBlockRecordLite blockRecord : blocksDataLite.values()) {
@@ -282,9 +272,7 @@ public class MassSpecExtractedData implements Serializable {
     }
 
     public void expandCycleDataForUraniumOxideCorrection(int r270_267ColumnIndex, int r265_267ColumnIndex, double r18O_16O) {
-        for (Integer blockID : blocksDataLite.keySet()) {
-            blocksDataLite.put(blockID, blocksDataLite.get(blockID).expandForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, r18O_16O));
-        }
+        blocksDataLite.replaceAll((b, v) -> blocksDataLite.get(b).expandForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, r18O_16O));
     }
 
     /**
@@ -300,9 +288,7 @@ public class MassSpecExtractedData implements Serializable {
         String newColumnHeader = customExpressionTree.getName().split(" \\( = ")[0];
         int columnIndex = Arrays.asList(columnHeaders).indexOf(newColumnHeader);
 
-        for (Integer blockID : blocksDataLite.keySet()) {
-            blocksDataLite.put(blockID, blocksDataLite.get(blockID).populateColumnForCustomExpression(expressionData[blockID - 1], columnIndex));
-        }
+        blocksDataLite.replaceAll((b, v) -> blocksDataLite.get(b).populateColumnForCustomExpression(expressionData[b - 1], columnIndex));
 
         if (columnIndex == -1) {
             String[] columnHeadersExpanded = new String[columnHeaders.length + 1];
@@ -316,9 +302,7 @@ public class MassSpecExtractedData implements Serializable {
     public void removeCycleDataForDeletedExpression(ExpressionTreeInterface customExpressionTree) {
         int columnIndex = Arrays.asList(columnHeaders).indexOf(customExpressionTree.getName().split(" \\( = ")[0]);
 
-        for (Integer blockID : blocksDataLite.keySet()) {
-            blocksDataLite.put(blockID, blocksDataLite.get(blockID).removeColumnForCustomExpression(columnIndex));
-        }
+        blocksDataLite.replaceAll((b, v) -> blocksDataLite.get(b).removeColumnForCustomExpression(columnIndex));
 
         String[] columnHeadersReduced = new String[columnHeaders.length - 1];
         System.arraycopy(columnHeaders, 0, columnHeadersReduced, 0, columnIndex);
