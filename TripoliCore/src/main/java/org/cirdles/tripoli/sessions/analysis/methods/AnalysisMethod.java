@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.DataDictionary.isLegalETReduxName;
@@ -94,17 +96,23 @@ public class AnalysisMethod implements Serializable {
         AnalysisMethod analysisMethod = new AnalysisMethod(massSpecExtractedData.getHeader().methodName(), massSpecExtractedData.getMassSpectrometerContext());
         String[] columnHeaders = massSpecExtractedData.getColumnHeaders();
 
-        String regex = "[^alpha].*\\d?:?\\(?\\d{2,3}.{0,2}\\/\\d?:?\\d{2,3}.{0,2}.*";
-
+        String regex = "[^alpha].*\\d?:?\\(?\\d{2,3}.{0,2}\\/[^alpha].*\\d?:?\\d{2,3}.{0,2}.*";
+        Pattern atomicWeightPattern = Pattern.compile("\\d+",Pattern.MULTILINE);
         for (int i = 0; i < columnHeaders.length; i++) {
             UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 0);
             if (columnHeaders[i].matches(regex)) {
                 userFunction.setTreatAsIsotopicRatio(true);
                 userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE);
                 int indexOfDivide = columnHeaders[i].indexOf("/");
-                // assume three digits / three digits
-                String numerator = columnHeaders[i].substring(indexOfDivide - 3, indexOfDivide);
-                String denominator = columnHeaders[i].substring(indexOfDivide + 1, indexOfDivide + 4);
+                // detect three digits / three digits
+                List<String> numDen = new ArrayList<>();
+                Matcher matcher = atomicWeightPattern.matcher(columnHeaders[i]);
+                while (matcher.find()) {
+                    numDen.add(matcher.group(0));
+                }
+                String numerator = numDen.get(0);
+                String denominator = numDen.get(1);
+
                 String etReduxRatioName = numerator + "_" + denominator;
                 if (isLegalETReduxName(etReduxRatioName)) {
                     userFunction.setEtReduxName(etReduxRatioName);
@@ -120,7 +128,6 @@ public class AnalysisMethod implements Serializable {
                 String invertedETReduxRatioName = denominator + "_" + numerator;
                 if (isLegalETReduxName(invertedETReduxRatioName)) {
                     userFunction.setInvertedETReduxName(invertedETReduxRatioName);
-                    // postpone decision until data processed  userFunction.setInverted(true);
                 }
             } else {
                 userFunction.setTreatAsIsotopicRatio(false);
