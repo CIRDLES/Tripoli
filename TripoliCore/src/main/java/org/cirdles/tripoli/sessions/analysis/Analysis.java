@@ -417,27 +417,40 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
 
     private void initSampleFractionNames() {
         /*
+        FOR KU SPECIFICALLY
         Our previous rules were "SampleName FractionName Infinite Free Text Here".
         So, the sample name is the first block of unbroken text, then a space, then the fraction name
-        is the second block of unbroken text, then a space, then the user/mass spectrometer can append
-        any additional info to the end.  So, a common file names could be "FC1 z1 Pb" or
+        is the second block of unbroken text, then a space; then the user/mass spectrometer can append
+        any additional info to the end.  So, a common file name could be "FC1 z1 Pb" or
         "FC1 z1 Pb second try after mass spectrometer exploded" or "FC1 z1 run3 U static Faraday 2024-04-25".
         All have FC1 as the sample name and z1 as the fraction name.
         No spaces are allowed in the sample name or the fraction name.
+
+        May 2026 -Drew Coleman uses U-25SE01-F3, for example
          */
+        analysisSampleName = MISSING_STRING_FIELD;
+        analysisFractionName = MISSING_STRING_FIELD;
+        analysisSampleDescription = MISSING_STRING_FIELD;
+
         String sampleName = massSpecExtractedData.getHeader().sampleName();
         if (!sampleName.isEmpty()) {
-            String[] sampleNameArray = sampleName.split(" ");
-
-            analysisSampleName = sampleNameArray[0];
-            if (sampleNameArray.length > 1) {
-                analysisFractionName = sampleNameArray[1];
+            if (sampleName.contains("-")) {
+                // Drew Coleman
+                String[] sampleNameArray = sampleName.split("-");
+                analysisSampleName = sampleNameArray[1];
+                if (sampleNameArray.length > 2) {
+                    analysisFractionName = sampleNameArray[2];
+                }
+            } else if (sampleName.contains(" ")) {
+                // KU and PURDUE
+                String[] sampleNameArray = sampleName.split(" ");
+                analysisSampleName = sampleNameArray[0];
+                if (sampleNameArray.length > 1) {
+                    analysisFractionName = sampleNameArray[1];
+                }
+            } else {
+                analysisSampleName = sampleName;
             }
-//            analysisSampleDescription = sampleName.substring(analysisSampleName.length() + analysisFractionName.length(), sampleName.length() - 1);
-        } else {
-            analysisSampleName = MISSING_STRING_FIELD;
-            analysisFractionName = MISSING_STRING_FIELD;
-            analysisSampleDescription = MISSING_STRING_FIELD;
         }
     }
 
