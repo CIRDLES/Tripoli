@@ -49,8 +49,7 @@ public class MassSpectrometerModel implements Serializable {
     }
 
     public static MassSpectrometerModel initializeMassSpectrometer(MassSpectrometerContextEnum massSpectrometerContext) {
-        MassSpectrometerModel massSpectrometerModel = new MassSpectrometerModel(massSpectrometerContext.getMassSpectrometerName());
-        return massSpectrometerModel;
+        return new MassSpectrometerModel(massSpectrometerContext.getMassSpectrometerName());
     }
 
     public String getMassSpectrometerName() {

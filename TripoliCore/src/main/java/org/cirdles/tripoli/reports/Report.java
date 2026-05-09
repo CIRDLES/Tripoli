@@ -120,7 +120,11 @@ public class Report implements Serializable, Comparable<Report> {
      */
     public static File getReportCSVFile(List<AnalysisInterface> listOfAnalyses, String sessionName) {
         StringBuilder filePathString = new StringBuilder(listOfAnalyses.get(0).getDataFilePathString());
-        filePathString.replace(filePathString.lastIndexOf(File.separator), filePathString.length(), File.separator);
+        String systemFileSeparator = File.separator;
+        if (filePathString.lastIndexOf(File.separator) == -1){
+            systemFileSeparator = (File.separator.compareTo("/") == 0) ? "\\" : "/";
+        }
+        filePathString.replace(filePathString.lastIndexOf(systemFileSeparator), filePathString.length(), systemFileSeparator);
         filePathString.append(sessionName).append("-");
         for (AnalysisInterface analysis : listOfAnalyses) {
             filePathString.append(analysis.getAnalysisName()).append("-");

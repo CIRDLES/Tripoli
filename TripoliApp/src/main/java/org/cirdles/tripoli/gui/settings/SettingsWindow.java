@@ -67,7 +67,6 @@ public class SettingsWindow {
     private ArrayList<IsotopePaneRow> isotopePaneRows;
     private SpeciesColorSelectionScrollPane speciesColorSelectionScrollPane;
     private Parameters originalParameters;
-    private SpeciesIntensityColorSelectionScrollPane speciesIntensityColorSelectionScrollPane;
 
 
     private SettingsWindow(Window owner, DelegateActionSet delegateActionSet, AnalysisInterface analysis) {
@@ -83,12 +82,8 @@ public class SettingsWindow {
             this.stage.initOwner(owner);
             this.stage.setTitle("Settings");
 
-            owner.xProperty().addListener((observable, oldValue, newValue) -> {
-                stage.setX(stage.getX() + newValue.doubleValue() - oldValue.doubleValue());
-            });
-            owner.yProperty().addListener((observable, oldValue, newValue) -> {
-                stage.setY(stage.getY() + newValue.doubleValue() - oldValue.doubleValue());
-            });
+            owner.xProperty().addListener((observable, oldValue, newValue) -> stage.setX(stage.getX() + newValue.doubleValue() - oldValue.doubleValue()));
+            owner.yProperty().addListener((observable, oldValue, newValue) -> stage.setY(stage.getY() + newValue.doubleValue() - oldValue.doubleValue()));
             this.originalParameters = analysis.getParameters().copy();
             this.originalSpeciesColors = new TripoliSpeciesColorMap(
                     ((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
@@ -104,7 +99,7 @@ public class SettingsWindow {
                     PlotWallPaneIntensities.getDelegateActionSet());
             ratioColorSelectionPane.prefWidthProperty().bind(stage.widthProperty());
             initializeToolbarButtons();
-            speciesIntensityColorSelectionScrollPane = new SpeciesIntensityColorSelectionScrollPane();
+            SpeciesIntensityColorSelectionScrollPane speciesIntensityColorSelectionScrollPane = new SpeciesIntensityColorSelectionScrollPane();
             speciesIntensityColorSelectionScrollPane.prefWidthProperty().bind(stage.getScene().widthProperty());
             settingsWindowController.getPlotIntensitiesAnchorPaneExp().getChildren().add(
                     speciesIntensityColorSelectionScrollPane
@@ -131,11 +126,9 @@ public class SettingsWindow {
                     plotTabSelectedEvent -> {
                         SettingsRequestType settingsRequestType = plotTabSelectedEvent.getRequestType();
                         switch (settingsRequestType) {
-                            case RATIOS -> {
-                                settingsWindowController.getSettingsTabPane().
-                                        getSelectionModel().
-                                        select(settingsWindowController.getRatiosColorTab());
-                            }
+                            case RATIOS -> settingsWindowController.getSettingsTabPane().
+                                    getSelectionModel().
+                                    select(settingsWindowController.getRatiosColorTab());
                             case INTENSITIES -> {
                                 // Only select if tab exists (not case 1)
                                 if (settingsWindowController.getSettingsTabPane().getTabs().contains(
@@ -150,11 +143,9 @@ public class SettingsWindow {
                                             select(settingsWindowController.getRatiosColorTab());
                                 }
                             }
-                            case MENU_ITEM -> {
-                                settingsWindowController.getSettingsTabPane().
-                                        getSelectionModel().
-                                        select(settingsWindowController.getParameterControlTab());
-                            }
+                            case MENU_ITEM -> settingsWindowController.getSettingsTabPane().
+                                    getSelectionModel().
+                                    select(settingsWindowController.getParameterControlTab());
                         }
                         plotTabSelectedEvent.consume();
                     }
@@ -195,11 +186,9 @@ public class SettingsWindow {
         }
 
         switch (SettingsRequestType.valueOf(requestType.name())) {
-            case RATIOS -> {
-                instance.settingsWindowController.getSettingsTabPane().getSelectionModel().select(
-                        instance.settingsWindowController.getRatiosColorTab()
-                );
-            }
+            case RATIOS -> instance.settingsWindowController.getSettingsTabPane().getSelectionModel().select(
+                    instance.settingsWindowController.getRatiosColorTab()
+            );
             case INTENSITIES -> {
                 // Only select if tab exists (not case 1)
                 if (instance.settingsWindowController.getSettingsTabPane().getTabs().contains(
@@ -305,17 +294,13 @@ public class SettingsWindow {
     private void initSampleMetaDataFolderTextArea() {
         TextArea sampleMetaDataFolderTextArea = settingsWindowController.getSampleMetaDataFolderTextArea();
         sampleMetaDataFolderTextArea.setText(analysis.getParameters().getSampleMetaDataFolderPath());
-        sampleMetaDataFolderTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
-            analysis.getParameters().setSampleMetaDataFolderPath(newValue);
-        });
+        sampleMetaDataFolderTextArea.textProperty().addListener((observable, oldValue, newValue) -> analysis.getParameters().setSampleMetaDataFolderPath(newValue));
     }
 
     private void initLiveDataStatusTxtFileTextArea() {
         TextArea liveDataStatusTxtFileTextArea = settingsWindowController.getLiveDataStatusTxtFileTextArea();
         liveDataStatusTxtFileTextArea.setText(analysis.getParameters().getLiveDataStatusTxtFilePath());
-        liveDataStatusTxtFileTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
-            analysis.getParameters().setLiveDataStatusTxtFilePath(newValue);
-        });
+        liveDataStatusTxtFileTextArea.textProperty().addListener((observable, oldValue, newValue) -> analysis.getParameters().setLiveDataStatusTxtFilePath(newValue));
     }
 
     private void initProbabilitySpinner() {
@@ -330,9 +315,8 @@ public class SettingsWindow {
                 event.consume();
             }
         });
-        probabilitySpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            probabilitySpinner.commitValue();
-        });
+        probabilitySpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) ->
+                probabilitySpinner.commitValue());
         probabilitySpinner.getValueFactory().setConverter(new StringConverter<>() {
 
             @Override
@@ -352,9 +336,8 @@ public class SettingsWindow {
                 }
             }
         });
-        probabilitySpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-            analysis.getParameters().setChauvenetRejectionProbability(newValue);
-        });
+        probabilitySpinner.valueProperty().addListener((observable, oldValue, newValue) ->
+                analysis.getParameters().setChauvenetRejectionProbability(newValue));
     }
 
     private void initDatumCountSpinner() {
@@ -370,9 +353,8 @@ public class SettingsWindow {
                 event.consume();
             }
         });
-        datumCountSpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            datumCountSpinner.commitValue();
-        });
+        datumCountSpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) ->
+                datumCountSpinner.commitValue());
         datumCountSpinner.getValueFactory().setConverter(new StringConverter<>() {
             @Override
             public String toString(Integer value) {
@@ -391,9 +373,8 @@ public class SettingsWindow {
                 }
             }
         });
-        datumCountSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-            analysis.getParameters().setRequiredMinDatumCount(newValue);
-        });
+        datumCountSpinner.valueProperty().addListener((observable, oldValue, newValue) ->
+                analysis.getParameters().setRequiredMinDatumCount(newValue));
     }
 
     private void initScalingDotSizeSpinners() {
@@ -430,9 +411,8 @@ public class SettingsWindow {
                 event.consume();
             }
         });
-        minSizeSpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            minSizeSpinner.commitValue();
-        });
+        minSizeSpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) ->
+                minSizeSpinner.commitValue());
         minSizeSpinner.getValueFactory().setConverter(new StringConverter<>() {
             @Override
             public String toString(Double value) {
@@ -486,9 +466,8 @@ public class SettingsWindow {
                 event.consume();
             }
         });
-        maxSizeSpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            maxSizeSpinner.commitValue();
-        });
+        maxSizeSpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) ->
+                maxSizeSpinner.commitValue());
         maxSizeSpinner.getValueFactory().setConverter(new StringConverter<>() {
             @Override
             public String toString(Double value) {
@@ -664,10 +643,8 @@ public class SettingsWindow {
                 analysis.setRatioColors(currentSession.getBlockCyclesPlotColors());
                 ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().
                         putAll(currentSession.getSessionDefaultMapOfSpeciesToColors());
-                isotopePaneRows.forEach(isotopePaneRow -> {
-                    isotopePaneRow.speciesColorsProperty().set(((Analysis) analysis).
-                            getAnalysisMapOfSpeciesToColors().get(isotopePaneRow.getSpeciesRecord()));
-                });
+                isotopePaneRows.forEach(isotopePaneRow -> isotopePaneRow.speciesColorsProperty().set(((Analysis) analysis).
+                        getAnalysisMapOfSpeciesToColors().get(isotopePaneRow.getSpeciesRecord())));
                 repaintRatiosDelegateActionSet.executeDelegateActions();
                 updateRatioColorSelectionPane();
             }
@@ -714,12 +691,10 @@ public class SettingsWindow {
                 analysis.setMeanHexColorString(tripoliPersistentState.getMeanHexColorString());
                 ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().putAll(
                         tripoliPersistentState.getMapOfSpeciesToColors());
-                isotopePaneRows.forEach(isotopePaneRow -> {
-                    isotopePaneRow.speciesColorsProperty().set(
-                            ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().
-                                    get(isotopePaneRow.getSpeciesRecord())
-                    );
-                });
+                isotopePaneRows.forEach(isotopePaneRow -> isotopePaneRow.speciesColorsProperty().set(
+                        ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().
+                                get(isotopePaneRow.getSpeciesRecord())
+                ));
                 repaintRatiosDelegateActionSet.executeDelegateActions();
                 updateRatioColorSelectionPane();
 //                close();

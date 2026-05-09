@@ -33,7 +33,7 @@ public record BlockStatsRecord(
 ) implements Serializable {
     /**
      * // BLOCK MODE Functions calculate stats on logRatios (of Ratios) and user functions:
-     * see https://docs.google.com/document/d/14PPEDEJPylNMavpJDpYSuemNb0gF5dz_To3Ek1Y_Agw/edit#bookmark=id.3tts8ahgz00i
+     * see <a href="https://docs.google.com/document/d/14PPEDEJPylNMavpJDpYSuemNb0gF5dz_To3Ek1Y_Agw/edit#bookmark=id.3tts8ahgz00i">...</a>
      *
      * @param blockID
      * @param blockIncluded

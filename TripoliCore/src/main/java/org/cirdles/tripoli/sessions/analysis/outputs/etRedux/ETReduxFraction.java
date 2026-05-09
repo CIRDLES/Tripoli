@@ -45,7 +45,7 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
     private double meanAlphaPb;
     private double r18O_16O;
     private double labUBlankMass;
-    // april 2008
+    // April 2008
     private double r238_235b;
     private double r238_235s;
     private double tracerMass;
@@ -101,9 +101,9 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
         MeasuredUserFunction retval = null;
 
         // look for ratio
-        for (int i = 0; i < measuredRatios.length; i++) {
-            if (measuredRatios[i].getName().equalsIgnoreCase(ratioName)) {
-                retval = measuredRatios[i];
+        for (MeasuredUserFunction measuredRatio : measuredRatios) {
+            if (measuredRatio.getName().equalsIgnoreCase(ratioName)) {
+                retval = measuredRatio;
             }
         }
         return retval;

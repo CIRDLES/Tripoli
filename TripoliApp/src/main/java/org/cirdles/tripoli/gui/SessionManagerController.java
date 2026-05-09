@@ -60,6 +60,7 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColor
 public class SessionManagerController implements Initializable {
     public static Session tripoliSession;
     public static List<AnalysisInterface> listOfSelectedAnalyses = new ArrayList<>();
+    public static List<AnalysisInterface> listOfSelectedConcatAnalyses = new ArrayList<>();
     public ColumnConstraints columnTwoConstraints;
     public GridPane sessionGridPane;
     public Button concatenateButton;
@@ -169,14 +170,20 @@ public class SessionManagerController implements Initializable {
             menuItemReports.setDisable(false);
 
             listOfSelectedAnalyses.clear();
-            AnalysisInterface firstAnalysis = listViewOfAnalyses.getSelectionModel().getSelectedItems().get(0);
-            String samplePlusFractionName = ((Analysis) firstAnalysis).gitSamplePlusFractionName();
-            listOfSelectedAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems().stream()
-                    .filter(p -> !((Analysis) p).hasMemberAnalyses()
-                            && ((Analysis) p).gitSamplePlusFractionName().equals(samplePlusFractionName))
-                    .toList());
-            concatenateButton.setDisable((listOfSelectedAnalyses.size() < 2)
-                    || (listViewOfAnalyses.getSelectionModel().getSelectedItems().size() > listOfSelectedAnalyses.size()));
+            listOfSelectedConcatAnalyses.clear();
+            if (!listViewOfAnalyses.getSelectionModel().getSelectedItems().isEmpty()) {
+                AnalysisInterface firstAnalysis =
+                        listViewOfAnalyses.getSelectionModel().getSelectedItems().get(0);
+                String samplePlusFractionName = ((Analysis) firstAnalysis).gitSamplePlusFractionName();
+                listOfSelectedAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems().stream()
+                        .toList());
+                listOfSelectedConcatAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems().stream()
+                        .filter(p -> !((Analysis) p).hasMemberAnalyses()
+                                && ((Analysis) p).gitSamplePlusFractionName().equals(samplePlusFractionName))
+                        .toList());
+            }
+             concatenateButton.setDisable((listOfSelectedConcatAnalyses.size() < 2)
+                    || (listViewOfAnalyses.getSelectionModel().getSelectedItems().size() > listOfSelectedConcatAnalyses.size()));
             if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
                 if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
                     File dataFile = new File(analysisSelected.getDataFilePathString());
@@ -216,10 +223,10 @@ public class SessionManagerController implements Initializable {
 
     public void concatenationAction() throws TripoliException {
         // generalized approach to concatenation where sample and fraction are the same
-        String sampleName = listOfSelectedAnalyses.get(0).getAnalysisSampleName();
-        String fractionName = listOfSelectedAnalyses.get(0).getAnalysisFractionName();
+        String sampleName = listOfSelectedConcatAnalyses.get(0).getAnalysisSampleName();
+        String fractionName = listOfSelectedConcatAnalyses.get(0).getAnalysisFractionName();
         List<AnalysisInterface> analysesWithSameFractionList = new ArrayList<>();
-        for (AnalysisInterface analysis : listOfSelectedAnalyses) {
+        for (AnalysisInterface analysis : listOfSelectedConcatAnalyses) {
             if ((analysis.getAnalysisSampleName().equals(sampleName))
                     && (analysis.getAnalysisFractionName().equals(fractionName))) {
                 analysesWithSameFractionList.add(analysis);
