@@ -74,10 +74,11 @@ public class AllReportsTest {
 
         try {
             fullReport = Report.createFullReport("Full Report", analysis);
-            fullReport.generateCSVFile(analysisList, tripoliSession.getSessionName());
+            fullReport.generateCSVFile(analysisList, tripoliSession.getSessionName(), true);
 
             // Deserialize the report to test against the Oracle and the Oracle itself
-            actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(actualReportPath)).toURI()), "UTF-8").replaceAll("\\r\\n|\\r|\\n", "\\n");
+            actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(
+                    getClass().getResource(actualReportPath)).toURI()), "UTF-8").replaceAll("\\r\\n|\\r|\\n", "\\n");
 
             expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8").replaceAll("\\r\\n|\\r|\\n", "\\n");
         } catch (NullPointerException | IOException e) {
