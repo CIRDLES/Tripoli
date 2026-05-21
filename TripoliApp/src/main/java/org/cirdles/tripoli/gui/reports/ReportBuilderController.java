@@ -705,7 +705,9 @@ public class ReportBuilderController {
 
     public void saveOnAction() {
         boolean proceed;
-        reportNameTextField.setText(reportNameTextField.getText().replaceAll("\\*", ""));
+        reportNameTextField.setText(reportNameTextField.getText()
+                .replaceAll("\\*", "")
+                .replaceAll("/+", ""));
         String reportName = reportNameTextField.getText();
         if (reportName.isEmpty()) {
             TripoliMessageDialog.showWarningDialog("Report must have a name", reportBuilderStage);
@@ -758,12 +760,12 @@ public class ReportBuilderController {
 
         if (proceed != null && proceed.equals("Save and Open")) {
             try {
-                reportCSVFile = currentReport.generateCSVFile(listOfAnalyses, tripoliSession.getSessionName());
+                reportCSVFile = currentReport.generateCSVFile(listOfAnalyses, tripoliSession.getSessionName(), false);
                 Desktop.getDesktop().open(reportCSVFile);
             } catch (IOException e) {
             }
         } else if (proceed.equals("Save")) {
-            currentReport.generateCSVFile(listOfAnalyses, tripoliSession.getSessionName());
+            currentReport.generateCSVFile(listOfAnalyses, tripoliSession.getSessionName(), false);
         }
     }
 

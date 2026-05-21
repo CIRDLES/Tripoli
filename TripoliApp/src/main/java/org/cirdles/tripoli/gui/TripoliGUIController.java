@@ -849,7 +849,7 @@ public class TripoliGUIController implements Initializable {
                     (dataFilepath.substring(0, dataFilepath.lastIndexOf(File.separator) + 1)
                             + Objects.requireNonNull(tripoliSession).getSessionName()
                             + "-" + analysisName
-                            + "-report.tsv")
+                            + "-CyclesReport.tsv")
                             .replaceAll("\\{", "")
                             .replace("}", "")
                             .replace(";", ""));
