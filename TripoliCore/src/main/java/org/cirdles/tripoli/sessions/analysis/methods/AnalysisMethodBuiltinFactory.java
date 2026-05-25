@@ -48,7 +48,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     public static final String BURDICK_BL_SYNTHETIC_DATA = "BurdickBlSyntheticData";
     @NonNls
     public static final String KU_204_5_6_7_8_DALY_ALL_FARADAY_PB = "KU_204_5_6_7_8_Daly_AllFaradayPb";
-    public static Map<String, AnalysisMethod> analysisMethodsBuiltinMap = new TreeMap<>();
+    public static final Map<String, AnalysisMethod> analysisMethodsBuiltinMap = new TreeMap<>();
 
     static {
         AnalysisMethod burdickBlSyntheticData = AnalysisMethod.initializeAnalysisMethod(BURDICK_BL_SYNTHETIC_DATA, PHOENIX_FULL_SYNTHETIC);

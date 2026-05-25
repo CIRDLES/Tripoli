@@ -25,9 +25,9 @@ import java.io.Serializable;
 public class PlotBuilder implements Serializable {
     @Serial
     private static final long serialVersionUID = -7383206169661986594L;
-    protected String[] title;
-    protected String xAxisLabel;
-    protected String yAxisLabel;
+    protected final String[] title;
+    protected final String xAxisLabel;
+    protected final String yAxisLabel;
     protected boolean displayed;
 
     protected double shadeWidthForModelConvergence;

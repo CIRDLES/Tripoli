@@ -57,6 +57,7 @@ import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.applyCha
  * @author James F. Bowring
  */
 public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisBlockCyclesPlotI {
+    final int[] blockIDsPerTimeSlot;
     private final Tooltip tooltip;
     private final String tooltipTextSculpt =
             "Left mouse: cntrl click toggles block, Dbl-click to Sculpt data. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
@@ -69,7 +70,6 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     private final UserFunction userFunction;
     private final PlotWallPaneInterface parentWallPane;
     private final boolean isRatio;
-    int[] blockIDsPerTimeSlot;
     private double[] oneSigmaForCycles;
     private boolean logScale;
     private boolean[] zoomFlagsXY;
@@ -80,7 +80,6 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     private boolean inSculptorMode;
     private int sculptBlockID;
     private boolean showSelectionBox;
-    private int countOfPreviousBlockIncludedData;
     private boolean inZoomBoxMode;
     private boolean showZoomBox;
     private double zoomBoxX;
@@ -453,7 +452,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     g2d.fillText("%\u03C3  =" + sigmaPctString, textLeft, textTop += textDeltaY);
                     g2d.fillText("x", textLeft + 20, textTop + 6);
                     g2d.fillText("\u0304", textLeft + 20, textTop + 6);
-                    if (sigmaMinusPctString.length() > 0) {
+                    if (!sigmaMinusPctString.isEmpty()) {
                         g2d.fillText("     " + sigmaMinusPctString, textLeft, textTop += textDeltaY);
                     }
 
@@ -549,7 +548,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     sigmaMinusPctString = appendTrailingZeroIfNeeded(sigmaMinusPctString, countOfTrailingDigitsForOneSigmaPct);
 
                     g2d.fillText("%\u03C3  =" + sigmaPctString, textLeft, textTop += textDeltaY);
-                    if (sigmaMinusPctString.length() > 0) {
+                    if (!sigmaMinusPctString.isEmpty()) {
                         g2d.fillText("     " + sigmaMinusPctString, textLeft, textTop += textDeltaY);
                     }
 
@@ -859,7 +858,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         double meanMinusTwoStandardDeviation = mean - 2.0 * stdDev;
         double meanMinusTwoStandardError = mean - 2.0 * stdErr;
 
-        HashMap<String, Double> output = new HashMap<>(Map.ofEntries(
+        return new HashMap<>(Map.ofEntries(
                 entry("mean", mean),
                 entry("stdDev", stdDev),
                 entry("stdErr", stdErr),
@@ -870,8 +869,6 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 entry("meanMinusTwoStandardDeviation", meanMinusTwoStandardDeviation),
                 entry("meanMinusTwoStandardError", meanMinusTwoStandardError)
         ));
-
-        return output;
     }
 
     public void plotStats(GraphicsContext g2d) {
@@ -1114,7 +1111,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             selectorBoxY = mouseStartY;
 
             // zoom into block
-            countOfPreviousBlockIncludedData = cyclesCountedToStartOfBlockIndex[sculptBlockID - 1];//       (sculptBlockID - 1) * mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
+            int countOfPreviousBlockIncludedData = cyclesCountedToStartOfBlockIndex[sculptBlockID - 1];//       (sculptBlockID - 1) * mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
             if (zoomBlock) {
                 displayOffsetX = 0;
                 int countOfCycles = mapBlockIdToBlockCyclesRecord.get(sculptBlockID).cyclesIncluded().length;

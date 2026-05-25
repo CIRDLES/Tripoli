@@ -246,9 +246,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                     }
                 }
             }
-            case COUNTS -> {
-                plotAxisLabelY = showResiduals ? "Residuals (counts)" : "Intensity (counts)";
-            }
+            case COUNTS -> plotAxisLabelY = showResiduals ? "Residuals (counts)" : "Intensity (counts)";
         }
 
         // calculate residuals for each faraday and pm == 2-tuples - yData has already been scaled, so residuals are too
@@ -423,7 +421,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                         g2d.setLineWidth(2.0);
                         if (showModels && !showResiduals) {
                             if ((i < xAxisData.length - 1) && (yData[isotopePlotSetIndex * 4 + 3][i] != 0.0)) {
-                                if ((0.0 != yData[isotopePlotSetIndex * 4 + 3][i]) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 3][i])) {
+                                if (pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 3][i])) {
                                     if (!startedPlot) {
                                         g2d.beginPath();
                                         g2d.moveTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 3][i]));
@@ -489,7 +487,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
 
                         if (showModels && !showResiduals) {
                             if ((i < xAxisData.length - 1) && (yData[isotopePlotSetIndex * 4 + 1][i] != 0.0)) {
-                                if ((0.0 != yData[isotopePlotSetIndex * 4 + 1][i]) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 1][i])) {
+                                if (pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 1][i])) {
                                     if (!startedPlot) {
                                         g2d.beginPath();
                                         g2d.moveTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 1][i]));

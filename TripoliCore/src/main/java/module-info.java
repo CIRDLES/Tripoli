@@ -23,17 +23,12 @@ module Tripoli.TripoliCore {
     requires commons.math3;
     requires commons.lang3;
     requires jakarta.xml.bind;
-    requires java.xml.bind;
     requires jblas;
     requires xstream;
     requires java.logging;
-    requires org.apache.commons.rng.api;
     requires org.apache.commons.rng.simple;
     requires jxl;
     requires org.antlr.antlr4.runtime;
-    requires javafx.graphics;
-    requires org.checkerframework.checker.qual;
-
 
     exports org.cirdles.tripoli;
     exports org.cirdles.tripoli.valueModels;

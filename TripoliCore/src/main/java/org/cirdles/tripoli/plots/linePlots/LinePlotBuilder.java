@@ -52,7 +52,4 @@ public class LinePlotBuilder extends PlotBuilder {
         return xData;
     }
 
-    public double getShadeWidthForModelConvergence() {
-        return shadeWidthForModelConvergence;
-    }
 }

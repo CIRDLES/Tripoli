@@ -34,7 +34,7 @@ import java.util.Objects;
  */
 
 public class ETReduxFraction implements Comparable, Serializable, XMLSerializerInterface {
-    private static String schemaURI = "https://raw.githubusercontent.com/EARTHTIME/Schema/UPbReduxInputXMLSchema.xsd";
+    private static final String schemaURI = "https://raw.githubusercontent.com/EARTHTIME/Schema/UPbReduxInputXMLSchema.xsd";
     // Fields
     private String sampleName;
     private String fractionID;

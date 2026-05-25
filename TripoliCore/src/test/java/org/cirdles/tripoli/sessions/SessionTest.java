@@ -29,7 +29,7 @@ import java.nio.file.Path;
 
 class SessionTest {
 
-    Path testFilePath = (new File("TestSession.tripoli")).toPath();
+    final Path testFilePath = (new File("TestSession.tripoli")).toPath();
 
     @BeforeEach
     void setUp() {

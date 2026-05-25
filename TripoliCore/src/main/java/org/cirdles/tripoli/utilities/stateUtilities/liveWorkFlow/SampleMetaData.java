@@ -26,9 +26,9 @@ import java.util.List;
  */
 @XmlRootElement
 public class SampleMetaData {
-    String sampleName;
-    String sampleAnalysisFolderPath;
-    List<FractionMetaData> fractionsMetaData;
+    final String sampleName;
+    final String sampleAnalysisFolderPath;
+    final List<FractionMetaData> fractionsMetaData;
 
     public SampleMetaData() {
         this("MISSING SAMPLE NAME", "", new ArrayList<>());

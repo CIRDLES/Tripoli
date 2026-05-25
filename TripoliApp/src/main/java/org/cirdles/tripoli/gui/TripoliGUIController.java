@@ -367,15 +367,12 @@ public class TripoliGUIController implements Initializable {
         });
         // end implement drag n drop of files ===================================================================
         reportsMenu.setOnShowing(event -> {
-            try {
-                if (analysis.getAnalysisMethod() != null) {
-                    buildCustomReportMenu();
-                } else {
-                    customReportMenu.getItems().clear();
-                }
-
-            } catch (TripoliException | IOException ignored) {
+            if (analysis.getAnalysisMethod() != null) {
+                buildCustomReportMenu();
+            } else {
+                customReportMenu.getItems().clear();
             }
+
         });
         Platform.runLater(this::detectMassSpecContext);
     }
@@ -506,7 +503,7 @@ public class TripoliGUIController implements Initializable {
     }
 
     @FXML
-    public void buildCustomReportMenu() throws TripoliException, IOException {
+    public void buildCustomReportMenu() {
         List<Report> reportTreeList = analysis.getMethod().getReports();
         customReportMenu.getItems().clear();
 
@@ -669,12 +666,7 @@ public class TripoliGUIController implements Initializable {
             alert.setY(primaryStageWindow.getY() + (primaryStageWindow.getHeight() - 150) / 2);
             alert.showAndWait().ifPresent((t) -> {
                 if (t.equals(ButtonType.YES)) {
-                    try {
-                        saveSessionFile(Objects.requireNonNull(tripoliSession), primaryStageWindow);
-                    } catch (IOException iOException) {
-                        TripoliMessageDialog.showWarningDialog("Tripoli cannot access the target file.\n",
-                                null);
-                    }
+                    saveSessionFile(Objects.requireNonNull(tripoliSession), primaryStageWindow);
                 }
             });
             Session.setSessionChanged(false);
@@ -822,13 +814,7 @@ public class TripoliGUIController implements Initializable {
         ETReduxFraction etReduxFraction = analysis.prepareFractionForETReduxExport();
         String fileName = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
         etReduxFraction.serializeXMLObject(fileName);
-        try {
-            saveExportFile(etReduxFraction, primaryStage);
-        } catch (IOException e) {
-//TODO:            throw new RuntimeException(e);
-        } catch (TripoliException e) {
-// TODO:           throw new RuntimeException(e);
-        }
+        saveExportFile(etReduxFraction, primaryStage);
     }
 
     public void clipboardExportAction() {
@@ -1046,7 +1032,7 @@ public class TripoliGUIController implements Initializable {
         }
     }
 
-    private void waitForLiveDataStatusUpdate(Path parentFolder) throws IOException {
+    private void waitForLiveDataStatusUpdate(Path parentFolder) {
         liveDataStatusWatcher = new FileWatcher(parentFolder, (filePath, kind) -> {
             if (kind == StandardWatchEventKinds.ENTRY_MODIFY &&
                     filePath.getFileName().toString().equals("LiveDataStatus.txt")) {
@@ -1111,7 +1097,7 @@ public class TripoliGUIController implements Initializable {
             }
         });
 
-        if (liveDataAnalysis.get().getUserFunctions().size() == 0) {
+        if (liveDataAnalysis.get().getUserFunctions().isEmpty()) {
             liveDataLogWatcher.processExistingFiles(blockCycleComparator);
         }
 

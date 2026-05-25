@@ -30,9 +30,9 @@ import java.util.ArrayList;
 
 public class SpeciesColorSelectionScrollPane extends ScrollPane {
 
-    Analysis analysis;
-    DelegateActionSet delegateActionSet;
-    ArrayList<SpeciesIntensityColorSelectionPane> speciesIntensityColorSelectionPanes;
+    final Analysis analysis;
+    final DelegateActionSet delegateActionSet;
+    final ArrayList<SpeciesIntensityColorSelectionPane> speciesIntensityColorSelectionPanes;
     @FXML
     private VBox paneVBox;
     @FXML

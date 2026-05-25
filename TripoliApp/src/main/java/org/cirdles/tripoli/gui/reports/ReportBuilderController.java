@@ -762,7 +762,7 @@ public class ReportBuilderController {
             try {
                 reportCSVFile = currentReport.generateCSVFile(listOfAnalyses, tripoliSession.getSessionName(), false);
                 Desktop.getDesktop().open(reportCSVFile);
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         } else if (proceed.equals("Save")) {
             currentReport.generateCSVFile(listOfAnalyses, tripoliSession.getSessionName(), false);

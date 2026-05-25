@@ -36,11 +36,11 @@ import java.util.*;
 public class MassSpecExtractedData implements Serializable {
     @Serial
     private static final long serialVersionUID = -3958694419007139380L;
+    private final Map<Integer, MassSpecOutputBlockRecordFull> blocksDataFull;
     private MassSpectrometerContextEnum massSpectrometerContext;
     private MassSpecExtractedHeader header;
     private String[] columnHeaders;
     private DetectorSetup detectorSetup;
-    private Map<Integer, MassSpecOutputBlockRecordFull> blocksDataFull;
     private Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite;
 
     public MassSpecExtractedData() throws TripoliException {

@@ -16,7 +16,6 @@
 
 package org.cirdles.tripoli.utilities;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,21 +27,8 @@ public class DelegateActionSet {
     }
 
 
-    public DelegateActionSet(DelegateActionInterface... actionInterfaces) {
-        this.actionSet = new HashSet<>();
-        actionSet.addAll(Arrays.asList(actionInterfaces));
-    }
-
-    public boolean addDelegateAction(DelegateActionInterface actionInterface) {
-        return this.actionSet.add(actionInterface);
-    }
-
-    public void addDelegateActions(DelegateActionInterface... actionInterfaces) {
-        this.actionSet.addAll(Arrays.asList(actionInterfaces));
-    }
-
-    public void addDelegateActions(DelegateActionSet actionSet) {
-        this.actionSet.addAll(actionSet.actionSet);
+    public void addDelegateAction(DelegateActionInterface actionInterface) {
+        this.actionSet.add(actionInterface);
     }
 
     public void executeDelegateActions() {
@@ -51,8 +37,8 @@ public class DelegateActionSet {
         }
     }
 
-    public boolean removeDelegateAction(DelegateActionInterface actionInterface) {
-        return this.actionSet.remove(actionInterface);
+    public void removeDelegateAction(DelegateActionInterface actionInterface) {
+        this.actionSet.remove(actionInterface);
     }
 
     public void clear() {

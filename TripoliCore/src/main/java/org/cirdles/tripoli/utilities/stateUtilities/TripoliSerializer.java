@@ -49,7 +49,7 @@ public enum TripoliSerializer {
             if (null != objectOutputStream) {
                 try {
                     objectOutputStream.close();
-                } catch (IOException iOException) {
+                } catch (IOException ignored) {
                 }
             }
         }
@@ -69,7 +69,6 @@ public enum TripoliSerializer {
         try (FileInputStream inputStream = new FileInputStream(filename)) {
             deserializedInputStream = new ObjectInputStream(inputStream);
             deserializedObject = deserializedInputStream.readObject();
-            inputStream.close();
 
         } catch (FileNotFoundException ex) {
             if (verbose) {

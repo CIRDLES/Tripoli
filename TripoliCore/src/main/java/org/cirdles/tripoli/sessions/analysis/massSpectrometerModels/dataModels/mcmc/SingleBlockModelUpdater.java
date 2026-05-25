@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class SingleBlockModelUpdater {
 
-    public List<String> operations = ImmutableList.of("changer", "changeI", "changedfg", "changebl", "noise");
+    public final List<String> operations = ImmutableList.of("changer", "changeI", "changedfg", "changebl", "noise");
     private int countOfLogRatios;
     private int countOfIntensities;
     private int countOfFaradays;
@@ -306,7 +306,7 @@ public class SingleBlockModelUpdater {
 
         for (int groupIndex = 0; groupIndex < nGroup; groupIndex++) {
             if ((groupIndex + 1) * groupSize - groupIndex * groupSize >= 0)
-                System.arraycopy(xAll, groupIndex * groupSize, extractedArray, groupIndex * groupSize - groupIndex * groupSize, (groupIndex + 1) * groupSize - groupIndex * groupSize);
+                System.arraycopy(xAll, groupIndex * groupSize, extractedArray, 0, (groupIndex + 1) * groupSize - groupIndex * groupSize);
 
             Covariance cov = new Covariance(extractedArray);
             double[][] covArray = cov.getCovarianceMatrix().getData();

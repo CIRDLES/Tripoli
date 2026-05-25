@@ -74,13 +74,10 @@ public class PeakShapeDemoPlotsControllerTest {
     public static List<ImageView> gBeamImageSet;
 
     static Map<String, List<File>> resourceGroups;
+    final PlotWallPane ensemblePlotsWallPane = (PlotWallPane) PlotWallPane.createPlotWallPane(null, null, null, null);
     public Pane wallPlotsAnchorPane;
-
     ListView<File> listViewOfResourcesInFolder;
-
     AbstractPlot peakCentreLinePlot;
-
-    PlotWallPane ensemblePlotsWallPane = (PlotWallPane) PlotWallPane.createPlotWallPane(null, null, null, null);
     @FXML
     private ScrollPane resourceListScrollPane;
 
@@ -298,7 +295,7 @@ public class PeakShapeDemoPlotsControllerTest {
         }
         finalYAxis = yAxis;
         finalXAxis = xAxis;
-        if (wallPlotsAnchorPane.getChildren().size() == 0) {
+        if (wallPlotsAnchorPane.getChildren().isEmpty()) {
             wallPlotsAnchorPane.getChildren().add(ensemblePlotsWallPane);
         } else {
             ensemblePlotsWallPane.getChildren().clear();
