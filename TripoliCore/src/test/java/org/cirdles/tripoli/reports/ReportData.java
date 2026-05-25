@@ -118,11 +118,8 @@ public class ReportData {
      * @throws URISyntaxException
      * @throws JAXBException
      * @throws TripoliException
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
-     * @throws IllegalAccessException
      */
-    public ReportData generateReportData(String dataFilepath) throws URISyntaxException, JAXBException, TripoliException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public ReportData generateReportData(String dataFilepath) throws URISyntaxException, JAXBException, TripoliException {
         File dataFile = new File(Objects.requireNonNull(getClass().getResource(dataFilepath)).toURI());
         System.out.println("💾 Generating Report Data for " + dataFile.getName() + "...");
 
@@ -146,7 +143,7 @@ public class ReportData {
             }
 
         } catch (IOException | JAXBException | TripoliException | InvocationTargetException | NoSuchMethodException |
-                 IllegalAccessException e) {
+                 IllegalAccessException ignored) {
         }
 
         assertNotNull(analysis);

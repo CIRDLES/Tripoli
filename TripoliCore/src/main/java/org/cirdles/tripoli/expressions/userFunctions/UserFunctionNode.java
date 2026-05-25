@@ -73,7 +73,7 @@ public class UserFunctionNode extends ExpressionTree {
         int columnIndex = -1;
         for (int i = 0; i < columnHeaders.length; i++) {
             if (columnHeaders[i].equals(value)) {
-                columnIndex = i - 2;
+                columnIndex = i;
                 break;
             }
         }

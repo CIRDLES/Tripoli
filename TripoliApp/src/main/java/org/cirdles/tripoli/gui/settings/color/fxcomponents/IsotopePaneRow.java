@@ -39,16 +39,13 @@ public class IsotopePaneRow extends HBox {
     private static final double PADDING = 10;
     private static final double COLOR_WIDTH = 90;
 
-    private final Label title;
     private final ColorPickerSplotch faradayData;
     private final ColorPickerSplotch pmData;
     private final ColorPickerSplotch faradayModel;
     private final ColorPickerSplotch pmModel;
-    private final Map<SpeciesRecordInterface, SpeciesColors> colorMap;
-    private SpeciesRecordInterface speciesRecord;
-    private ObjectProperty<SpeciesColors> speciesColorsProperty;
+    private final SpeciesRecordInterface speciesRecord;
+    private final ObjectProperty<SpeciesColors> speciesColorsProperty;
     private boolean speciesColorsSet = false;
-    private DelegateActionSet delegateActionSet;
 
 
     public IsotopePaneRow(SpeciesRecordInterface speciesRecordInterface, Map<SpeciesRecordInterface, SpeciesColors> colorMap, DelegateActionSet delegateActionSet, double height) {
@@ -62,13 +59,11 @@ public class IsotopePaneRow extends HBox {
         super();
         this.speciesRecord = speciesRecordInterface;
         this.speciesColorsProperty = new SimpleObjectProperty<>(colorMap.get(speciesRecordInterface));
-        this.delegateActionSet = delegateActionSet;
-        this.colorMap = colorMap;
 
         // Initialize all components
-        this.title = new Label(speciesRecordInterface.prettyPrintShortForm());
-        this.title.setFont(Font.font("Consolas", FontWeight.BOLD, 16));
-        this.title.setPrefWidth(TITLE_WIDTH);
+        Label title = new Label(speciesRecordInterface.prettyPrintShortForm());
+        title.setFont(Font.font("Consolas", FontWeight.BOLD, 16));
+        title.setPrefWidth(TITLE_WIDTH);
         this.faradayData = new ColorPickerSplotch();
         this.faradayData.prefWidthProperty().set(COLOR_WIDTH);
         this.faradayData.colorProperty().addListener(((observable, oldValue, newValue) -> {

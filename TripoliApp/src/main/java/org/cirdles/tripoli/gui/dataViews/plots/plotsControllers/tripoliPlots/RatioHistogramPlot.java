@@ -161,33 +161,6 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
         // minY stays 0.0
     }
 
-    @Override
-    public void plotData(GraphicsContext g2d) {
-        // plot bins
-        g2d.setFill(dataColor.color());
-        g2d.setLineWidth(2.0);
-        boolean doFrameBins = false;//1.0 < (mapX(xAxisData[1]) - mapX(xAxisData[0]));
-
-        for (int i = 0; i < xAxisData.length; i++) {
-            double plottedBinWidth = mapX(xAxisData[1]) - mapX(xAxisData[0]);
-            if (mapX(xAxisData[i] + binWidth / 2.0) > (leftMargin + plotWidth)) {
-                plottedBinWidth = leftMargin + plotWidth - (mapX(xAxisData[i] - binWidth / 2.0));
-            }
-            if (mapX(xAxisData[i] - binWidth / 2.0) < (leftMargin)) {
-                plottedBinWidth = mapX(xAxisData[i] + binWidth / 2.0) - leftMargin;
-            }
-            if (mapY(yAxisData[i]) <= (topMargin + plotHeight)) {
-                g2d.fillRect(
-                        Math.max(mapX(xAxisData[i] - binWidth / 2.0), leftMargin) + (doFrameBins ? 1.0 : 0.0),
-                        Math.max(mapY(yAxisData[i]), topMargin),
-                        plottedBinWidth - (doFrameBins ? 1.0 : -0.5),
-                        Math.min(plotHeight,
-                                Math.min(mapY(0.0) - topMargin,
-                                        Math.min(mapY(0.0) - mapY(yAxisData[i]), topMargin + plotHeight - mapY(yAxisData[i])))));
-            }
-        }
-    }
-
     public void plotStats(GraphicsContext g2d) {
 
         Paint saveFill = g2d.getFill();

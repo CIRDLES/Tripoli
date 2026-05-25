@@ -28,7 +28,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,13 +48,9 @@ public class OutputTest {
      * @param reportData
      * @return
      * @throws JAXBException
-     * @throws TripoliException
      * @throws URISyntaxException
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
-     * @throws IllegalAccessException
      */
-    public String[] shortReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public String[] shortReportTest(String dataFilepath, ReportData reportData) throws URISyntaxException {
         AnalysisInterface analysis = reportData.getAnalysis();
         String analysisName = reportData.getAnalysisName();
         File dataFile = reportData.getDataFile();
@@ -97,8 +92,7 @@ public class OutputTest {
             String[] shortReportTestResults = shortReportTest(dataFilePath, reportData);
             assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!\n");
             System.out.println("✅ Short Report generated successfully!\n");
-        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException |
-                 NoSuchMethodException | IllegalAccessException e) {
+        } catch (JAXBException | TripoliException | URISyntaxException e) {
             System.out.println("Error: " + e.getMessage());
         }
 

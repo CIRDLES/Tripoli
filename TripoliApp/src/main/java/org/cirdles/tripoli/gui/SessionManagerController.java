@@ -58,9 +58,9 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColor
  * @author James F. Bowring
  */
 public class SessionManagerController implements Initializable {
+    public static final List<AnalysisInterface> listOfSelectedAnalyses = new ArrayList<>();
+    public static final List<AnalysisInterface> listOfSelectedConcatAnalyses = new ArrayList<>();
     public static Session tripoliSession;
-    public static List<AnalysisInterface> listOfSelectedAnalyses = new ArrayList<>();
-    public static List<AnalysisInterface> listOfSelectedConcatAnalyses = new ArrayList<>();
     public ColumnConstraints columnTwoConstraints;
     public GridPane sessionGridPane;
     public Button concatenateButton;
@@ -86,8 +86,6 @@ public class SessionManagerController implements Initializable {
         if (null == tripoliSession) {
             try {
                 tripoliSession = Session.initializeDefaultSession();
-            } catch (JAXBException e) {
-                //
             } catch (TripoliException e) {
                 //throw new RuntimeException(e);
             }
@@ -182,7 +180,7 @@ public class SessionManagerController implements Initializable {
                                 && ((Analysis) p).gitSamplePlusFractionName().equals(samplePlusFractionName))
                         .toList());
             }
-             concatenateButton.setDisable((listOfSelectedConcatAnalyses.size() < 2)
+            concatenateButton.setDisable((listOfSelectedConcatAnalyses.size() < 2)
                     || (listViewOfAnalyses.getSelectionModel().getSelectedItems().size() > listOfSelectedConcatAnalyses.size()));
             if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
                 if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {

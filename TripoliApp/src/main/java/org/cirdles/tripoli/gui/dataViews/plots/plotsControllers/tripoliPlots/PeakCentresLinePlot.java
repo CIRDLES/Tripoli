@@ -36,8 +36,8 @@ import org.cirdles.tripoli.plots.analysisPlotBuilders.PeakCentreAnalysisRecord;
 
 
 public class PeakCentresLinePlot extends AbstractPlot {
+    public final int indexOfSelectedSpot;
     private final PeakCentreAnalysisRecord peakCentreAnalysisRecord;
-    public int indexOfSelectedSpot;
 
 
     /**

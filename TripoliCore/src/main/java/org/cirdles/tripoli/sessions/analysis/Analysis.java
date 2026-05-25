@@ -483,15 +483,11 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
             retVal = mapOfBlockIdToPlots.get(blockID);
             loggingCallback.receiveLoggingSnippet("1000 >%");
         } else {
-            try {
-                PlotBuilder[][] plotBuilders;
-                plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
-                mapOfBlockIdToPlots.put(blockID, plotBuilders);
-                mapOfBlockIdToProcessStatus.put(blockID, SHOW);
-                retVal = mapOfBlockIdToPlots.get(blockID);
-            } catch (IOException e) {
-                System.out.println("PROBLEM EXPORTING ENSEMBLES");
-            }
+            PlotBuilder[][] plotBuilders;
+            plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
+            mapOfBlockIdToPlots.put(blockID, plotBuilders);
+            mapOfBlockIdToProcessStatus.put(blockID, SHOW);
+            retVal = mapOfBlockIdToPlots.get(blockID);
         }
         return retVal;
     }

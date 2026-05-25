@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ETReduxFractionTest {
-    String fileNameForXML = "testETReduxFraction.xml";
+    final String fileNameForXML = "testETReduxFraction.xml";
 
     @BeforeEach
     void setUp() {

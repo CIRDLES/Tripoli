@@ -12,7 +12,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,17 +26,10 @@ public class CyclesExportTest {
     /**
      * Uses a filepath to generate a cycles export report and then asserts it to a premade Oracle made with the same analysis name
      *
-     * @param dataFilepath
-     * @param reportData
      * @return
-     * @throws JAXBException
-     * @throws TripoliException
      * @throws URISyntaxException
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
-     * @throws IllegalAccessException
      */
-    public String[] cyclesExportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public String[] cyclesExportTest(String dataFilepath, ReportData reportData) throws URISyntaxException {
         suppressContents = true;
         AnalysisInterface analysis = reportData.getAnalysis();
         String analysisName = reportData.getAnalysisName();
@@ -81,8 +73,7 @@ public class CyclesExportTest {
             String[] cyclesExportTestResults = cyclesExportTest(dataFilepath, reportData);
             assertEquals(cyclesExportTestResults[0], cyclesExportTestResults[1], "❌ Cycles Export Report generation failed!\n");
             System.out.println("✅ Cycles Export Report generated successfully!\n");
-        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException |
-                 NoSuchMethodException | IllegalAccessException e) {
+        } catch (JAXBException | TripoliException | URISyntaxException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }

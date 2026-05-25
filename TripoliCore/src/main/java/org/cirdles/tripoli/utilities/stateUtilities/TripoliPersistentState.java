@@ -44,7 +44,7 @@ public class TripoliPersistentState implements Serializable {
     private static final String TRIPOLI_PERSISTENT_STATE_FILE_NAME = "TripoliPersistentState.ser";
     private static final int MRU_COUNT = 10;
     private static TripoliPersistentState myInstance;
-    private String tripoliUserHomeDirectoryLocal;
+    private final String tripoliUserHomeDirectoryLocal;
     // instance variables
     private File MRUSessionFile;
     private List<String> MRUSessionList;
@@ -133,7 +133,7 @@ public class TripoliPersistentState implements Serializable {
     /**
      * @return
      */
-    public static String getMySerializedName() throws TripoliException {
+    public static String getMySerializedName() {
         return File.separator//
                 + System.getProperty("user.home")//
                 + File.separator//
@@ -145,7 +145,7 @@ public class TripoliPersistentState implements Serializable {
         // save initial persistent state serialized file
         try {
             TripoliSerializer.serializeObjectToFile(this, getMySerializedName());
-        } catch (TripoliException tripoliException) {
+        } catch (TripoliException ignored) {
         }
     }
 
@@ -259,14 +259,14 @@ public class TripoliPersistentState implements Serializable {
                 // update current file
                 MRUSessionFile = sessionFileMRU;
 
-            } catch (IOException iOException) {
+            } catch (IOException ignored) {
             }
         }
 
         // save
         try {
             TripoliSerializer.serializeObjectToFile(this, getMySerializedName());
-        } catch (TripoliException tripoliException) {
+        } catch (TripoliException ignored) {
         }
     }
 
@@ -352,14 +352,14 @@ public class TripoliPersistentState implements Serializable {
                 // update current file
                 MRUDataFile = dataFileMRU;
 
-            } catch (IOException iOException) {
+            } catch (IOException ignored) {
             }
         }
 
         // save
         try {
             TripoliSerializer.serializeObjectToFile(this, getMySerializedName());
-        } catch (TripoliException tripoliException) {
+        } catch (TripoliException ignored) {
         }
     }
 
@@ -443,14 +443,14 @@ public class TripoliPersistentState implements Serializable {
                 // update current file
                 MRUDataFile = methodXMLMRU;
 
-            } catch (IOException iOException) {
+            } catch (IOException ignored) {
             }
         }
 
         // save
         try {
             TripoliSerializer.serializeObjectToFile(this, getMySerializedName());
-        } catch (TripoliException tripoliException) {
+        } catch (TripoliException ignored) {
         }
     }
 

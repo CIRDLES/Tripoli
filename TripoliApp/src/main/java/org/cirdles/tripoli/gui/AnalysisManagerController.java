@@ -590,7 +590,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             analysisMethodTabPane.getTabs().remove(selectTwoUserFunctionsTab);
         }
 
-
         processingToolBar.setDisable(null == analysis.getAnalysisMethod());
     }
 
@@ -2191,7 +2190,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     serializeObjectToFile(tripoliSession, tripoliPersistentState.getMRUSessionFile().getAbsolutePath());
                 }
                 Session.setSessionChanged(false);
-            } catch (TripoliException | IOException ex) {
+            } catch (TripoliException ex) {
                 TripoliMessageDialog.showWarningDialog(ex.getMessage(), null);
             }
         }
@@ -2282,11 +2281,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private void exportToFile(ETReduxFraction etReduxFraction) {
         String fileName = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
         etReduxFraction.serializeXMLObject(fileName);
-        try {
-            saveExportFile(etReduxFraction, primaryStage);
-        } catch (IOException | TripoliException e) {
-            //throw new RuntimeException(e);
-        }
+        saveExportFile(etReduxFraction, primaryStage);
     }
 
     public void exportToClipboardAction() {
@@ -2841,7 +2836,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
 
         private class Node {
-            T state;
+            final T state;
             Node prev;
             Node next;
 
@@ -2888,8 +2883,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     class RatioClickHandler implements EventHandler<MouseEvent> {
-        IsotopicRatio ratio;
-        VBox ratioVBox;
+        final IsotopicRatio ratio;
+        final VBox ratioVBox;
 
         public RatioClickHandler(IsotopicRatio ratio, VBox ratioVBox) {
             this.ratio = ratio;
@@ -2910,8 +2905,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     class FlipRatioClickHandler implements EventHandler<MouseEvent> {
-        IsotopicRatio ratio;
-        VBox ratioVBox;
+        final IsotopicRatio ratio;
+        final VBox ratioVBox;
 
         public FlipRatioClickHandler(IsotopicRatio ratio, VBox ratioVBox) {
             this.ratio = ratio;
@@ -2944,9 +2939,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     private class ExpressionTextNode extends Text {
         public final String text;
+        protected final Color selectedColor;
+        protected final Color oppositeColor;
         protected Color regularColor;
-        protected Color selectedColor;
-        protected Color oppositeColor;
         protected int fontSize;
         private int index;
 

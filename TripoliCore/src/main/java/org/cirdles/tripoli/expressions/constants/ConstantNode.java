@@ -26,9 +26,8 @@ import java.util.Map;
 public class ConstantNode extends ExpressionTree {
     @Serial
     private static final long serialVersionUID = 750641824380081476L;
-
+    final Double value;
     String name;
-    Double value;
 
     public ConstantNode(String name, Double value) {
         this.name = name;

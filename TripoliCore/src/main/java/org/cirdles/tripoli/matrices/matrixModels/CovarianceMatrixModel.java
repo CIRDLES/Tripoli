@@ -203,7 +203,7 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
      * @return
      */
     public String checkValidityOfMeasuredRatioUncertainties(String fractionID) {
-        String retval = "";
+        StringBuilder retval = new StringBuilder();
         // first, we detect which measured ratios are present
         // TODO: generalize the source of measured ratios on the fly
         String[] measuredNames = new String[0];//MeasuredRatios.getNames();
@@ -244,23 +244,19 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
             for (int j = i + 1; j < rhos.getColumnDimension(); j++) {
                 if (1.0 < Math.abs(rhos.get(i, j))) {
                     // bad rhos
-                    if (0 == retval.length()) {
-                        retval += "For fraction " + fractionID + ", the out-of-range calculated correlation coefficient between inputs<br> ";
+                    if (retval.length() == 0) {
+                        retval.append("For fraction ").append(fractionID).append(", the out-of-range calculated correlation coefficient between inputs<br> ");
                     }
-                    retval += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + measuredNamesFound.get(i)
-                            + " and "
-                            + measuredNamesFound.get(j)
-                            + " is " + formatter.format(rhos.get(i, j))
-                            + "<br>";
+                    retval.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;").append(measuredNamesFound.get(i)).append(" and ").append(measuredNamesFound.get(j)).append(" is ").append(formatter.format(rhos.get(i, j))).append("<br>");
                 }
             }
         }
 
-        if (0 < retval.length()) {
-            retval += "<br>";
+        if (retval.length() > 0) {
+            retval.append("<br>");
         }
 
-        return retval;
+        return retval.toString();
     }
 
     /**

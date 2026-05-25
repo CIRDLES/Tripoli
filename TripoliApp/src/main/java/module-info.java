@@ -19,16 +19,11 @@ module Tripoli.TripoliApp {
     requires javafx.fxml;
     requires javafx.controls;
     requires Tripoli.TripoliCore;
-    requires java.datatransfer;
     requires java.desktop;
     requires commons.bc38781605;
-    requires jakarta.annotation;
     requires jakarta.xml.bind;
     requires org.jetbrains.annotations;
     requires commons.math3;
     requires com.google.common;
-    requires java.logging;
     requires org.antlr.antlr4.runtime;
-    requires org.jspecify;
-    requires org.checkerframework.checker.qual;
 }

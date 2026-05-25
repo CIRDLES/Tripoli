@@ -38,7 +38,6 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
-import java.io.IOException;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
@@ -55,16 +54,16 @@ public class AnalysisMethod implements Serializable {
     @Serial
     private static final long serialVersionUID = -642166785514147638L;
     private static List<Report> reportList;
+    public final Map<String, Boolean> mapOfRatioNamesToInvertedFlag;
     private final MassSpectrometerContextEnum massSpectrometerContext;
-    public Map<String, Boolean> mapOfRatioNamesToInvertedFlag;
-    private String methodName;
-    private BaselineTable baselineTable;
-    private SequenceTable sequenceTable;
+    private final String methodName;
+    private final BaselineTable baselineTable;
+    private final SequenceTable sequenceTable;
+    private final BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
+    private final List<UserFunction> userFunctionsModel;
     private List<SpeciesRecordInterface> speciesList;
     private List<IsotopicRatio> isotopicRatiosList;
     private List<IsotopicRatio> derivedIsotopicRatiosList;
-    private BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
-    private List<UserFunction> userFunctionsModel;
     private boolean useLinearKnots;
 
     public AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
@@ -89,7 +88,7 @@ public class AnalysisMethod implements Serializable {
     }
 
     public static AnalysisMethod createAnalysisMethodFromCase1(
-            MassSpecExtractedData massSpecExtractedData) throws IOException {
+            MassSpecExtractedData massSpecExtractedData) {
         int r270_267ColumnIndex = -1;
         int r265_267ColumnIndex = -1;
         AnalysisMethod analysisMethod = new AnalysisMethod(massSpecExtractedData.getHeader().methodName(), massSpecExtractedData.getMassSpectrometerContext());

@@ -269,7 +269,7 @@ public class EnsemblesStore implements Serializable {
         public String prettyPrintHeaderAsCSV(List<IsotopicRatio> isotopicRatiosList) {
             StringBuilder header = new StringBuilder();
             for (int i = 0; i < logRatios.length; i++) {
-                header.append(isotopicRatiosList.get(i).prettyPrint().replaceAll(" ", "")).append(",");
+                header.append(isotopicRatiosList.get(i).prettyPrint().replace(" ", "")).append(",");
             }
             for (int i = 0; i < I0.length; i++) {
                 header.append("I-").append(i).append(",");

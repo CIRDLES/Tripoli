@@ -33,8 +33,7 @@ import static org.cirdles.tripoli.utilities.file.FileNameFixer.fixFileName;
 public enum FileHandlerUtil {
     ;
 
-    public static File saveSessionFile(Session session, Window ownerWindow)
-            throws IOException {
+    public static File saveSessionFile(Session session, Window ownerWindow) {
 
         File retVal = null;
 
@@ -233,8 +232,7 @@ public enum FileHandlerUtil {
         stream.close();
     }
 
-    public static void saveExportFile(ETReduxFraction etReduxFraction, Window ownerWindow)
-            throws IOException, TripoliException {
+    public static void saveExportFile(ETReduxFraction etReduxFraction, Window ownerWindow) {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Fraction '.xml' file");

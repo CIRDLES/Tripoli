@@ -76,7 +76,7 @@ public class IsotopicRatio implements Serializable, Comparable {
     }
 
     private double ratioValue() {
-        return (numerator.getMassNumber() / denominator.getMassNumber());
+        return ((double) numerator.getMassNumber() / denominator.getMassNumber());
     }
 
     @Override

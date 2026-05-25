@@ -96,7 +96,7 @@ public enum PhoenixMassSpec {
 
         // April 2024 to handle aborted runs, find end of cycles and divide by cyclesperblock
         int countOfAllDataCycles = cycleSheet.getColumn(0).length - countOfHeaderLines;
-        int blockCount = (int) ceil(countOfAllDataCycles / cyclesPerBlock) + (int) Math.signum(countOfAllDataCycles % cyclesPerBlock);
+        int blockCount = (int) ceil((double) countOfAllDataCycles / cyclesPerBlock) + (int) Math.signum(countOfAllDataCycles % cyclesPerBlock);
 
         MassSpecExtractedData.MassSpecExtractedHeader header = new MassSpecExtractedData.MassSpecExtractedHeader(
                 "IonVantage",
@@ -409,9 +409,7 @@ public enum PhoenixMassSpec {
                                     parseAndBuildSingleBlockTIMSDPRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
                             phase = -1;
                         }
-                        case 9 -> {
-                            headerByLineSplit.add(line.split(","));
-                        }
+                        case 9 -> headerByLineSplit.add(line.split(","));
                     }
                 }
             }

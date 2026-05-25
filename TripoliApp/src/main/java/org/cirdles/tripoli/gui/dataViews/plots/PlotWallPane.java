@@ -58,15 +58,15 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     public static final double gridCellDim = 2.0;
     private static final DelegateActionSet repaintDelegateActionSet = new DelegateActionSet();
     public static double menuOffset = 30.0;
+    final AnalysisManagerCallbackI analysisManagerCallbackI;
     private final String iD;
     private final boolean[] zoomFlagsXY = new boolean[2];
     private final AnalysisInterface analysis;
     private final MCMCPlotsControllerInterface mcmcPlotsController;
-    AnalysisManagerCallbackI analysisManagerCallbackI;
+    private final boolean blockMode;
     private double toolBarHeight;
     private int toolBarCount;
     private boolean logScale;
-    private boolean blockMode;
     // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
     // ChangeListener<Boolean> cycleCBChangeListener = (observable, oldValue, newValue) -> {
     //     blockMode = !newValue;
@@ -122,11 +122,9 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     public void tilePlots() {
         List<Node> plotPanes = getChildren()
                 .stream()
-                .filter(plot -> plot instanceof TripoliPlotPane)
-                .collect(Collectors.toList());
+                .filter(plot -> plot instanceof TripoliPlotPane).sorted(Comparator.comparing(o -> ((TripoliPlotPane) o))).collect(Collectors.toList());
 
         // preserves display order
-        plotPanes.sort(Comparator.comparing(o -> ((TripoliPlotPane) o)));
 
         double rowTileCount = Math.floor(Math.sqrt(plotPanes.size()));
         int columnTileCount = (int) Math.ceil(plotPanes.size() / rowTileCount);
@@ -141,7 +139,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
         int plotIndex = 0;
         for (Node plot : plotPanes) {
-            plot.setLayoutY(gridCellDim + toolBarHeight + tileHeight * Math.floor(plotIndex / columnTileCount));
+            plot.setLayoutY(gridCellDim + toolBarHeight + tileHeight * Math.floor((double) plotIndex / columnTileCount));
             ((Pane) plot).setPrefHeight(tileHeight);
             plot.setLayoutX(gridCellDim + tileWidth * (plotIndex % columnTileCount));
             ((Pane) plot).setPrefWidth(tileWidth);

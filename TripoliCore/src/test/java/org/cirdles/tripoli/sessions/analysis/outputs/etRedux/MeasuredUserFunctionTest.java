@@ -28,8 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MeasuredUserFunctionTest {
 
-    MeasuredUserFunction measuredUserFunctionModel = new MeasuredUserFunction("TestRatioModel", 12345.6789, 98765.4321, true, false);
-    String fileNameForXML = "testMeasuredRatioModel.xml";
+    final MeasuredUserFunction measuredUserFunctionModel = new MeasuredUserFunction("TestRatioModel", 12345.6789, 98765.4321, true, false);
+    final String fileNameForXML = "testMeasuredRatioModel.xml";
 
     @BeforeEach
     void setUp() {

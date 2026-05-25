@@ -60,12 +60,12 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
     private final AnalysisBlockCyclesRecord analysisBlockCyclesRecord;
     private final PlotWallPaneInterface parentWallPane;
     private final boolean isRatio;
-    private AnalysisInterface analysis;
+    private final AnalysisInterface analysis;
+    private final boolean blockMode;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
     private double[] oneSigmaForCycles;
     private boolean logScale;
     private boolean[] zoomFlagsXY;
-    private boolean blockMode;
     private AnalysisStatsRecord analysisStatsRecord;
     private int sculptBlockID;
     private boolean ignoreRejects;
@@ -298,7 +298,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
 
                     g2d.fillText("%\u03C3  =" + sigmaPctString, textLeft, textTop += textDeltaY);
                     g2d.fillText("x\u0304", textLeft + 20, textTop + 6);
-                    if (sigmaMinusPctString.length() > 0) {
+                    if (!sigmaMinusPctString.isEmpty()) {
                         g2d.fillText("     " + sigmaMinusPctString, textLeft, textTop += textDeltaY);
                     }
 
@@ -370,7 +370,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
 
                     g2d.fillText("%\u03C3  =" + errPctString, textLeft, textTop += textDeltaY);
                     g2d.fillText("x\u0304", textLeft + 20, textTop + 6);
-                    if (errMinusPctString.length() > 0) {
+                    if (!errMinusPctString.isEmpty()) {
                         g2d.fillText("     " + errMinusPctString, textLeft, textTop += textDeltaY);
                     }
 
@@ -394,7 +394,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                     sigmaMinusPctString = appendTrailingZeroIfNeeded(sigmaMinusPctString, countOfTrailingDigitsForOneSigmaPct);
 
                     g2d.fillText("%\u03C3  =" + sigmaPctString, textLeft, textTop += textDeltaY);
-                    if (sigmaMinusPctString.length() > 0) {
+                    if (!sigmaMinusPctString.isEmpty()) {
                         g2d.fillText("     " + sigmaMinusPctString, textLeft, textTop += textDeltaY);
                     }
 

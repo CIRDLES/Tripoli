@@ -16,7 +16,6 @@
 
 package org.cirdles.tripoli.sessions;
 
-import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
@@ -80,7 +79,7 @@ public class Session implements Serializable {
         phoenixLiveData = new PhoenixLiveData();
     }
 
-    public static Session initializeDefaultSession() throws JAXBException, TripoliException {
+    public static Session initializeDefaultSession() throws TripoliException {
         Session session = new Session();
         return getSavedSession(session);
     }

@@ -229,7 +229,7 @@ public class MCMC2PlotsController implements MCMCPlotsControllerInterface {
                     try {
                         double percent = Double.parseDouble(data[0]) / MCMCProcess.getModelCount();
                         progressBar.setProgress(percent);
-                    } catch (NumberFormatException e) {
+                    } catch (NumberFormatException ignored) {
                     }
                 }
             });
