@@ -66,6 +66,8 @@ public class SampleMetaDataUnmarshaller {
                     sampleMetaData = (SampleMetaData) xstream.fromXML(bis);
                 }
             }
+            inReader.close();
+            reader.close();
         } catch (IOException e) {
             System.err.format("I/O Error when copying file: %s%n", e.getMessage());
             e.printStackTrace();

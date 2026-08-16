@@ -93,23 +93,10 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
     }
 
     public AnalysisStatsRecord calculateAnalysisStatsRecord(AnalysisInterface analysis) {
-        if (!invertedETReduxName.isEmpty()) {
-            // detect if ratio to be treated as a function because of negative or zero value Issue #214
-            boolean allPositive = true;
-            for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
-                PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
-                if ((plotBlockCyclesRecord != null) && allPositive) {
-                    for (int i = 0; i < plotBlockCyclesRecord.cycleMeansData().length; i++) {
-                        if ((plotBlockCyclesRecord.cycleMeansData()[i] <= 0.0) && (plotBlockCyclesRecord.cyclesIncluded()[i])) {
-                            allPositive = false;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            treatAsIsotopicRatio = allPositive;
-        }
+        // breaks tests  if (!invertedETReduxName.isEmpty()) {
+        // aug 2026 changed to fix oxxide correction
+            treatAsIsotopicRatio = testRatioStatus();
+        // breaks tests}
 
         analysisStatsRecord = generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
         for (int i = 0; i < analysisStatsRecord.blockStatsRecords().length; i++) {
@@ -120,6 +107,23 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
                     analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).updateIncludedCycles(this, cyclesIncluded));
         }
         return analysisStatsRecord;
+    }
+
+    private boolean testRatioStatus() {
+        // detect if ratio to be treated as a function because of negative or zero value Issue #214
+        boolean allPositive = true;
+        for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
+            PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
+            if ((plotBlockCyclesRecord != null) && allPositive) {
+                for (int i = 0; i < plotBlockCyclesRecord.cycleMeansData().length; i++) {
+                    if ((plotBlockCyclesRecord.cycleMeansData()[i] <= 0.0) && (plotBlockCyclesRecord.cyclesIncluded()[i])) {
+                        allPositive = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return allPositive;
     }
 
     public String getName() {

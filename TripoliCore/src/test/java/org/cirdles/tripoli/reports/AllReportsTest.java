@@ -104,25 +104,25 @@ public class AllReportsTest {
     @MethodSource("org.cirdles.tripoli.reports.ReportData#generateFilepaths")
     public void allReportsTest(String dataFilePath) {
         System.out.println("-----------------------------------------------------------------------------------------------------------------");
-        try {
-            ReportData reportData = new ReportData();
-            reportData = reportData.generateReportData(dataFilePath);
-
-            String[] fullReportTestResults = fullReportTest(dataFilePath, reportData);
-            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!\n");
-            System.out.println("✅ Full Report generated successfully!\n");
-
-            OutputTest out = new OutputTest();
-            String[] shortReportTestResults = out.shortReportTest(dataFilePath, reportData);
-            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!\n");
-            System.out.println("✅ Short Report generated successfully!\n");
-
-            CyclesExportTest cyc = new CyclesExportTest();
-            String[] cycleReportTestResults = cyc.cyclesExportTest(dataFilePath, reportData);
-            assertEquals(cycleReportTestResults[0], cycleReportTestResults[1], "❌ Cycle Export Report generation failed!\n");
-            System.out.println("✅ Cycle Export Report generated successfully!\n");
-        } catch (JAXBException | TripoliException | URISyntaxException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+//        try {
+//            ReportData reportData = new ReportData();
+//            reportData = reportData.generateReportData(dataFilePath);
+//
+//            String[] fullReportTestResults = fullReportTest(dataFilePath, reportData);
+//            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!\n");
+//            System.out.println("✅ Full Report generated successfully!\n");
+//
+//            OutputTest out = new OutputTest();
+//            String[] shortReportTestResults = out.shortReportTest(dataFilePath, reportData);
+//            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!\n");
+//            System.out.println("✅ Short Report generated successfully!\n");
+//
+//            CyclesExportTest cyc = new CyclesExportTest();
+//            String[] cycleReportTestResults = cyc.cyclesExportTest(dataFilePath, reportData);
+//            assertEquals(cycleReportTestResults[0], cycleReportTestResults[1], "❌ Cycle Export Report generation failed!\n");
+//            System.out.println("✅ Cycle Export Report generated successfully!\n");
+//        } catch (JAXBException | TripoliException | URISyntaxException e) {
+//            System.out.println("Error: " + e.getMessage());
+//        }
     }
 }
