@@ -40,6 +40,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
+import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.reports.ReportCategory;
 import org.cirdles.tripoli.reports.ReportColumn;
@@ -808,6 +809,10 @@ public class ReportBuilderController {
             return TripoliMessageDialog.showChoiceDialog("Unsaved changes exist! Are you sure?", reportBuilderStage);
         }
         return true;
+    }
+
+    public void howToReportsVideoAction() {
+        BrowserControl.showURI("https://www.youtube.com/watch?v=I0Or-uVmr-A");
     }
 }
 

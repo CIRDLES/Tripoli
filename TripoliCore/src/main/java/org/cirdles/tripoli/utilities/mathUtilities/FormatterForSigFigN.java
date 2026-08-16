@@ -102,6 +102,11 @@ public class FormatterForSigFigN {
             stdvAsString = significantOfStdvAsString + "e" + string(exponentOfMean);
 
          */
+
+        if (mean == 0) {
+            return new FormattedStats("0.0", "0", "0");
+        }
+
         int lastSigFigPosition;
         if (stdErr == 0.0) {
             lastSigFigPosition = 0;

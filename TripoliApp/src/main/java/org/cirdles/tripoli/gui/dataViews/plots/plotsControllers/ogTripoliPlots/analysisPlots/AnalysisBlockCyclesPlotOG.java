@@ -364,7 +364,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         FormatterForSigFigN.FormattedStats formattedStats;
         if ((abs(mean) >= 1e7) || (abs(mean) <= 1e-5)) {
             formattedStats =
-                    FormatterForSigFigN.formatToScientific(mean, stdErr, stdDev, 2).padLeft();
+                    FormatterForSigFigN.formatToScientific(mean, stdErr, stdDev, 2) .padLeft();
         } else {
             formattedStats =
                     FormatterForSigFigN.formatToSigFig(mean, stdErr, stdDev, 2).padLeft();

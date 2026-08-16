@@ -65,6 +65,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPl
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
+import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.plots.PlotTwo;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
@@ -356,6 +357,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        expressionUnsavedLabel.setVisible(false);
         mcmc2Button.setDisable(false);
 
         // March 2024 implement drag n drop of files ===================================================================
@@ -2708,6 +2710,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public void expressionRatioCheckBoxAction() {
         treatAsRatioCheckBox.setSelected(!treatAsRatioCheckBox.isSelected());
+    }
+
+    public void howToExpressionsVideoAction() {
+        BrowserControl.showURI("https://www.youtube.com/watch?v=AAgA4ve4wcM");
     }
 
     private enum Mode {

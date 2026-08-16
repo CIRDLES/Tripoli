@@ -21,8 +21,7 @@
 <?import javafx.scene.effect.InnerShadow?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0"
-          prefHeight="640.0"
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0" prefHeight="640.0"
           prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" stylesheets="@css/tripoli.css"
           vgap="10.0" xmlns="http://javafx.com/javafx/20.0.1"
           fx:controller="org.cirdles.tripoli.gui.AnalysisManagerController">
@@ -464,9 +463,17 @@
                             <Button fx:id="saveExpressionButton" onAction="#saveCustomExpressionOnAction" text="Save"/>
                             <Button fx:id="deleteExpressionButton" onAction="#deleteCustomExpressionOnAction"
                                     text="Delete"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label fx:id="expressionUnsavedLabel" style="-fx-text-fill: RED" text="UNSAVED CHANGES!"
-                                   visible="false"/>
+                            <Region layoutX="363.0" layoutY="10.0" prefHeight="26.0" prefWidth="126.0"/>
+                            <Button mnemonicParsing="false" onAction="#howToExpressionsVideoAction" prefHeight="27.0"
+                                    prefWidth="108.0"
+                                    style="-fx-background-color: black; -fx-text-fill: white; -fx-font-weight: BOLD; -fx-border-color: red; -fx-border-width: 3; -fx-border-radius: 6; -fx-background-radius: 9;"
+                                    text="HowTo Video">
+                                <font>
+                                    <Font name="System Bold" size="14.0"/>
+                                </font>
+                            </Button>
+                            <Region prefHeight="26.0" prefWidth="32.0" HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="expressionUnsavedLabel" style="-fx-text-fill: RED" text="UNSAVED CHANGES!"/>
                             <opaqueInsets>
                                 <Insets/>
                             </opaqueInsets>

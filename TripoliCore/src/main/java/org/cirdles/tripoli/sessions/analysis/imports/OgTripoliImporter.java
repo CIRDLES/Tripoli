@@ -206,7 +206,8 @@ public class OgTripoliImporter {
                     ufModels.get(ufm.getColumnIndex()).setDisplayed(false);
                 }
             }
-
+            // fixed aug 2026
+            bufferedReader.close();
             return tripoliAnalysis;
 
         } catch (IOException | TripoliException ignored) {
