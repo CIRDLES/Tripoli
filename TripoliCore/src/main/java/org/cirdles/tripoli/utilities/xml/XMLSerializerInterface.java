@@ -62,11 +62,13 @@ public interface XMLSerializerInterface {
             try (PrintWriter out = new PrintWriter(outFile)) {
                 out.println(xml);
                 out.flush();
+                outFile.close();
             }
             Path sourceFractionFile = Paths.get("copyFraction.xml");
             Path targetFractionFilePath = Paths.get(filename);
             Files.copy(sourceFractionFile, targetFractionFilePath, StandardCopyOption.REPLACE_EXISTING);
             System.out.println("fractionFile copied successfully!");
+            outFile.close();
         } catch (IOException ex) {
             Logger.getLogger(XMLSerializerInterface.class.getName()).log(Level.SEVERE, null, ex);
         }
