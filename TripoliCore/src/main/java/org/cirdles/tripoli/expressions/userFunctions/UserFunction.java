@@ -95,14 +95,16 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
     public AnalysisStatsRecord calculateAnalysisStatsRecord(AnalysisInterface analysis) {
         // breaks 56 tests  if (!invertedETReduxName.isEmpty()) {
         // aug 2026 changed to fix oxide correction
-        treatAsIsotopicRatio = testRatioStatus();
-        if (name.compareTo("Cycle") == 0) {
-            treatAsIsotopicRatio = false;
-        }
-        if (name.compareTo("Time") == 0) {
-            treatAsIsotopicRatio = false;
-        }
         // breaks tests}
+        if (!invertedETReduxName.isEmpty()) {
+            treatAsIsotopicRatio = testRatioStatus();
+        }
+        if (name.contains("oc")) {
+            treatAsIsotopicRatio = testRatioStatus();
+        }
+        if (!name.contains("/")) {
+            treatAsIsotopicRatio = false;
+        }
 
         analysisStatsRecord = generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
         for (int i = 0; i < analysisStatsRecord.blockStatsRecords().length; i++) {
