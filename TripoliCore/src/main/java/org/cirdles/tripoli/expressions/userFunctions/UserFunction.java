@@ -105,6 +105,9 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
         if (!name.contains("/")) {
             treatAsIsotopicRatio = false;
         }
+        if(treatAsIsotopicRatio){
+            treatAsIsotopicRatio = testRatioStatus();
+        }
 
         analysisStatsRecord = generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
         for (int i = 0; i < analysisStatsRecord.blockStatsRecords().length; i++) {
