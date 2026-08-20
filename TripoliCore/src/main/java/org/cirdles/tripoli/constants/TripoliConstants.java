@@ -84,6 +84,10 @@ public enum TripoliConstants {
     public static final int CHAUVENETS_DEFAULT_MIN_DATUM_COUNT = 20;
     // END Chauvenet's parameter defaults
 
+    // Oxide correction default
+    public static final Double R18O_16O_DEFAULT_OXIDE_CORRECTION = 0.00205;
+
+
     public static final double SCALING_DOT_DEFAULT_MIN_SIZE = 5.0;
     public static final double SCALING_DOT_DEFAULT_MAX_SIZE = 20.0;
 
