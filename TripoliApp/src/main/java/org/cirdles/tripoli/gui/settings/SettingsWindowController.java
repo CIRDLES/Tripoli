@@ -45,6 +45,7 @@ public class SettingsWindowController implements Initializable {
     public TextArea sampleMetaDataFolderTextArea;
     public Button selectSampleMetaDataFolderButton;
     public TextArea liveDataStatusTxtFileTextArea;
+    public TextField r18O_16O_TextField;
     @FXML
     private TabPane settingsTabPane;
     @FXML

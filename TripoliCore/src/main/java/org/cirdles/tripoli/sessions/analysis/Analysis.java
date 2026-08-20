@@ -786,7 +786,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable<Ana
         setEtReduxExportType(userFunctions.get(0).getEtReduxExportType());
 
         ETReduxFraction etReduxFraction = ETReduxFraction.buildExportFraction(
-                getAnalysisSampleName(), getAnalysisFractionName(), getEtReduxExportType(), 0.00205);
+                getAnalysisSampleName(), getAnalysisFractionName(), getEtReduxExportType(), R18O_16O_DEFAULT_OXIDE_CORRECTION);
         for (UserFunction uf : userFunctions) {
             String etReduxName = uf.getCorrectETReduxName();
             if (!etReduxName.isBlank() && etReduxFraction.getMeasuredRatioByName(etReduxName) != null) {

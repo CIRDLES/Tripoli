@@ -45,6 +45,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.DataDictionary.isLegalETReduxName;
+import static org.cirdles.tripoli.constants.TripoliConstants.R18O_16O_DEFAULT_OXIDE_CORRECTION;
 import static org.cirdles.tripoli.constants.TripoliConstants.SPACES_100;
 
 /**
@@ -140,7 +141,7 @@ public class AnalysisMethod implements Serializable {
         // Uranium Oxide Correction : https://docs.google.com/document/d/14PPEDEJPylNMavpJDpYSuemNb0gF5dz_To3Ek1Y_Agw/edit#bookmark=id.xvyds659gu4x
         //TODO: make parameter manager
         if ((r270_267ColumnIndex > -1) && (r265_267ColumnIndex > -1)) {
-            massSpecExtractedData.expandCycleDataForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, 0.00205);
+            massSpecExtractedData.expandCycleDataForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, R18O_16O_DEFAULT_OXIDE_CORRECTION);
             String[] columnHeadersExpanded = new String[columnHeaders.length + 3];
 
             System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);

@@ -1,12 +1,10 @@
 package org.cirdles.tripoli.sessions.analysis.outputs;
 
-import jakarta.xml.bind.JAXBException;
 import org.apache.commons.io.FileUtils;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.reports.ReportData;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -18,7 +16,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.cirdles.tripoli.sessions.analysis.Analysis.suppressContents;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CyclesExportTest {

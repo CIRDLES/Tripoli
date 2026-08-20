@@ -25,6 +25,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.TripoliGUI;
 import org.cirdles.tripoli.gui.TripoliGUIController;
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 import static javafx.event.Event.fireEvent;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
@@ -249,6 +251,28 @@ public class SettingsWindow {
         initScalingDotSizeSpinners();
         initSampleMetaDataFolderTextArea();
         initLiveDataStatusTxtFileTextArea();
+        initR18O_16O_OxideCorrectionText();
+    }
+
+    private void initR18O_16O_OxideCorrectionText(){
+        TextField r18O_16O_TextField = settingsWindowController.r18O_16O_TextField;
+        r18O_16O_TextField.setText(Double.toString(analysis.getParameters().getR18O_16O_OxideCorrection()));
+
+        // Regex matches optional leading minus, digits, optional decimal point, and trailing digits
+        String validDoubleRegex = "-?(\\d*\\.?\\d*)";
+
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String newText = change.getControlNewText();
+            if (newText.matches(validDoubleRegex)) {
+                analysis.getParameters().setR18O_16O_OxideCorrection(Double.parseDouble(r18O_16O_TextField.getText()));
+                return change; // Accept the change
+            }
+            return null; // Reject the change
+        };
+
+        TextFormatter<String> formatter = new TextFormatter<>(filter);
+        r18O_16O_TextField.setTextFormatter(formatter);
+
     }
 
     private void initMassSpecCombo() {
@@ -555,6 +579,9 @@ public class SettingsWindow {
                 currentSession.getSessionDefaultParameters().setChauvenetRejectionProbability(
                         analysis.getParameters().getChauvenetRejectionProbability()
                 );
+                currentSession.getSessionDefaultParameters().setR18O_16O_OxideCorrection(
+                        analysis.getParameters().getR18O_16O_OxideCorrection()
+                );
                 currentSession.getSessionDefaultParameters().setScalingDotMinSize(
                         analysis.getParameters().getScalingDotMinSize());
                 currentSession.getSessionDefaultParameters().setScalingDotMaxSize(
@@ -593,6 +620,12 @@ public class SettingsWindow {
                 tripoliPersistentState.setBlockCyclesPlotColors(analysis.getRatioColors());
                 tripoliPersistentState.getMapOfSpeciesToColors().
                         putAll(((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
+
+                tripoliPersistentState.getTripoliPersistentParameters().setR18O_16O_OxideCorrection(
+                        analysis.getParameters().getR18O_16O_OxideCorrection());
+                settingsWindowController.r18O_16O_TextField.setText(
+                        String.valueOf(analysis.getParameters().getR18O_16O_OxideCorrection())
+                );
                 tripoliPersistentState.updateTripoliPersistentState();
             } catch (TripoliException ex) {
                 ex.printStackTrace();
@@ -613,6 +646,12 @@ public class SettingsWindow {
                 settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
                         analysis.getParameters().getRequiredMinDatumCount()
                 );
+                analysis.getParameters().setR18O_16O_OxideCorrection(TripoliConstants.R18O_16O_DEFAULT_OXIDE_CORRECTION
+                );
+                settingsWindowController.r18O_16O_TextField.setText(
+                        String.valueOf(analysis.getParameters().getR18O_16O_OxideCorrection())
+                );
+
                 // Get values from session defaults
                 double minSize = currentSession.getSessionDefaultParameters().getScalingDotMinSize();
                 double maxSize = currentSession.getSessionDefaultParameters().getScalingDotMaxSize();
@@ -664,6 +703,12 @@ public class SettingsWindow {
                 settingsWindowController.getChauvenetRejectionProbabilitySpinner().getValueFactory().setValue(
                         analysis.getParameters().getChauvenetRejectionProbability()
                 );
+                analysis.getParameters().setR18O_16O_OxideCorrection(
+                        tripoliPersistentState.getTripoliPersistentParameters().getR18O_16O_OxideCorrection()
+                );
+                settingsWindowController.r18O_16O_TextField.setText(
+                        String.valueOf(analysis.getParameters().getR18O_16O_OxideCorrection())
+                );
                 // Get values from persistent state, use system defaults if uninitialized (backward compatibility)
                 double minSize = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MIN_SIZE;
                 double maxSize = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MAX_SIZE;
@@ -705,6 +750,7 @@ public class SettingsWindow {
         settingsWindowController.getUndoAllButton().setOnAction(e -> {
             analysis.getParameters().setChauvenetRejectionProbability(originalParameters.getChauvenetRejectionProbability());
             analysis.getParameters().setRequiredMinDatumCount(originalParameters.getRequiredMinDatumCount());
+            analysis.getParameters().setR18O_16O_OxideCorrection(originalParameters.getR18O_16O_OxideCorrection());
             double minSize = originalParameters.getScalingDotMinSize();
             double maxSize = originalParameters.getScalingDotMaxSize();
 
@@ -721,6 +767,8 @@ public class SettingsWindow {
             settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
                     originalParameters.getRequiredMinDatumCount());
 
+            analysis.getParameters().setR18O_16O_OxideCorrection(TripoliConstants.R18O_16O_DEFAULT_OXIDE_CORRECTION);
+            settingsWindowController.r18O_16O_TextField.setText(String.valueOf(originalParameters.getR18O_16O_OxideCorrection()));
             // Update spinner value factories - need to update ranges first
             SpinnerValueFactory.DoubleSpinnerValueFactory minValueFactory =
                     (SpinnerValueFactory.DoubleSpinnerValueFactory) settingsWindowController.getScalingDotMinSizeSpinner().getValueFactory();

@@ -105,7 +105,7 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
         if (!name.contains("/")) {
             treatAsIsotopicRatio = false;
         }
-        if(treatAsIsotopicRatio){
+        if (treatAsIsotopicRatio) {
             treatAsIsotopicRatio = testRatioStatus();
         }
 
@@ -127,7 +127,11 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
             PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
             if ((plotBlockCyclesRecord != null) && allPositive) {
                 for (int i = 0; i < plotBlockCyclesRecord.cycleMeansData().length; i++) {
-                    if ((plotBlockCyclesRecord.cycleMeansData()[i] <= 0.0) && (plotBlockCyclesRecord.cyclesIncluded()[i])) {
+                    if ((plotBlockCyclesRecord.cycleMeansData()[i] <= 0.0)
+                            && (plotBlockCyclesRecord.cyclesIncluded()[i])) {
+                        System.out.println(
+                                "ALERT NEG VAL:  " + name + "  at point# " + i + "  =  "
+                                        + plotBlockCyclesRecord.cycleMeansData()[i]);
                         allPositive = false;
                         break;
                     }

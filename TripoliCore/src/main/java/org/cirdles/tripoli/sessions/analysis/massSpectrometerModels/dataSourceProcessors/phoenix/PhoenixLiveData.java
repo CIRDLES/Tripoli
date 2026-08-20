@@ -39,6 +39,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.cirdles.tripoli.constants.TripoliConstants.R18O_16O_DEFAULT_OXIDE_CORRECTION;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.createAnalysisMethodFromCase1;
 
 
@@ -262,7 +263,7 @@ public class PhoenixLiveData implements Serializable {
 
                 blockRecordLite = new MassSpecOutputBlockRecordLite(blockIndex, cycleData);
                 if (r270_267ColumnIndex != -1 && r265_267ColumnIndex != -1) {
-                    blockRecordLite = blockRecordLite.expandForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, 0.00205);
+                    blockRecordLite = blockRecordLite.expandForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, R18O_16O_DEFAULT_OXIDE_CORRECTION);
                 }
                 massSpecExtractedData.addBlockLiteRecord(blockRecordLite);
 
