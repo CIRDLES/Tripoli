@@ -79,6 +79,7 @@ import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
@@ -1086,6 +1087,12 @@ public class TripoliGUIController implements Initializable {
 
         liveDataLogWatcher = new FileWatcher(liveDataFolderPath, (filePath, kind) -> {
             if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+                // add pause aug 2026
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException e) {
+                   // throw new RuntimeException(e);
+                }
                 liveDataAnalysis.set(phoenixLiveData.readLiveDataFile(filePath));
                 if (liveDataAnalysis.get() != null) {
                     try {
