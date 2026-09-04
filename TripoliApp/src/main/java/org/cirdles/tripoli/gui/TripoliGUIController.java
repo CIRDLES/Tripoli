@@ -69,10 +69,7 @@ import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -1082,11 +1079,15 @@ public class TripoliGUIController implements Initializable {
         liveDataFinishFileWatcher = new FileWatcher(analysisFolderPath, (filePath, kind) -> {
             if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
                 // add pause aug 2026
-                try {
-                    TimeUnit.MILLISECONDS.sleep(100);
-                } catch (InterruptedException e) {
-                    // throw new RuntimeException(e);
+                while(!isFileClosed(filePath.toFile())){
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(10);
+                    } catch (InterruptedException e) {
+                        // throw new RuntimeException(e);
+                    }
                 }
+
+
                 Platform.runLater(() -> handleFinalFileProcessing(filePath));
             }
         });
@@ -1094,11 +1095,15 @@ public class TripoliGUIController implements Initializable {
         liveDataLogWatcher = new FileWatcher(liveDataFolderPath, (filePath, kind) -> {
             if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
                 // add pause aug 2026
-                try {
-                    TimeUnit.MILLISECONDS.sleep(100);
-                } catch (InterruptedException e) {
-                    // throw new RuntimeException(e);
+                while(!isFileClosed(filePath.toFile())){
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(10);
+                    } catch (InterruptedException e) {
+                        // throw new RuntimeException(e);
+                    }
                 }
+
+
                 liveDataAnalysis.set(phoenixLiveData.readLiveDataFile(filePath));
                 if (liveDataAnalysis.get() != null) {
                     try {
@@ -1124,7 +1129,16 @@ public class TripoliGUIController implements Initializable {
             liveDataFinishFileThread.start();
         }
     }
-
+    public static boolean isFileClosed(File file) {
+        // Try opening the file with read-write permissions
+        try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+            // If we successfully opened it, the other process has likely released it
+            return true;
+        } catch (IOException e) {
+            // File is still locked/being written to by another process
+            return false;
+        }
+    }
     // ------------------ End LiveData Methods ------------------------------------------------
 
     // ------------------ Import from ogTripoli -----------------------------------------------
@@ -1155,4 +1169,8 @@ public class TripoliGUIController implements Initializable {
     public void showTripoliWebsite() {
         BrowserControl.showURI("https://cirdles.org/Tripoli/");
     }
+
+    public void dedicationMenuAction() {BrowserControl.showURI("https://news.mit.edu/2019/samuel-bowring-pioneering-geologist-proefssor-emeritus-dies-0730");
+    }
+
 }
