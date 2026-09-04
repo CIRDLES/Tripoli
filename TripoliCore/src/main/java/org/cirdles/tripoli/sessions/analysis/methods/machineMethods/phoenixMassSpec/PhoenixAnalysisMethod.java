@@ -317,7 +317,7 @@ public class PhoenixAnalysisMethod {
      */
     public List<PhoenixAnalysisMethod.BASELINE> getBASELINE() {
         if (null == baseline) {
-            baseline = new ArrayList<PhoenixAnalysisMethod.BASELINE>();
+            baseline = new ArrayList<>();
         }
         return baseline;
     }
@@ -344,7 +344,7 @@ public class PhoenixAnalysisMethod {
      */
     public List<PhoenixAnalysisMethod.ONPEAK> getONPEAK() {
         if (null == onpeak) {
-            onpeak = new ArrayList<PhoenixAnalysisMethod.ONPEAK>();
+            onpeak = new ArrayList<>();
         }
         return onpeak;
     }

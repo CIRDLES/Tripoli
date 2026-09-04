@@ -33,7 +33,7 @@ public class WeighteMeanOfLogRatio {
 
 
     /**
-     * see https://github.com/CIRDLES/Tripoli/issues/185
+     * see <a href="https://github.com/CIRDLES/Tripoli/issues/185">...</a>
      *
      * @param logRatioMeans
      * @param logRatioCoVariances

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -29,8 +30,8 @@ public class FileWatcher implements Runnable {
 
     private final Path pathToWatch;
     private final FileWatcherCallbackInterface callback;
+    private final long timeoutSeconds;
     private volatile boolean running = true;
-    private long timeoutSeconds;
     private long lastEventTime;
 
     public FileWatcher(Path pathToWatch, FileWatcherCallbackInterface callback) {
@@ -40,42 +41,14 @@ public class FileWatcher implements Runnable {
         lastEventTime = System.currentTimeMillis();
     }
 
-    /**
-     * If set, the watcher will signal the callback if no events occur for the specified number of seconds. The signal
-     * returned event will have a null path and kind. This represents an idle state.
-     *
-     * @param seconds Number of seconds to wait before signaling the callback.
-     */
-    public void setTimeoutSeconds(long seconds) {
-        timeoutSeconds = seconds * 1000;
-    }
-
-    /**
-     * Resets the timeout interval. This is useful if the timeout is called and the user does not
-     * wish to halt the service.
-     */
-    public void resetTimeout() {
-        lastEventTime = System.currentTimeMillis();
-    }
-
     public Path getPath() {
         return pathToWatch;
     }
 
-    public void processExistingFiles() {
+    public boolean processExistingFiles(Comparator<Path> comparator) {
+        List<Path> existingFiles = List.of();
         try {
-            List<Path> existingFiles = FileUtilities.listRegularFiles(pathToWatch);
-            for (Path entry : existingFiles) {
-                callback.onFileEvent(entry, ENTRY_CREATE);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void processExistingFiles(Comparator<Path> comparator) {
-        try {
-            List<Path> existingFiles = FileUtilities.listRegularFiles(pathToWatch);
+            existingFiles = FileUtilities.listRegularFiles(pathToWatch);
 
             if (comparator != null) {
                 existingFiles.sort(comparator);
@@ -87,6 +60,7 @@ public class FileWatcher implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return existingFiles.size() > 0;
     }
 
     @Override
@@ -104,7 +78,7 @@ public class FileWatcher implements Runnable {
                     }
                 }
 
-                WatchKey key = watchService.poll(500, java.util.concurrent.TimeUnit.MILLISECONDS);
+                WatchKey key = watchService.poll(500, TimeUnit.MILLISECONDS);
                 if (key == null) continue;
 
                 for (WatchEvent<?> event : key.pollEvents()) {

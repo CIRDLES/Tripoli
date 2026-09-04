@@ -119,11 +119,11 @@ public class MeasuredRatioModelXMLConverter implements Converter {
         reader.moveUp();
 
         reader.moveDown();
-        measuredRatio.setFracCorr((reader.getValue().equalsIgnoreCase("true")) ? true : false);
+        measuredRatio.setFracCorr(reader.getValue().equalsIgnoreCase("true"));
         reader.moveUp();
 
         reader.moveDown();
-        measuredRatio.setOxideCorr((reader.getValue().equalsIgnoreCase("true")) ? true : false);
+        measuredRatio.setOxideCorr(reader.getValue().equalsIgnoreCase("true"));
         reader.moveUp();
 
         return measuredRatio;

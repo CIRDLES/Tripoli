@@ -30,10 +30,10 @@ public class SpeciesColorSelectionRow extends HBox {
     private final ObjectProperty<Color> colorProperty;
     private final ObjectProperty<String> textProperty;
     private final ObjectProperty<Font> fontProperty;
-    private ColorPickerSplotch colorPickerSplotch;
-    private Label rowLabel;
-    private Region center;
-    private Region right;
+    private final ColorPickerSplotch colorPickerSplotch;
+    private final Label rowLabel;
+    private final Region center;
+    private final Region right;
 
 
     public SpeciesColorSelectionRow() {

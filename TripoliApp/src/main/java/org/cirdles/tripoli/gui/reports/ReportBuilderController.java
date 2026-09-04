@@ -40,6 +40,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
+import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.reports.ReportCategory;
 import org.cirdles.tripoli.reports.ReportColumn;
@@ -705,7 +706,9 @@ public class ReportBuilderController {
 
     public void saveOnAction() {
         boolean proceed;
-        reportNameTextField.setText(reportNameTextField.getText().replaceAll("\\*", ""));
+        reportNameTextField.setText(reportNameTextField.getText()
+                .replaceAll("\\*", "")
+                .replaceAll("/+", ""));
         String reportName = reportNameTextField.getText();
         if (reportName.isEmpty()) {
             TripoliMessageDialog.showWarningDialog("Report must have a name", reportBuilderStage);
@@ -758,12 +761,12 @@ public class ReportBuilderController {
 
         if (proceed != null && proceed.equals("Save and Open")) {
             try {
-                reportCSVFile = currentReport.generateCSVFile(listOfAnalyses, tripoliSession.getSessionName());
+                reportCSVFile = currentReport.generateCSVFile(listOfAnalyses, tripoliSession.getSessionName(), false);
                 Desktop.getDesktop().open(reportCSVFile);
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         } else if (proceed.equals("Save")) {
-            currentReport.generateCSVFile(listOfAnalyses, tripoliSession.getSessionName());
+            currentReport.generateCSVFile(listOfAnalyses, tripoliSession.getSessionName(), false);
         }
     }
 
@@ -806,6 +809,10 @@ public class ReportBuilderController {
             return TripoliMessageDialog.showChoiceDialog("Unsaved changes exist! Are you sure?", reportBuilderStage);
         }
         return true;
+    }
+
+    public void howToReportsVideoAction() {
+        BrowserControl.showURI("https://www.youtube.com/watch?v=I0Or-uVmr-A");
     }
 }
 

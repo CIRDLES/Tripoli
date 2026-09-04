@@ -78,8 +78,6 @@ public enum NeptuneMassSpec {
                 }
 
                 switch (phase) {
-                    case -1 -> {
-                    }
                     case 0 -> headerByLineSplit.add(line.split(": "));
                     case 4 -> phase = 5;
                     case 5 -> {
@@ -89,7 +87,7 @@ public enum NeptuneMassSpec {
                         if (blockID != currentBlockID) {
                             dataByBlocks.add(dataByBlock);
                             massSpecExtractedData.addBlockLiteRecord(
-                                    parseAndBuildSingleBlockNeptuneRecord(currentBlockID, cyclesPerBlock, dataByBlocks.get(currentBlockID - 1)));
+                                    parseAndBuildSingleBlockNeptuneRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
                             currentBlockID++;
                             dataByBlock = new ArrayList<>();
                             dataByBlock.add(line);
@@ -100,7 +98,7 @@ public enum NeptuneMassSpec {
                     case 8 -> {
                         dataByBlocks.add(dataByBlock);
                         massSpecExtractedData.addBlockLiteRecord(
-                                parseAndBuildSingleBlockNeptuneRecord(currentBlockID, cyclesPerBlock, dataByBlocks.get(currentBlockID - 1)));
+                                parseAndBuildSingleBlockNeptuneRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
                         phase = -1;
                     }
                 }
@@ -110,10 +108,10 @@ public enum NeptuneMassSpec {
         return massSpecExtractedData;
     }
 
-    private static MassSpecOutputBlockRecordLite parseAndBuildSingleBlockNeptuneRecord(int blockNumber, int cyclesPerBlock, List<String> blockData) {
+    private static MassSpecOutputBlockRecordLite parseAndBuildSingleBlockNeptuneRecord(int blockNumber, List<String> blockData) {
         List<String> timeStampByLineSplit = new ArrayList<>();
         List<String[]> cycleDataByLineSplit = new ArrayList<>();
-        // case 1:  Triton Cycle,Time, DATA[custom fields]
+        // case 1: Triton Cycle, Time, DATA[custom fields]
         for (String line : blockData) {
             String[] lineSplit = line.split("\t");
             timeStampByLineSplit.add(lineSplit[1].trim());
@@ -134,8 +132,8 @@ public enum NeptuneMassSpec {
         for (String[] numbersAsStrings : cycleDataByLineSplit) {
             // TODO: wTF
             for (int i = 0; i < numbersAsStrings.length; i++) {
-                numbersAsStrings[i] = numbersAsStrings[i].replaceAll("X", "");
-                numbersAsStrings[i] = numbersAsStrings[i].replaceAll("D", "");
+                numbersAsStrings[i] = numbersAsStrings[i].replace("X", "");
+                numbersAsStrings[i] = numbersAsStrings[i].replace("D", "");
                 if (numbersAsStrings[i].isBlank()) numbersAsStrings[i] = "0.0";
             }
             cycleData[index] = Arrays.stream(numbersAsStrings)
@@ -150,28 +148,5 @@ public enum NeptuneMassSpec {
         );
     }
 
-
-    // helper methods **************************************************************************************************
-    private static double[] convertListOfNumbersAsStringsToDoubleArray(List<String> listToConvert) {
-        double[] retVal = new double[listToConvert.size()];
-        int index = 0;
-        for (String blockNumberAsString : listToConvert) {
-            retVal[index] = Double.parseDouble(blockNumberAsString);
-            index++;
-        }
-
-        return retVal;
-    }
-
-    private static int[] convertListOfNumbersAsStringsToIntegerArray(List<String> listToConvert) {
-        int[] retVal = new int[listToConvert.size()];
-        int index = 0;
-        for (String blockNumberAsString : listToConvert) {
-            retVal[index] = Integer.parseInt(blockNumberAsString);
-            index++;
-        }
-
-        return retVal;
-    }
 
 }

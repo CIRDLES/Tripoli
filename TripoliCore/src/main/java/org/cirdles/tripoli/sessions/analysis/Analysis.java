@@ -23,7 +23,6 @@ import jakarta.xml.bind.Unmarshaller;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
@@ -31,7 +30,6 @@ import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
-import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
@@ -70,8 +68,11 @@ import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_FULL_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
@@ -84,13 +85,14 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuilti
 /**
  * @author James F. Bowring
  */
-public class Analysis implements Serializable, AnalysisInterface, Comparable {
+public class Analysis implements Serializable, AnalysisInterface, Comparable<Analysis> {
     public static final int SKIP = -1;
     public static final int SHOW = 0;
     public static final int RUN = 1;
     @Serial
     private static final long serialVersionUID = 5737165372498262402L;
-
+    // suppresses variables for testing
+    public static boolean suppressContents = true;
     private final Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, PlotBuilder[]> mapOfBlockIdToPeakPlots = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
@@ -104,6 +106,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final boolean mutable;
     private TripoliSpeciesColorMap analysisMapOfSpeciesToColors;
     private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
     private Session parentSession;
@@ -111,8 +114,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private String analystName;
     private String labName;
     private AnalysisMethod analysisMethod;
-
-
     private List<UserFunction> userFunctions;
     private String analysisSampleName;
     private String analysisFractionName;
@@ -120,27 +121,19 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     // note: Path is not serializable
     private String dataFilePathString;
     private MassSpecExtractedData massSpecExtractedData;
-    private boolean mutable;
-    private SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis plotSpecsSpeciesIntensityAnalysis;
     private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[0];
     private double analysisDalyFaradayGainMean;
     private double analysisDalyFaradayGainMeanOneSigmaAbs;
     private ETReduxExportTypeEnum etReduxExportType = ETReduxExportTypeEnum.NONE;
     private String analysisStartTime = "01/01/2001 00:00:00";
-
+    // END Block Stats color hex
     // Block Color Hex
     private RatiosColors ratiosColors;
-    // END Block Stats color hex
-
     // Parameters
     private Parameters analysisParameters;
-
     // concatenation support
     private AnalysisInterface[] memberAnalyses;
     private List<Integer> memberAnalysisBorderFlags;
-
-    private Analysis() {
-    }
 
     protected Analysis(String analysisName,
                        AnalysisMethod analysisMethod,
@@ -176,10 +169,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         dataFilePathString = MISSING_STRING_FIELD;
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
-        if (null != analysisMethod) {
-            plotSpecsSpeciesIntensityAnalysis = new SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis(
-                    new boolean[analysisMethod.getSpeciesList().size()], true, true, true, true, true, false);
-        }
         userFunctions = new ArrayList<>();
 
         memberAnalyses = new AnalysisInterface[0];
@@ -187,46 +176,57 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     public static AnalysisInterface concatenateAnalysesLite(
             AnalysisInterface[] analyses) throws TripoliException {
-        // use case 1 assume for now that these are two or more sequential runs with all the same metadata
+        // all analyses have same sample and fraction
         List<String> analysisNames = new ArrayList<>();
         for (AnalysisInterface analysis : analyses) {
             analysisNames.add(analysis.getAnalysisName());
         }
 
         String prefix = StringUtils.getCommonPrefix(analysisNames.toArray(new String[0]));
-        String concatenatedName = prefix + "{";
+        StringBuilder concatenatedName = new StringBuilder(prefix + "{");
         for (String fileName : analysisNames) {
             String suffix = fileName.replace(prefix, "");
-            concatenatedName += suffix + "; ";
+            concatenatedName.append(suffix).append("; ");
         }
-        concatenatedName = concatenatedName.substring(0, concatenatedName.length() - 2) + "}";
+        concatenatedName = new StringBuilder(concatenatedName.substring(0, concatenatedName.length() - 2) + "}");
 
         Analysis analysisConcat = new Analysis(
                 "Concatenated " + concatenatedName,
-                analyses[0].getAnalysisMethod(),
+                new AnalysisMethod("Concatenated Methods", analyses[0].getMassSpecExtractedData().getMassSpectrometerContext()),
                 analyses[0].getAnalysisSampleName());
+        analysisConcat.getMassSpecExtractedData().setMassSpectrometerContext(analyses[0].getMassSpecExtractedData().getMassSpectrometerContext());
         analysisConcat.setMemberAnalyses(analyses);
         analysisConcat.calculateMemberAnalysisBorderFlags();
         analysisConcat.setAnalysisSampleDescription("Concatenated analyses");
-        analysisConcat.setDataFilePathString("N/A");
+        analysisConcat.setDataFilePathString(analyses[0].getDataFilePathString());
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String analysisTime = df.format(new Date());
         analysisConcat.setAnalysisStartTime(analysisTime);
-        analysisConcat.setUserFunctions(analysisConcat.getAnalysisMethod().createUserFunctions());
 
+        // TODO: modify header
+        //massSpecExtractedData.setHeader(analyses[0].getMassSpecExtractedData().getHeader());
+
+        // find union of userFunctions
+        List<String> concatUserFunctionNames = new ArrayList<>();
+        List<UserFunction> concatUserFunctionBlanks = new ArrayList<>();
+        for (AnalysisInterface analysis : analyses) {
+            List<UserFunction> userFunctionBlanks = analysis.getAnalysisMethod().createUserFunctions();
+            for (UserFunction userFunction : userFunctionBlanks) {
+                if (!concatUserFunctionNames.contains(userFunction.getName())) {
+                    concatUserFunctionNames.add(userFunction.getName());
+                    concatUserFunctionBlanks.add(userFunction);
+                }
+            }
+        }
+
+        analysisConcat.setUserFunctions(concatUserFunctionBlanks);
         analysisConcat.updateConcatenatedAnalysis();
+        analysisConcat.getMassSpecExtractedData().setBlocksDataLite(
+                MassSpecExtractedData.concatenateBlocksDataLite(analyses));
 
         AllBlockInitForDataLiteOne.initBlockModels(analysisConcat);
 
-        MassSpecExtractedData massSpecExtractedData = analysisConcat.getMassSpecExtractedData();
-        massSpecExtractedData.setMassSpectrometerContext(analyses[0].getMassSpecExtractedData().getMassSpectrometerContext());
-        massSpecExtractedData.setHeader(analyses[0].getMassSpecExtractedData().getHeader());
-        // TODO: modify header
-        massSpecExtractedData.setColumnHeaders(analyses[0].getMassSpecExtractedData().getColumnHeaders());
-
-        massSpecExtractedData.setBlocksDataLite(
-                MassSpecExtractedData.concatenateBlocksDataLite(analyses));
         return analysisConcat;
     }
 
@@ -238,8 +238,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private void calculateMemberAnalysisBorderFlags() {
         memberAnalysisBorderFlags = new ArrayList<>();
         int totalBlocks = 0;
-        for (int i = 0; i < memberAnalyses.length; i++) {
-            totalBlocks += memberAnalyses[i].getMapOfBlockIdToRawDataLiteOne().size();
+        for (AnalysisInterface memberAnalysis : memberAnalyses) {
+            totalBlocks += memberAnalysis.getMapOfBlockIdToRawDataLiteOne().size();
             memberAnalysisBorderFlags.add(totalBlocks);
         }
     }
@@ -252,10 +252,16 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
             for (int i = 0; i < getMemberAnalyses().length; i++) {
                 UserFunction ufFromAnalysis = ((Analysis) getMemberAnalyses()[i]).getUserFunctionByName(uf.getName());
+                boolean hasUserFunction = ufFromAnalysis != null;
+                if (!hasUserFunction) {
+                    // assume cycle userFunction is available
+                    ufFromAnalysis = ((Analysis) getMemberAnalyses()[i]).getUserFunctionByName("Cycle");
+                }
                 Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap =
                         ufFromAnalysis.getMapBlockIdToBlockCyclesRecord();
                 for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
-                    PlotBlockCyclesRecord record = entry.getValue().cloneCyclesRecord();
+                    PlotBlockCyclesRecord record =
+                            hasUserFunction ? entry.getValue().cloneCyclesRecord() : entry.getValue().zeroCyclesRecord();
                     userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, record.changeBlockIDforConcat(concatBlockId));
                     concatBlockId++;
                 }
@@ -339,14 +345,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
                     setMethod(extractAnalysisMethodfromPath(Path.of(selectedMethodFile.toURI())));
                     TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedMethodFile.getParent());
                 }
-                // decided not to alert
-//                else
-//                {
-//                    throw new TripoliException(
-//                            "Method File not found: " + massSpecExtractedData.getHeader().methodName()
-//                                    + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
-//                }
-
                 initializeBlockProcessing();
 
                 // collects the file objects from PeakCentres folder +++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -354,16 +352,18 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
                 if (getPeakCentresFolder.exists() && getPeakCentresFolder.isDirectory()) {
                     File[] peakCentreFiles = getPeakCentresFolder.listFiles();
                     Pattern p = Pattern.compile("^(.*?)\\.TXT$");
-                    for (File file : peakCentreFiles) {
-                        Matcher m = p.matcher(file.getName());
-                        if (m.matches()) {
-                            fileList.add(file);
+                    if (peakCentreFiles != null) {
+                        for (File file : peakCentreFiles) {
+                            Matcher m = p.matcher(file.getName());
+                            if (m.matches()) {
+                                fileList.add(file);
+                            }
                         }
                     }
 
                     IntuitiveStringComparator<String> intuitiveStringComparator = new IntuitiveStringComparator<>();
                     fileList.sort((file1, file2) -> intuitiveStringComparator.compare(file1.getName(), file2.getName()));
-                    if (0 < blockPeakGroups.size()) {
+                    if (!blockPeakGroups.isEmpty()) {
                         for (Integer blockID : blockPeakGroups.keySet()) {
                             blockPeakGroups.get(blockID).clear();
                         }
@@ -417,27 +417,40 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     private void initSampleFractionNames() {
         /*
+        FOR KU SPECIFICALLY
         Our previous rules were "SampleName FractionName Infinite Free Text Here".
         So, the sample name is the first block of unbroken text, then a space, then the fraction name
-        is the second block of unbroken text, then a space, then the user/mass spectrometer can append
-        any additional info to the end.  So, a common file names could be "FC1 z1 Pb" or
+        is the second block of unbroken text, then a space; then the user/mass spectrometer can append
+        any additional info to the end.  So, a common file name could be "FC1 z1 Pb" or
         "FC1 z1 Pb second try after mass spectrometer exploded" or "FC1 z1 run3 U static Faraday 2024-04-25".
         All have FC1 as the sample name and z1 as the fraction name.
         No spaces are allowed in the sample name or the fraction name.
+
+        May 2026 -Drew Coleman uses U-25SE01-F3, for example
          */
+        analysisSampleName = MISSING_STRING_FIELD;
+        analysisFractionName = MISSING_STRING_FIELD;
+        analysisSampleDescription = MISSING_STRING_FIELD;
+
         String sampleName = massSpecExtractedData.getHeader().sampleName();
         if (!sampleName.isEmpty()) {
-            String[] sampleNameArray = sampleName.split(" ");
-
-            analysisSampleName = sampleNameArray[0];
-            if (sampleNameArray.length > 1) {
-                analysisFractionName = sampleNameArray[1];
+            if (sampleName.contains("-")) {
+                // Drew Coleman
+                String[] sampleNameArray = sampleName.split("-");
+                analysisSampleName = sampleNameArray[1];
+                if (sampleNameArray.length > 2) {
+                    analysisFractionName = sampleNameArray[2];
+                }
+            } else if (sampleName.contains(" ")) {
+                // KU and PURDUE
+                String[] sampleNameArray = sampleName.split(" ");
+                analysisSampleName = sampleNameArray[0];
+                if (sampleNameArray.length > 1) {
+                    analysisFractionName = sampleNameArray[1];
+                }
+            } else {
+                analysisSampleName = sampleName;
             }
-//            analysisSampleDescription = sampleName.substring(analysisSampleName.length() + analysisFractionName.length(), sampleName.length() - 1);
-        } else {
-            analysisSampleName = MISSING_STRING_FIELD;
-            analysisFractionName = MISSING_STRING_FIELD;
-            analysisSampleDescription = MISSING_STRING_FIELD;
         }
     }
 
@@ -470,15 +483,11 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
             retVal = mapOfBlockIdToPlots.get(blockID);
             loggingCallback.receiveLoggingSnippet("1000 >%");
         } else {
-            try {
-                PlotBuilder[][] plotBuilders;
-                plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
-                mapOfBlockIdToPlots.put(blockID, plotBuilders);
-                mapOfBlockIdToProcessStatus.put(blockID, SHOW);
-                retVal = mapOfBlockIdToPlots.get(blockID);
-            } catch (IOException e) {
-                System.out.println("PROBLEM EXPORTING ENSEMBLES");
-            }
+            PlotBuilder[][] plotBuilders;
+            plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
+            mapOfBlockIdToPlots.put(blockID, plotBuilders);
+            mapOfBlockIdToProcessStatus.put(blockID, SHOW);
+            retVal = mapOfBlockIdToPlots.get(blockID);
         }
         return retVal;
     }
@@ -498,8 +507,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
     private void updatePlotBuildersWithShades(PlotBuilder[] linePlotBuilders, double shadeWidth) {
-        for (int i = 0; i < linePlotBuilders.length; i++) {
-            linePlotBuilders[i].setShadeWidthForModelConvergence(shadeWidth);
+        for (PlotBuilder linePlotBuilder : linePlotBuilders) {
+            linePlotBuilder.setShadeWidthForModelConvergence(shadeWidth);
         }
     }
 
@@ -510,19 +519,20 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
             mapOfBlockIdToPeakPlots.remove(blockID);
         }
 
-        if (mapOfBlockIdToPeakPlots.containsKey(blockID)) {
-            retVal = mapOfBlockIdToPeakPlots.get(blockID);
-        } else {
+        if (!mapOfBlockIdToPeakPlots.containsKey(blockID)) {
             PlotBuilder[] peakPlotBuilders = SingleBlockPeakDriver.buildForSinglePeakBlock(blockID, blockPeakGroups);
             mapOfBlockIdToPeakPlots.put(blockID, peakPlotBuilders);
-            retVal = mapOfBlockIdToPeakPlots.get(blockID);
         }
+        retVal = mapOfBlockIdToPeakPlots.get(blockID);
         return retVal;
     }
 
-    // Updates Peak Centre plots
-
-
+    /**
+     * Updates Peak Centre plots
+     *
+     * @param indexOfIsotopicRatio indexOfIsotopicRatio
+     * @param displayed            boolean
+     */
     public void updateRatiosPlotBuilderDisplayStatus(int indexOfIsotopicRatio, boolean displayed) {
         for (Integer blockID : mapOfBlockIdToPlots.keySet()) {
             PlotBuilder[] plotBuilder = mapOfBlockIdToPlots.get(blockID)[PLOT_INDEX_RATIOS];
@@ -545,19 +555,17 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
 
     public AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData() {
-        Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = mapOfBlockIdToRawData;
         SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[mapOfBlockIdToProcessStatus.size()];
         int index = 0;
-        for (SingleBlockRawDataSetRecord singleBlockRawDataSetRecord : singleBlockRawDataSetRecordMap.values()) {
+        for (SingleBlockRawDataSetRecord singleBlockRawDataSetRecord : mapOfBlockIdToRawData.values()) {
             singleBlockRawDataSetRecords[index] = singleBlockRawDataSetRecord;
             index++;
         }
 
         int cycleCount = 0;
-        Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = mapOfBlockIdToFinalModel;
         SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[mapOfBlockIdToProcessStatus.size()];
         index = 0;
-        for (SingleBlockModelRecord singleBlockModelRecord : singleBlockModelRecordMap.values()) {
+        for (SingleBlockModelRecord singleBlockModelRecord : mapOfBlockIdToFinalModel.values()) {
             singleBlockModelRecords[index] = singleBlockModelRecord;
             index++;
             if ((null != singleBlockModelRecord) && (0 == cycleCount)) {
@@ -602,20 +610,20 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         if (getAnalysisCaseNumber() == 1) {
             sb.append(String.format("%30s", "Column headers: "));
             for (String header : massSpecExtractedData.getUsedColumnHeaders()) {
-                sb.append(header + ", ");
+                sb.append(header).append(", ");
             }
             sb.replace(sb.length() - 2, sb.length(), "");
             sb.append("\n");
             sb.append(String.format("%30s", "Block count: "))
                     .append(String.format("%-3s", massSpecExtractedData.getBlocksDataLite().size()));
-            if (massSpecExtractedData.getBlocksDataLite().size() > 0) {
-                sb.append(String.format("%-3s", "each with " + massSpecExtractedData.getBlocksDataLite().get(1).cycleData().length) + " cycles");
+            if (!massSpecExtractedData.getBlocksDataLite().isEmpty()) {
+                sb.append(String.format("%-3s", "each with " + massSpecExtractedData.getBlocksDataLite().get(1).cycleData().length)).append(" cycles");
             }
             sb.append("\n");
         } else {
             sb.append(String.format("%30s", "Column headers: "));
             for (String header : massSpecExtractedData.getUsedColumnHeaders()) {
-                sb.append(header + ", ");
+                sb.append(header).append(", ");
             }
             sb.replace(sb.length() - 2, sb.length(), "");
             sb.append("\n");
@@ -626,12 +634,12 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
             sb.append(String.format("\n%30s", "Baseline sequences: "));
             Set<String> baselineNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksDataFull().get(1).baselineIDs()));
             for (String baselineName : baselineNames) {
-                sb.append(baselineName + " ");
+                sb.append(baselineName).append(" ");
             }
             sb.append(String.format("\n%30s", "Onpeak sequences: "));
             Set<String> onPeakNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksDataFull().get(1).onPeakIDs()));
             for (String onPeakName : onPeakNames) {
-                sb.append(onPeakName + " ");
+                sb.append(onPeakName).append(" ");
             }
         }
 
@@ -661,9 +669,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     public void analysisRatioEngine() {
         Map<IsotopicRatio, List<HistogramRecord>> mapRatioToAnalysisLogRatioRecords = new TreeMap<>();
-        Iterator<Map.Entry<Integer, PlotBuilder[][]>> iterator = mapOfBlockIdToPlots.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Integer, PlotBuilder[][]> entry = iterator.next();
+        for (Map.Entry<Integer, PlotBuilder[][]> entry : mapOfBlockIdToPlots.entrySet()) {
             if (SHOW == mapOfBlockIdToProcessStatus.get(entry.getKey())) {
                 PlotBuilder[] ratiosPlotBuilder = entry.getValue()[PLOT_INDEX_RATIOS];
                 for (PlotBuilder ratioPlotBuilder : ratiosPlotBuilder) {
@@ -687,11 +693,101 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         }
     }
 
+    /**
+     * Takes in an array and its respective inclusion array and formats the data into a string
+     *
+     * @param arr
+     * @param includedArr
+     * @return a String array of the values. Wrapped if not included
+     */
+    public String[] formatCycleData(double[] arr, boolean[] includedArr) {
+        String[] formattedArray = new String[arr.length];
+
+        for (int i = 0; i < arr.length; i++) {
+            // Converts Cycle column into integers
+            if (i == 0 && includedArr[i]) {
+                formattedArray[i] = Integer.toString((int) arr[i]);
+            } else if (includedArr[i]) {
+                formattedArray[i] = Double.toString(arr[i]);
+            } else {
+                formattedArray[i] = "&" + arr[i] + "&";
+            }
+        }
+        return formattedArray;
+    }
+
+    /**
+     * Takes in a generic list of objects and joins them with a tab delimiter.
+     *
+     * @param items  Generic list of objects
+     * @param action Action to perform on each item to get the desired String
+     * @param <T>
+     * @return String of tab-delimited items
+     */
+    public <T> String tabJoin(List<T> items, Function<T, String> action) {
+        StringBuilder joinedString = new StringBuilder();
+        for (T item : items) {
+            String value = action == null ? item.toString() : action.apply(item);
+
+            joinedString.append(String.format("%-17s", value)).append("\t");
+        }
+        return joinedString.toString().trim();
+    }
+
+    public final ArrayList<String> prepareFractionForCyclesExport(Session tripoliSession) {
+        Comparator<UserFunction> columnIndexComparator = Comparator.comparingInt(UserFunction::getColumnIndex);
+        List<UserFunction> userFunctions = new ArrayList<>(getUserFunctions());
+        userFunctions.sort(columnIndexComparator);
+        setUserFunctions(userFunctions);
+        String dataFilepath = getDataFilePathString();
+        String sessionFilepath = null;
+        String currDate = new SimpleDateFormat("MM/dd/yy HH:mm:ss").format(new Date());
+
+        if (tripoliSession != null && !suppressContents) {
+            if (!Objects.equals(tripoliSession.getSessionFilePathAsString(), "")) {
+                sessionFilepath = tripoliSession.getSessionFilePathAsString().substring(0, tripoliSession.getSessionFilePathAsString().lastIndexOf(File.separator) + 1) + String.join("_", tripoliSession.getSessionName().split(" ")) + ".tripoli";
+            } else {
+                sessionFilepath = "*Unsaved Session*";
+            }
+        } else if (suppressContents) {
+            sessionFilepath = "*Unsaved Session*";
+            dataFilepath = "";
+            currDate = "";
+        }
+
+        Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = getMapOfBlockIdToRawDataLiteOne();
+        ArrayList<String> fileContents = new ArrayList<>();
+
+        fileContents.add("New Tripoli tab-delimited output of processed data for:\n");
+        fileContents.add("Session: " + sessionFilepath + "\n");
+        fileContents.add("Analysis: " + dataFilepath + "\n");
+        fileContents.add("produced on: " + currDate + "\n\n");
+        fileContents.add("Data is presented by cycles.\n");
+        fileContents.add("Any discarded values are wrapped in &s.\n");
+        fileContents.add("Any missing values are represented as a blank entry.\n\n");
+
+        fileContents.add(tabJoin(userFunctions, UserFunction::getName) + "\n");
+
+        // Write the Cycle Data to the file
+        for (int i = 1; i <= mapOfBlockIdToRawDataLiteOne.size(); i++) {
+            SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = mapOfBlockIdToRawDataLiteOne.get(i);
+            double[][] blockRawDataLiteArray = singleBlockRawDataLiteSetRecord.blockRawDataLiteArray();
+            boolean[][] blockRawDataLiteIncludedArray = singleBlockRawDataLiteSetRecord.blockRawDataLiteIncludedArray();
+
+            for (int j = 0; j < blockRawDataLiteArray.length; j++) {
+                fileContents.add(tabJoin(Stream.of(formatCycleData(blockRawDataLiteArray[j], blockRawDataLiteIncludedArray[j])).collect(Collectors.toList()), null) + "\n");
+            }
+        }
+
+        return fileContents;
+    }
+
     public final ETReduxFraction prepareFractionForETReduxExport() {
         setEtReduxExportType(userFunctions.get(0).getEtReduxExportType());
 
         ETReduxFraction etReduxFraction = ETReduxFraction.buildExportFraction(
-                getAnalysisSampleName(), getAnalysisFractionName(), getEtReduxExportType(), 0.00205);
+                getAnalysisSampleName(), getAnalysisFractionName(), getEtReduxExportType(),
+                analysisParameters.getR18O_16O_OxideCorrection());
         for (UserFunction uf : userFunctions) {
             String etReduxName = uf.getCorrectETReduxName();
             if (!etReduxName.isBlank() && etReduxFraction.getMeasuredRatioByName(etReduxName) != null) {
@@ -703,15 +799,15 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
     public final String prepareFractionForClipboardExport() {
-        String retVal = "";
+        StringBuilder retVal = new StringBuilder();
         for (UserFunction uf : userFunctions) {
             if (uf.isDisplayed() && !uf.getName().contains("Cycle") && !uf.getName().contains("Time")) {
                 MeasuredUserFunction measuredUserFunctionModel = new MeasuredUserFunction(uf.showCorrectName());
                 measuredUserFunctionModel.refreshStats(uf);
-                retVal += measuredUserFunctionModel.showClipBoardOutput();
+                retVal.append(measuredUserFunctionModel.showClipBoardOutput());
             }
         }
-        return retVal;
+        return retVal.toString();
     }
 
     public final String produceReportTemplateOne() {
@@ -726,11 +822,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         int[][] calculatedSpeciesIncludedCounts = calculateSpeciesIncludedCounts();
         for (SpeciesRecordInterface species : analysisMethod.getSpeciesList()) {
             if ((analysisSpeciesStats.length > speciesIndex) && (analysisSpeciesStats[speciesIndex] != null)) {
-                sb.append("intensity " + species.prettyPrintShortForm() + " (cps)" + ","
-                        + analysisSpeciesStats[speciesIndex].getMean() + ","
-                        + analysisSpeciesStats[speciesIndex].getStandardDeviation() + ","
-                        + calculatedSpeciesIncludedCounts[speciesIndex * 2 + 1][0] + ","
-                        + calculatedSpeciesIncludedCounts[speciesIndex * 2][0] + "\n");
+                sb.append("intensity ").append(species.prettyPrintShortForm()).append(" (cps)").append(",").append(analysisSpeciesStats[speciesIndex].getMean()).append(",").append(analysisSpeciesStats[speciesIndex].getStandardDeviation()).append(",").append(calculatedSpeciesIncludedCounts[speciesIndex * 2 + 1][0]).append(",").append(calculatedSpeciesIncludedCounts[speciesIndex * 2][0]).append("\n");
             }
             speciesIndex++;
         }
@@ -738,26 +830,17 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         for (IsotopicRatio ratio : analysisMethod.getIsotopicRatiosList()) {
             AnalysisRatioRecord analysisRatioRecord = mapOfRatioToAnalysisRatioRecord.get(ratio);
             if (null != analysisRatioRecord) {
-                sb.append(ratio.prettyPrint() + ","
-                        + analysisRatioRecord.weightedMeanRecord().ratioWeightedMean() + ","
-                        + analysisRatioRecord.weightedMeanRecord().ratioHigherOneSigmaAbs()
-                        + ", , \n");
+                sb.append(ratio.prettyPrint()).append(",").append(analysisRatioRecord.weightedMeanRecord().ratioWeightedMean()).append(",").append(analysisRatioRecord.weightedMeanRecord().ratioHigherOneSigmaAbs()).append(", , \n");
             }
         }
         for (IsotopicRatio ratio : analysisMethod.getDerivedIsotopicRatiosList()) {
             AnalysisRatioRecord analysisRatioRecord = mapOfRatioToAnalysisRatioRecord.get(ratio);
             if (null != analysisRatioRecord) {
-                sb.append(ratio.prettyPrint() + ","
-                        + analysisRatioRecord.weightedMeanRecord().ratioWeightedMean() + ","
-                        + analysisRatioRecord.weightedMeanRecord().ratioHigherOneSigmaAbs()
-                        + ", , \n");
+                sb.append(ratio.prettyPrint()).append(",").append(analysisRatioRecord.weightedMeanRecord().ratioWeightedMean()).append(",").append(analysisRatioRecord.weightedMeanRecord().ratioHigherOneSigmaAbs()).append(", , \n");
             }
         }
 
-        sb.append("D/F Gain" + ","
-                + analysisDalyFaradayGainMean + ","
-                + analysisDalyFaradayGainMeanOneSigmaAbs
-                + ", , \n");
+        sb.append("D/F Gain" + ",").append(analysisDalyFaradayGainMean).append(",").append(analysisDalyFaradayGainMeanOneSigmaAbs).append(", , \n");
 
         return sb.toString();
     }
@@ -815,6 +898,10 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     public void setAnalysisFractionName(String analysisFractionName) {
         this.analysisFractionName = analysisFractionName;
+    }
+
+    public String gitSamplePlusFractionName() {
+        return analysisSampleName + analysisFractionName;
     }
 
     public String getAnalysisSampleDescription() {
@@ -899,10 +986,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return mutable;
     }
 
-    public void setMutable(boolean mutable) {
-        this.mutable = mutable;
-    }
-
     public Map<Integer, Integer> getMapOfBlockIdToProcessStatus() {
         return mapOfBlockIdToProcessStatus;
     }
@@ -959,11 +1042,11 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return massSpecExtractedData.getMassSpectrometerContext().getCaseNumber();
     }
 
-    public TripoliConstants.ETReduxExportTypeEnum getEtReduxExportType() {
+    public ETReduxExportTypeEnum getEtReduxExportType() {
         return etReduxExportType;
     }
 
-    public void setEtReduxExportType(TripoliConstants.ETReduxExportTypeEnum etReduxExportType) {
+    public void setEtReduxExportType(ETReduxExportTypeEnum etReduxExportType) {
         this.etReduxExportType = etReduxExportType;
     }
 
@@ -988,11 +1071,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     @Override
     public String getAntiDataHexColorString() {
         return ratiosColors.get(REJECTED_COLOR);
-    }
-
-    @Override
-    public void setAntiDataHexColorString(String hexColor) {
-        setBlockCyclesPlotColors(REJECTED_COLOR, hexColor);
     }
 
     @Override
@@ -1040,19 +1118,14 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return ratiosColors.get(DATA_COLOR);
     }
 
-    @Override
-    public void setDataHexColorString(String hexColor) {
-        setBlockCyclesPlotColors(DATA_COLOR, hexColor);
-    }
-
     /**
      * @param o the object to be compared.
-     * @return
+     * @return int
      */
     @Override
-    public int compareTo(@NotNull Object o) {
-        int retVal = 0;
-        retVal = analysisStartTime.compareTo(((Analysis) o).getAnalysisStartTime());
+    public int compareTo(@NotNull Analysis o) {
+        int retVal;
+        retVal = analysisStartTime.compareTo(o.getAnalysisStartTime());
         return retVal;
     }
 

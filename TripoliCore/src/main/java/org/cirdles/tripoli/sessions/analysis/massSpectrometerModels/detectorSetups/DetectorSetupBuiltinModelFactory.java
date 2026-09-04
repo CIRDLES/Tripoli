@@ -29,7 +29,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detec
 public enum DetectorSetupBuiltinModelFactory {
     ;
 
-    public static Map<String, DetectorSetup> detectorSetupBuiltinMap = new TreeMap<>();
+    public static final Map<String, DetectorSetup> detectorSetupBuiltinMap = new TreeMap<>();
 
     static {
 

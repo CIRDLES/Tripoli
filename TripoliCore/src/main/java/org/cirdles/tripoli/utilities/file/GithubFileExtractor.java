@@ -45,9 +45,8 @@ public enum GithubFileExtractor {
 
             // translate spaces
             Path path = Paths.get(fileName.replace("%20", " "));
-            byte[] strToBytes = fileContents.toString().getBytes(StandardCharsets.UTF_8);
 
-            Files.write(path, strToBytes);
+            Files.writeString(path, fileContents.toString());
 
         } catch (IOException e) {
             System.out.println("Could not read " + fileRawURI);

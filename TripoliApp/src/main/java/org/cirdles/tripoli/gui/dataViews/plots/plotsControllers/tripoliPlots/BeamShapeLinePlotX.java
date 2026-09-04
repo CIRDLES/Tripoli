@@ -34,8 +34,8 @@ import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.linePlots.BeamShapeRecord;
 
 public class BeamShapeLinePlotX extends AbstractPlot {
+    protected final BeamShapeRecord beamShapeRecord;
     private final Tooltip tooltip;
-    protected BeamShapeRecord beamShapeRecord;
     private int leftBoundary;
     private int rightBoundary;
 

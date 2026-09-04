@@ -35,9 +35,8 @@ import org.cirdles.tripoli.plots.linePlots.PeakShapesOverlayRecord;
 
 public class PeakShapesOverlayPlot extends AbstractPlot {
 
+    protected final PeakShapesOverlayRecord peakShapesOverlayRecord;
     private final Tooltip tooltip;
-    protected PeakShapesOverlayRecord peakShapesOverlayRecord;
-
     private double[] gBeamXData;
     private double[] yIntensity;
     private double[] gBeamYData;

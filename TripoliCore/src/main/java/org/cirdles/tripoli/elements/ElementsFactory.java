@@ -31,7 +31,7 @@ import java.util.List;
 public enum ElementsFactory {
     ;
 
-    public static List<ElementRecord> periodicTableElementsList = new ArrayList<>();
+    public static final List<ElementRecord> periodicTableElementsList = new ArrayList<>();
 
     static {
         ResourceExtractor RESOURCE_EXTRACTOR

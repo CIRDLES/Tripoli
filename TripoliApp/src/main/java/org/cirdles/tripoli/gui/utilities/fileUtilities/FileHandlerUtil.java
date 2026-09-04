@@ -33,8 +33,7 @@ import static org.cirdles.tripoli.utilities.file.FileNameFixer.fixFileName;
 public enum FileHandlerUtil {
     ;
 
-    public static File saveSessionFile(Session session, Window ownerWindow)
-            throws IOException {
+    public static File saveSessionFile(Session session, Window ownerWindow) {
 
         File retVal = null;
 
@@ -137,17 +136,6 @@ public enum FileHandlerUtil {
         return retVal;
     }
 
-    public static File selectMethodFolder(Window ownerWindow) {
-
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Select Analysis Method folder");
-        File initDirectory = new File(tripoliPersistentState.getMRUMethodXMLFolderPath());
-        directoryChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
-
-        return directoryChooser.showDialog(ownerWindow);
-
-    }
-
     public static File selectSampleMetaDataFolder(Window ownerWindow) {
 
         DirectoryChooser directoryChooser = new DirectoryChooser();
@@ -193,9 +181,9 @@ public enum FileHandlerUtil {
             if (!ensembleRecordsList.isEmpty()) {
                 Path path = Paths.get(directory + File.separator + "EnsemblesForBlock_" + blockID + ".csv");
                 OutputStream stream = Files.newOutputStream(path);
-                stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV("Index", analysis.getAnalysisMethod().getIsotopicRatiosList()).getBytes());
-                for (int i = 0; i < ensembleRecordsList.size(); i++) {
-                    stream.write(ensembleRecordsList.get(i).prettyPrintAsCSV().getBytes());
+                stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV(analysis.getAnalysisMethod().getIsotopicRatiosList()).getBytes());
+                for (EnsemblesStore.EnsembleRecord ensembleRecord : ensembleRecordsList) {
+                    stream.write(ensembleRecord.prettyPrintAsCSV().getBytes());
                 }
 
                 stream.close();
@@ -216,17 +204,15 @@ public enum FileHandlerUtil {
             // Issue # 196
             MCMCVectorExporter.DataVectorsRecord dataVectorsRecord = MCMCVectorExporter.exportData(analysis, blockID);
 
-            if (null != dataVectorsRecord) {
-                Path path = Paths.get(directory + File.separator + "MCMCVectorsForBlock_" + blockID + ".csv");
-                OutputStream stream = Files.newOutputStream(path);
-                stream.write(dataVectorsRecord.prettyPrintHeaderAsCSV().getBytes());
-                int countOfData = dataVectorsRecord.baselineFlags().length;
-                for (int i = 0; i < countOfData; i++) {
-                    stream.write(dataVectorsRecord.prettyPrintAsCSV(i).getBytes());
-                }
-
-                stream.close();
+            Path path = Paths.get(directory + File.separator + "MCMCVectorsForBlock_" + blockID + ".csv");
+            OutputStream stream = Files.newOutputStream(path);
+            stream.write(dataVectorsRecord.prettyPrintHeaderAsCSV().getBytes());
+            int countOfData = dataVectorsRecord.baselineFlags().length;
+            for (int i = 0; i < countOfData; i++) {
+                stream.write(dataVectorsRecord.prettyPrintAsCSV(i).getBytes());
             }
+
+            stream.close();
         }
     }
 
@@ -246,8 +232,7 @@ public enum FileHandlerUtil {
         stream.close();
     }
 
-    public static void saveExportFile(ETReduxFraction etReduxFraction, Window ownerWindow)
-            throws IOException, TripoliException {
+    public static void saveExportFile(ETReduxFraction etReduxFraction, Window ownerWindow) {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Fraction '.xml' file");
@@ -261,7 +246,7 @@ public enum FileHandlerUtil {
         etReduxFraction.serializeXMLObject(fractionFileNew.getAbsolutePath());
     }
 
-    public static File selectImportFile(Window ownerWindow) throws TripoliException {
+    public static File selectImportFile(Window ownerWindow) {
         File retVal = null;
 
         FileChooser fileChooser = new FileChooser();
@@ -288,4 +273,22 @@ public enum FileHandlerUtil {
         return retVal;
     }
 
+    public static File selectLiveDataStatusTxtFile(Window ownerWindow) {
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select LiveDataStatus.txt file");
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("LiveDataStatus.txt file", "LiveDataStatus.txt"));
+        File initDirectory = new File("");
+        if (tripoliPersistentState.getMRUDataFileFolderPath() != null) {
+            initDirectory = new File(tripoliPersistentState.getMRUDataFileFolderPath());
+        }
+        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+
+        File dataFile = fileChooser.showOpenDialog(ownerWindow);
+        if ((null != dataFile) && dataFile.getName().toLowerCase(Locale.US).endsWith("livedatastatus.txt")) {
+            return dataFile;
+        } else {
+            return null;
+        }
+    }
 }

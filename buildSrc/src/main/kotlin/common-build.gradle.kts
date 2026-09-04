@@ -43,14 +43,17 @@ dependencies {
     // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
 
-    // https://mvnrepository.com/artifact/com.google.guava/guava
-    implementation("com.google.guava:guava:31.1-jre")
+    // Source: https://mvnrepository.com/artifact/com.google.guava/guava
+    implementation("com.google.guava:guava:33.5.0-jre")
+
+    // Source: https://mvnrepository.com/artifact/org.checkerframework/checker-qual
+    implementation("org.checkerframework:checker-qual:3.54.0")
 }
 
 val mavenArtifactId = name
 val mavenGroupId = "org.cirdles"
 // preserve double quotes in mavenVersion as Tripoli uses regex based on them to check on latest version
-val mavenVersion = "2.3.0"//4 March 2026
+val mavenVersion = "2.7.5"//4 Sep 2026
 
 object Versions {
     const val junitVersion = "5.8.2"

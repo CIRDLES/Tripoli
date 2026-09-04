@@ -45,11 +45,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
+import static org.cirdles.tripoli.gui.TripoliGUI.updateStageTitle;
 import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_SESSION_LINEN;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColorToHex;
@@ -58,8 +58,9 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColor
  * @author James F. Bowring
  */
 public class SessionManagerController implements Initializable {
+    public static final List<AnalysisInterface> listOfSelectedAnalyses = new ArrayList<>();
+    public static final List<AnalysisInterface> listOfSelectedConcatAnalyses = new ArrayList<>();
     public static Session tripoliSession;
-    public static List<AnalysisInterface> listOfSelectedAnalyses = new ArrayList<>();
     public ColumnConstraints columnTwoConstraints;
     public GridPane sessionGridPane;
     public Button concatenateButton;
@@ -85,15 +86,13 @@ public class SessionManagerController implements Initializable {
         if (null == tripoliSession) {
             try {
                 tripoliSession = Session.initializeDefaultSession();
-            } catch (JAXBException e) {
-                //
+            } catch (TripoliException e) {
+                //throw new RuntimeException(e);
             }
         }
 
         // March 2024 implement drag n drop of files ===================================================================
-        sessionGridPane.setOnDragOver(event -> {
-            event.acceptTransferModes(TransferMode.MOVE);
-        });
+        sessionGridPane.setOnDragOver(event -> event.acceptTransferModes(TransferMode.MOVE));
         sessionGridPane.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
 
@@ -142,6 +141,8 @@ public class SessionManagerController implements Initializable {
                 e.printStackTrace();
             }
         });
+
+        listViewOfAnalyses.getSelectionModel().select(analysis);
     }
 
     private void populateSessionManagerGridPane() {
@@ -161,11 +162,26 @@ public class SessionManagerController implements Initializable {
         listViewOfAnalyses.setOnMouseClicked(event -> {
             AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
             AnalysisManagerController.analysis = analysisSelected;
+
+            MenuItem menuItemReports = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                    .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(3);
+            menuItemReports.setDisable(false);
+
             listOfSelectedAnalyses.clear();
-            listOfSelectedAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems().stream()
-                    .filter(p -> !((Analysis) p).hasMemberAnalyses())
-                    .collect(Collectors.toList()));
-            concatenateButton.setDisable(listOfSelectedAnalyses.size() < 2);
+            listOfSelectedConcatAnalyses.clear();
+            if (!listViewOfAnalyses.getSelectionModel().getSelectedItems().isEmpty()) {
+                AnalysisInterface firstAnalysis =
+                        listViewOfAnalyses.getSelectionModel().getSelectedItems().get(0);
+                String samplePlusFractionName = ((Analysis) firstAnalysis).gitSamplePlusFractionName();
+                listOfSelectedAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems().stream()
+                        .toList());
+                listOfSelectedConcatAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems().stream()
+                        .filter(p -> !((Analysis) p).hasMemberAnalyses()
+                                && ((Analysis) p).gitSamplePlusFractionName().equals(samplePlusFractionName))
+                        .toList());
+            }
+            concatenateButton.setDisable((listOfSelectedConcatAnalyses.size() < 2)
+                    || (listViewOfAnalyses.getSelectionModel().getSelectedItems().size() > listOfSelectedConcatAnalyses.size()));
             if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
                 if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
                     File dataFile = new File(analysisSelected.getDataFilePathString());
@@ -185,6 +201,7 @@ public class SessionManagerController implements Initializable {
             }
         });
         listViewOfAnalyses.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        updateStageTitle();
     }
 
     private void setupListeners() {
@@ -203,18 +220,18 @@ public class SessionManagerController implements Initializable {
     }
 
     public void concatenationAction() throws TripoliException {
-        // Check if analyses have the same method = use case 1
-        String methodNameForConcat = listOfSelectedAnalyses.get(0).getMethod().getMethodName();
-        List<AnalysisInterface> analysesWithSameMethodList = new ArrayList<>();
-        for (AnalysisInterface analysis : listOfSelectedAnalyses) {
-            if (analysis.getMethod().getMethodName().equals(methodNameForConcat)) {
-                //&& !((Analysis) analysis).hasMemberAnalyses()) {
-                analysesWithSameMethodList.add(analysis);
+        // generalized approach to concatenation where sample and fraction are the same
+        String sampleName = listOfSelectedConcatAnalyses.get(0).getAnalysisSampleName();
+        String fractionName = listOfSelectedConcatAnalyses.get(0).getAnalysisFractionName();
+        List<AnalysisInterface> analysesWithSameFractionList = new ArrayList<>();
+        for (AnalysisInterface analysis : listOfSelectedConcatAnalyses) {
+            if ((analysis.getAnalysisSampleName().equals(sampleName))
+                    && (analysis.getAnalysisFractionName().equals(fractionName))) {
+                analysesWithSameFractionList.add(analysis);
             }
         }
         AnalysisInterface[] analysesToConcatenate
-                = analysesWithSameMethodList.stream().toArray(AnalysisInterface[]::new);
-
+                = analysesWithSameFractionList.toArray(AnalysisInterface[]::new);
         if (analysesToConcatenate.length > 1) {
             AnalysisInterface analysisConcat = Analysis.concatenateAnalysesLite(analysesToConcatenate);
             tripoliSession.getMapOfAnalyses().put(analysisConcat.getAnalysisName(), analysisConcat);

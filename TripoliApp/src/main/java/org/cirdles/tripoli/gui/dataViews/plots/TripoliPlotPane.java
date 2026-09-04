@@ -52,8 +52,8 @@ import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
  */
 public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlotPane> {
 
-    public static double minPlotWidth = 175.0;
-    public static double minPlotHeight = 100.0;
+    public static final double minPlotWidth = 175.0;
+    public static final double minPlotHeight = 100.0;
     static double mouseStartX;
     static double mouseStartY;
     static boolean onEdgeEast;
@@ -92,7 +92,7 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
     // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
     // private CheckBox cycleCB;
     // private final CheckBoxChangeListener cycleCheckBoxChangeListener = new CheckBoxChangeListener(cycleCB);
-    private PlotWallPaneInterface plotWallPane;
+    private PlotWallPaneInterface plotWallPane = null;
     private AbstractPlot plot;
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
         snapToGrid();
@@ -290,13 +290,6 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
                 });
                 plotToolBar.getItems().add(synchButton);
             }
-
-            // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
-            // cycleCB = new CheckBox("Cycle");
-            // plotToolBar.getItems().add(cycleCB);
-            // cycleCB.setSelected(!((AnalysisBlockCyclesPlotI) plot).getBlockMode());
-            // cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
-
             setBottom(plotToolBar);
         }
 

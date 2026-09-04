@@ -206,7 +206,8 @@ public class OgTripoliImporter {
                     ufModels.get(ufm.getColumnIndex()).setDisplayed(false);
                 }
             }
-
+            // fixed aug 2026
+            bufferedReader.close();
             return tripoliAnalysis;
 
         } catch (IOException | TripoliException ignored) {
@@ -214,7 +215,8 @@ public class OgTripoliImporter {
         }
     }
 
-    public static MassSpecExtractedData extractMassSpecDataFromOGTripoli(Path inputFilePath) throws TripoliException, IOException {
+    @SuppressWarnings("unused")
+    public static MassSpecExtractedData extractMassSpecDataFromOGTripoli(Path inputFilePath) {
         return Objects.requireNonNull(importTripolizedData(inputFilePath.toFile())).getMassSpecExtractedData();
     }
 }

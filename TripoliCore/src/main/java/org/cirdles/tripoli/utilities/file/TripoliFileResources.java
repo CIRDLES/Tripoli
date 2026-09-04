@@ -55,8 +55,6 @@ public enum TripoliFileResources {
         retrieveResourceFiles(REFMAT_MODELS_FOLDER, "parameterModels/referenceMaterialsModels");
 
         retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_2ISOTOPE, "dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData");
-//        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_DATA, "dataSourceProcessors/dataSources/syntheticData/data");
-//        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_METHODS, "dataSourceProcessors/dataSources/syntheticData/methods");
         retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_SYNTHETICFORTRIPOLI, "dataSourceProcessors/dataSources/syntheticData/SyntheticOutToTripoli");
 
         retrieveResourceFiles(NUCLIDESCHART_DATA_FOLDER, "species/nuclides");
@@ -80,7 +78,7 @@ public enum TripoliFileResources {
         if (resourceTargetFolder.mkdir() && (null != listOfResourceFiles)) {
             List<String> fileNames = Files.readAllLines(listOfResourceFiles, ISO_8859_1);
             for (String name : fileNames) {
-                if (0 < name.trim().length()) {
+                if (!name.trim().isEmpty()) {
                     if (name.startsWith("https")) {
                         int fileNameIndex = name.lastIndexOf('/');
                         String fileName = name.substring(fileNameIndex + 1);

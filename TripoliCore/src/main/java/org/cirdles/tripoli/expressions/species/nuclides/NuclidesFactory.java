@@ -31,7 +31,7 @@ import java.util.*;
  */
 public final class NuclidesFactory implements Serializable {
 
-    public static Map<String, List<SpeciesRecordInterface>> nuclidesListByElementMap = new TreeMap<>();
+    public static final Map<String, List<SpeciesRecordInterface>> nuclidesListByElementMap = new TreeMap<>();
 
     static {
         ResourceExtractor RESOURCE_EXTRACTOR

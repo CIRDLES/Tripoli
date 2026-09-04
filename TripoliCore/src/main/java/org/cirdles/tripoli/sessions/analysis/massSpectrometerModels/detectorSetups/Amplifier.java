@@ -33,8 +33,7 @@ public class Amplifier implements Serializable {
     }
 
     static Amplifier initializeAmplifier() {
-        Amplifier amplifier = new Amplifier();
-        return amplifier;
+        return new Amplifier();
     }
 
     public AmplifierTypeEnum getAmplifierType() {

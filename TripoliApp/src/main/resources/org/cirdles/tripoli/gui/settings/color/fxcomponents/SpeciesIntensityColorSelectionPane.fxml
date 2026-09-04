@@ -6,7 +6,8 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 <?import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorSelectionRow?>
-<fx:root xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+<fx:root xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+         minWidth="-Infinity"
          prefHeight="185.0" prefWidth="536.0" type="Pane" xmlns="http://javafx.com/javafx/22">
     <VBox prefHeight="185.0" prefWidth="536.0">
         <Label fx:id="title" alignment="CENTER" prefHeight="37.0" prefWidth="536.0" text="Species Name Goes Here">

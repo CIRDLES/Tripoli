@@ -38,13 +38,14 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
-import java.io.IOException;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.DataDictionary.isLegalETReduxName;
+//import static org.cirdles.tripoli.constants.TripoliConstants.R18O_16O_DEFAULT_OXIDE_CORRECTION;
 import static org.cirdles.tripoli.constants.TripoliConstants.SPACES_100;
 
 /**
@@ -54,19 +55,19 @@ public class AnalysisMethod implements Serializable {
     @Serial
     private static final long serialVersionUID = -642166785514147638L;
     private static List<Report> reportList;
+    public final Map<String, Boolean> mapOfRatioNamesToInvertedFlag;
     private final MassSpectrometerContextEnum massSpectrometerContext;
-    public Map<String, Boolean> mapOfRatioNamesToInvertedFlag;
-    private String methodName;
-    private BaselineTable baselineTable;
-    private SequenceTable sequenceTable;
+    private final String methodName;
+    private final BaselineTable baselineTable;
+    private final SequenceTable sequenceTable;
+    private final BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
+    private final List<UserFunction> userFunctionsModel;
     private List<SpeciesRecordInterface> speciesList;
     private List<IsotopicRatio> isotopicRatiosList;
     private List<IsotopicRatio> derivedIsotopicRatiosList;
-    private BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
-    private List<UserFunction> userFunctionsModel;
     private boolean useLinearKnots;
 
-    private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
+    public AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
         this(methodName, massSpectrometerContext, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
     }
 
@@ -88,39 +89,44 @@ public class AnalysisMethod implements Serializable {
     }
 
     public static AnalysisMethod createAnalysisMethodFromCase1(
-            MassSpecExtractedData massSpecExtractedData) throws IOException {
+            MassSpecExtractedData massSpecExtractedData) throws TripoliException {
         int r270_267ColumnIndex = -1;
         int r265_267ColumnIndex = -1;
         AnalysisMethod analysisMethod = new AnalysisMethod(massSpecExtractedData.getHeader().methodName(), massSpecExtractedData.getMassSpectrometerContext());
         String[] columnHeaders = massSpecExtractedData.getColumnHeaders();
 
-        String regex = "[^alpha].*\\d?:?\\(?\\d{2,3}.{0,2}\\/\\d?:?\\d{2,3}.{0,2}.*";
-
+        String regex = "[^alph].*\\d?:?\\(?\\d{2,3}.{0,2}\\/[^alph].*\\d?:?\\d{2,3}.{0,2}.*";
+        Pattern atomicWeightRatioPattern = Pattern.compile("\\d+", Pattern.MULTILINE);
         for (int i = 0; i < columnHeaders.length; i++) {
-            UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 0);
+            UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i);
             if (columnHeaders[i].matches(regex)) {
                 userFunction.setTreatAsIsotopicRatio(true);
                 userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE);
-                int indexOfDivide = columnHeaders[i].indexOf("/");
-                // assume three digits / three digits
-                String numerator = columnHeaders[i].substring(indexOfDivide - 3, indexOfDivide);
-                String denominator = columnHeaders[i].substring(indexOfDivide + 1, indexOfDivide + 4);
+
+                // detect three digits / three digits
+                List<String> numDen = new ArrayList<>();
+                Matcher matcher = atomicWeightRatioPattern.matcher(columnHeaders[i]);
+                while (matcher.find()) {
+                    numDen.add(matcher.group(0));
+                }
+                String numerator = numDen.get(0);
+                String denominator = numDen.get(1);
+
                 String etReduxRatioName = numerator + "_" + denominator;
                 if (isLegalETReduxName(etReduxRatioName)) {
                     userFunction.setEtReduxName(etReduxRatioName);
                 }
 
                 if (etReduxRatioName.compareTo("270_267") == 0) {
-                    r270_267ColumnIndex = i - 0;
+                    r270_267ColumnIndex = i;
                 }
                 if (etReduxRatioName.compareTo("265_267") == 0) {
-                    r265_267ColumnIndex = i - 0;
+                    r265_267ColumnIndex = i;
                 }
 
                 String invertedETReduxRatioName = denominator + "_" + numerator;
                 if (isLegalETReduxName(invertedETReduxRatioName)) {
                     userFunction.setInvertedETReduxName(invertedETReduxRatioName);
-                    // postpone decision until data processed  userFunction.setInverted(true);
                 }
             } else {
                 userFunction.setTreatAsIsotopicRatio(false);
@@ -135,12 +141,13 @@ public class AnalysisMethod implements Serializable {
         // Uranium Oxide Correction : https://docs.google.com/document/d/14PPEDEJPylNMavpJDpYSuemNb0gF5dz_To3Ek1Y_Agw/edit#bookmark=id.xvyds659gu4x
         //TODO: make parameter manager
         if ((r270_267ColumnIndex > -1) && (r265_267ColumnIndex > -1)) {
-            massSpecExtractedData.expandCycleDataForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, 0.00205);
+            massSpecExtractedData.expandCycleDataForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex,
+                    TripoliPersistentState.getExistingPersistentState().getTripoliPersistentParameters().getR18O_16O_OxideCorrection());
             String[] columnHeadersExpanded = new String[columnHeaders.length + 3];
 
             System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);
 
-            columnHeadersExpanded[columnHeaders.length + 0] = "233/235oc";
+            columnHeadersExpanded[columnHeaders.length] = "233/235oc";
             UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length, true, true);
             userFunction.setEtReduxName("233_235");
             userFunction.setOxideCorrected(true);
@@ -160,7 +167,7 @@ public class AnalysisMethod implements Serializable {
 
             massSpecExtractedData.setColumnHeaders(columnHeadersExpanded);
 
-            System.out.println(columnHeaders[r270_267ColumnIndex + 0]);
+            System.out.println(columnHeaders[r270_267ColumnIndex]);
         }
         populateCustomExpressionFunctions(massSpecExtractedData, analysisMethod);
 
@@ -201,8 +208,8 @@ public class AnalysisMethod implements Serializable {
         List<PhoenixAnalysisMethod.BASELINE> baselineSequences = phoenixAnalysisMethod.getBASELINE();
         analysisMethod.baselineTable.setSequenceCount(baselineSequences.size());
 
-        // determine whether AxialCollector is Ax or PM in order to determine mass entries in baselineTable
-        Detector axialDetector = null;
+        // determine whether AxialCollector is Ax or PM to determine mass entries in baselineTable
+        Detector axialDetector;
         String axialCollectorName = phoenixAnalysisMethod.getSETTINGS().getAxialColl();
         if (axialCollectorName.startsWith("A")) {
             axialDetector = detectorSetup.getMapOfDetectors().get("Ax");
@@ -251,13 +258,13 @@ public class AnalysisMethod implements Serializable {
                             // rule per Noah - if <BLReference> empty or == "MASS", use <AxMass>, else mass from <BLReference>
                             double axMassOffset = Double.parseDouble(baselineSequences.get(baselineSequenceNumber - 1).getAxMassOffset());
                             String baselineRefs = baselineSequences.get(baselineSequenceNumber - 1).getBLReferences();
+                            double axMass;
                             if (baselineRefs.isBlank() || 0 == baselineRefs.compareToIgnoreCase("MASS")) {
-                                double axMass = Double.parseDouble(baselineSequences.get(baselineSequenceNumber - 1).getAxMass());
-                                baselineCell.setCellMass(axMass + axMassOffset);
+                                axMass = Double.parseDouble(baselineSequences.get(baselineSequenceNumber - 1).getAxMass());
                             } else {
-                                double axMass = Double.parseDouble(baselineRefs.split("(?<=\\d)(?=\\D)|(?=\\d)(?<=\\D)")[0]);
-                                baselineCell.setCellMass(axMass + axMassOffset);
+                                axMass = Double.parseDouble(baselineRefs.split("(?<=\\d)(?=\\D)|(?=\\d)(?<=\\D)")[0]);
                             }
+                            baselineCell.setCellMass(axMass + axMassOffset);
                         }
                     }
                 }
@@ -272,7 +279,7 @@ public class AnalysisMethod implements Serializable {
         analysisMethod.createListsOfIsotopicRatios();
 
         // post-process baselineTable to populate with masses
-        // TODO: make deltas more robust - Noah will have matlab code
+        // TODO: make deltas more robust - Noah will have MATLAB code
         Map<Detector, List<BaselineCell>> mapOfDetectorsToBaselineCells = analysisMethod.baselineTable.getMapOfDetectorsToBaselineCells();
         List<BaselineCell> axialBaselineCells = mapOfDetectorsToBaselineCells.get(axialDetector);
         // this index is used for either Ax or PM when calculating masses
@@ -286,7 +293,7 @@ public class AnalysisMethod implements Serializable {
                     List<BaselineCell> axialBaseLineCellListOfOne = axialBaselineCells
                             .stream()
                             .filter(c -> c.getBaselineSequence() == baselineCellIndex)
-                            .collect(Collectors.toList());
+                            .toList();
                     baselineCell.setCellMass((ordinalIndex - ordinalIndexOfAxial) + axialBaseLineCellListOfOne.get(0).getCellMass());
                 }
             }
@@ -356,22 +363,22 @@ public class AnalysisMethod implements Serializable {
     public String prettyPrintMethodSummary(boolean verbose) {
         StringBuilder retVal = new StringBuilder();
         retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 75 - methodName.length());
-        if (speciesList.size() > 0) {
+        if (!speciesList.isEmpty()) {
             retVal.append(verbose ? "\nSpecies: " : "  Species: ");
             List<SpeciesRecordInterface> speciesAlphabetic = new ArrayList<>(speciesList);
-            Collections.sort(speciesAlphabetic, Comparator.comparing(s -> s.getAtomicMass()));
+            speciesAlphabetic.sort(Comparator.comparing(SpeciesRecordInterface::getAtomicMass));
             for (SpeciesRecordInterface species : speciesAlphabetic) {
-                retVal.append(species.prettyPrintShortForm() + " ");
+                retVal.append(species.prettyPrintShortForm()).append(" ");
             }
         }
         if (verbose) {
             retVal.append("\nIsotopicRatios: ");
             for (IsotopicRatio ratio : isotopicRatiosList) {
-                retVal.append("\n\t\t" + ratio.prettyPrint());
+                retVal.append("\n\t\t").append(ratio.prettyPrint());
             }
             for (UserFunction userFunction : userFunctionsModel) {
                 if (userFunction.isTreatAsIsotopicRatio()) {
-                    retVal.append("\n\t\t" + userFunction.getName());
+                    retVal.append("\n\t\t").append(userFunction.getName());
                 }
             }
         }
@@ -411,10 +418,6 @@ public class AnalysisMethod implements Serializable {
         return speciesList;
     }
 
-    public void setSpeciesList(List<SpeciesRecordInterface> speciesList) {
-        this.speciesList = speciesList;
-    }
-
     public void addSpeciesToSpeciesList(SpeciesRecordInterface species) {
         if (null == speciesList) {
             speciesList = new ArrayList<>();
@@ -426,12 +429,12 @@ public class AnalysisMethod implements Serializable {
 
 
     public void sortSpeciesListByAbundance() {
-        Collections.sort(speciesList, Comparator.comparing(s -> s.getMassNumber()));
+        speciesList.sort(Comparator.comparing(SpeciesRecordInterface::getMassNumber));
     }
 
     public List<SpeciesRecordInterface> getSpeciesListSortedByMass() {
         List<SpeciesRecordInterface> speciesListCopy = new ArrayList<>(speciesList);
-        Collections.sort(speciesListCopy, Comparator.comparing(s -> s.getMassNumber()));
+        speciesListCopy.sort(Comparator.comparing(SpeciesRecordInterface::getMassNumber));
         return speciesListCopy;
     }
 
@@ -503,7 +506,7 @@ public class AnalysisMethod implements Serializable {
 
 
     /**
-     * Creates a ratio of each species except the last one divided by the last one in specieslist
+     * Creates a ratio of each species except the last one divided by the last one in speciesList
      */
     public void createListsOfIsotopicRatios() {
         sortSpeciesListByAbundance();
@@ -524,14 +527,13 @@ public class AnalysisMethod implements Serializable {
             }
         }
         // remaining inverses
-        for (int i = 0; i < isotopicRatiosList.size(); i++) {
-            IsotopicRatio ratio = isotopicRatiosList.get(i);
+        for (IsotopicRatio ratio : isotopicRatiosList) {
             IsotopicRatio invertedRatio = new IsotopicRatio(ratio.getDenominator(), ratio.getNumerator(), false);
             addRatioToDerivedIsotopicRatiosList(invertedRatio);
             biMapOfRatiosAndInverses.put(ratio, invertedRatio);
         }
 
-        Collections.sort(derivedIsotopicRatiosList, (ratio1, ratio2) -> ratio1.getNumerator().compareTo(ratio2.getNumerator()));
+        derivedIsotopicRatiosList.sort(Comparator.comparing(IsotopicRatio::getNumerator));
     }
 
     public List<Report> getReports() {

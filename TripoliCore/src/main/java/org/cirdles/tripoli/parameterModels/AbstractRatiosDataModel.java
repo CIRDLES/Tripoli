@@ -40,7 +40,7 @@ public abstract class AbstractRatiosDataModel implements
     /**
      *
      */
-    protected transient String XMLSchemaURL;
+    protected transient final String XMLSchemaURL;
     /**
      *
      */
@@ -508,7 +508,7 @@ public abstract class AbstractRatiosDataModel implements
                     dataCorrelationsVarUnct.setValueAt(row, col, correlation);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         try {
@@ -531,7 +531,7 @@ public abstract class AbstractRatiosDataModel implements
                     dataCorrelationsSysUnct.setValueAt(row, col, correlation);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -562,7 +562,7 @@ public abstract class AbstractRatiosDataModel implements
                     dataCovariancesVarUnct.setValueAt(row, col, covariance);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         try {
@@ -586,7 +586,7 @@ public abstract class AbstractRatiosDataModel implements
                     dataCovariancesSysUnct.setValueAt(row, col, covariance);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -912,7 +912,7 @@ public abstract class AbstractRatiosDataModel implements
     /**
      *
      */
-    protected class DataValueModelNameComparator implements Comparator<ValueModel>, Serializable {
+    protected static class DataValueModelNameComparator implements Comparator<ValueModel>, Serializable {
 
         /**
          *

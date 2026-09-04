@@ -50,7 +50,6 @@ public class MCMCProcess {
     private static final int modelCount = maxIterationCount * stepCountForcedSave;
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
     private final Matrix covarianceMatrix_C0;
-    private final AnalysisMethod analysisMethod;
     private final SingleBlockRawDataSetRecord singleBlockRawDataSetRecord;
     private final AnalysisInterface analysis;
     private final ProposedModelParameters.ProposalRangesRecord proposalRangesRecord;
@@ -61,12 +60,9 @@ public class MCMCProcess {
     private double[] baselineMultiplier;
     private double[] dataModelArrayInitial;
     private double[] dataSignalNoiseArray;
-    private double initialModelErrorWeighted_E;
     private double initialModelErrorUnWeighted_E0;
     private int[][] keptUpdates;
     private int sizeOfModel;
-    private int startingIndexOfFaradayData;
-    private int startingIndexOfPhotoMultiplierData;
     private double[] xDataMean;
     private double[][] xDataCovariance;
     private Matrix TT;
@@ -78,7 +74,7 @@ public class MCMCProcess {
             SingleBlockRawDataSetRecord singleBlockRawDataSetRecord,
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov, boolean useAverageNotBestModel) {
         this.analysis = analysis;
-        this.analysisMethod = analysis.getAnalysisMethod();
+        AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         this.singleBlockRawDataSetRecord = singleBlockRawDataSetRecord;
         singleBlockInitialModelRecord_X0 = singleBlockInitialModelRecordWithCov.singleBlockModelRecord();
         proposalRangesRecord = singleBlockInitialModelRecordWithCov.proposalRangesRecord();
@@ -150,8 +146,8 @@ public class MCMCProcess {
 //        System.arraycopy(hot, 0, TTarray, 0, hot.length);
         TT = new Matrix(TTarray, modelCount + 1);//modelCount);
 
-        startingIndexOfFaradayData = singleBlockRawDataSetRecord.getCountOfBaselineIntensities();
-        startingIndexOfPhotoMultiplierData = startingIndexOfFaradayData + singleBlockRawDataSetRecord.getCountOfOnPeakFaradayIntensities();
+        int startingIndexOfFaradayData = singleBlockRawDataSetRecord.getCountOfBaselineIntensities();
+        int startingIndexOfPhotoMultiplierData = startingIndexOfFaradayData + singleBlockRawDataSetRecord.getCountOfOnPeakFaradayIntensities();
 
         baselineMultiplier = new double[singleBlockInitialModelRecord_X0.dataModelArray().length];
         Arrays.fill(baselineMultiplier, 1.0);
@@ -243,7 +239,7 @@ public class MCMCProcess {
             E=sum(restmp_weight(d0.Include)/TT(1));  % Weighted by noise variance (for acceptance)
             E0=sum(restmp(d0.Include));  % Unweighted (for tracking convergence)
         */
-        initialModelErrorWeighted_E = 0.0;
+        double initialModelErrorWeighted_E = 0.0;
         initialModelErrorUnWeighted_E0 = 0.0;
         // TODO: confirm need for next loop
         for (int row = 0; row < dataModelArrayInitial.length; row++) {

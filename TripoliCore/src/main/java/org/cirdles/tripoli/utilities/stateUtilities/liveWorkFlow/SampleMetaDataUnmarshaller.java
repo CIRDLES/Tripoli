@@ -17,48 +17,61 @@
 package org.cirdles.tripoli.utilities.stateUtilities.liveWorkFlow;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.security.AnyTypePermission;
-import jakarta.xml.bind.JAXBException;
-import org.cirdles.tripoli.utilities.xml.XMLCleanerForSampleMetaData;
+import com.thoughtworks.xstream.security.NoTypePermission;
+import com.thoughtworks.xstream.security.NullPermission;
+import com.thoughtworks.xstream.security.PrimitiveTypePermission;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
 
 /**
  * @author James F. Bowring
  */
 public class SampleMetaDataUnmarshaller {
 
-    public static SampleMetaData unmarshall(String sampleMetaDataFilePath) throws JAXBException, IOException {
-        String networkSource = sampleMetaDataFilePath;
-        String localDestination = "copiedSampleMetaDataFile.xml";
-        Path sourcePath = Paths.get(networkSource);
-        Path destinationPath = Paths.get(localDestination);
+    public static SampleMetaData unmarshall(String sampleMetaDataFileName) throws IOException {
+        Path sampleMetaDataFilePath = Paths.get(sampleMetaDataFileName);
+        Path copySampleMetaDataFilePath = Paths.get("copyOfSampleMetaData.xml");
+        SampleMetaData sampleMetaData = new SampleMetaData();
         try {
-            Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("SampleMetaDataFile XML file copied successfully!");
+            Files.copy(sampleMetaDataFilePath, copySampleMetaDataFilePath, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("sampleMetaDataFile copied successfully!");
+
+            Reader inReader = new FileReader(copySampleMetaDataFilePath.toFile());
+            BufferedReader reader = new BufferedReader(inReader);
+            reader.readLine();
+            reader.readLine();
+            reader.readLine();
+            String lineFour = reader.readLine();
+            if (lineFour.contains("ET_Redux")) {
+                XStream xstream = new XStream(new DomDriver());
+                xstream.alias("SampleMetaData", SampleMetaData.class);
+                xstream.alias("FractionMetaData", FractionMetaData.class);
+                // clear out existing permissions and set own ones
+                xstream.addPermission(NoTypePermission.NONE);
+                // allow some basics
+                xstream.addPermission(NullPermission.NULL);
+                xstream.addPermission(PrimitiveTypePermission.PRIMITIVES);
+                xstream.allowTypeHierarchy(Collection.class);
+                xstream.addPermission(AnyTypePermission.ANY);
+
+                try (BufferedInputStream bis =
+                             new BufferedInputStream(new FileInputStream(copySampleMetaDataFilePath.toFile()))) {
+                    sampleMetaData = (SampleMetaData) xstream.fromXML(bis);
+                }
+            }
+            inReader.close();
+            reader.close();
         } catch (IOException e) {
-            System.err.println("Failed to copy the XML file: " + e.getMessage());
+            System.err.format("I/O Error when copying file: %s%n", e.getMessage());
             e.printStackTrace();
         }
-
-        File cleanedLocal = XMLCleanerForSampleMetaData.cleanXML(localDestination);
-
-        XStream xstream = new XStream();
-        xstream.addPermission(AnyTypePermission.ANY);
-        xstream.alias("SampleMetaData", SampleMetaData.class);
-        xstream.alias("FractionMetaData", FractionMetaData.class);
-        Reader fileReader = new FileReader(cleanedLocal.getAbsoluteFile());
-        return (SampleMetaData) xstream.fromXML(fileReader);
+        return sampleMetaData;
     }
-
-  /*  public static void main(String[] args) throws JAXBException, FileNotFoundException {
-        SampleMetaData sampleMetaData =
-                unmarshall("/Users/bowring/Downloads/LiveWorkflowReproduction/SampleMetaData/23-PP-8.xml");
-        System.out.println(sampleMetaData.getSampleName());
-    }*/
-
 }

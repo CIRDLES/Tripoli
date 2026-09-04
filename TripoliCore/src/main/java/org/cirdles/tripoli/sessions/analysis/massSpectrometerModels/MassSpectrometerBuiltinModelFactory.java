@@ -28,7 +28,7 @@ import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
 public enum MassSpectrometerBuiltinModelFactory {
     ;
 
-    public static Map<String, MassSpectrometerModel> massSpectrometerModelBuiltinMap = new TreeMap<>();
+    public static final Map<String, MassSpectrometerModel> massSpectrometerModelBuiltinMap = new TreeMap<>();
 
     static {
         MassSpectrometerModel massSpectrometerModelPhoenix = MassSpectrometerModel.initializeMassSpectrometer(PHOENIX_FULL);

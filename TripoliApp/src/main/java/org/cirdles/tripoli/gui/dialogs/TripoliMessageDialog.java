@@ -17,6 +17,9 @@
 package org.cirdles.tripoli.gui.dialogs;
 
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
@@ -24,17 +27,16 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
+
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_LOGO_SANS_TEXT_URL;
 
 /**
  * @author James Bowring
  */
 public class TripoliMessageDialog extends Alert {
-
-    public TripoliMessageDialog() {
-        super(null);
-    }
 
     //http://stackoverflow.com/questions/26341152/controlsfx-dialogs-deprecated-for-what/32618003#32618003
     public TripoliMessageDialog(AlertType alertType, String message, String headerText, Window owner) {
@@ -52,6 +54,19 @@ public class TripoliMessageDialog extends Alert {
         }
         getDialogPane().setPrefSize(750, 150 + countOfNewLines * 20);
         getDialogPane().setStyle(getDialogPane().getStyle() + ";-fx-font-family: SansSerif Bold;-fx-font-size: 15");
+
+        Image image = new Image(TRIPOLI_LOGO_SANS_TEXT_URL);
+        ImageView imageView = new ImageView(image);
+        imageView.setFitHeight(48);
+        imageView.setFitWidth(48);
+        getDialogPane().setGraphic(imageView);
+
+        getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+
+        getDialogPane().getStylesheets().add(
+                Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/gui/css/customAlert.css")).toExternalForm());
+        getDialogPane().getStyleClass().add("alert");
+
     }
 
     /**
@@ -60,9 +75,7 @@ public class TripoliMessageDialog extends Alert {
      */
     public static void showWarningDialog(String message, Window owner) {
         Alert alert = new TripoliMessageDialog(AlertType.WARNING, message, "Tripoli warns you:", owner);
-        alert.setOnCloseRequest(event -> {
-            alert.close();
-        });
+        alert.setOnCloseRequest(event -> alert.close());
         alert.showAndWait();
     }
 
@@ -75,9 +88,7 @@ public class TripoliMessageDialog extends Alert {
                 AlertType.INFORMATION,
                 message,
                 "Tripoli informs you:", owner);
-        alert.setOnCloseRequest(event -> {
-            alert.close();
-        });
+        alert.setOnCloseRequest(event -> alert.close());
         alert.showAndWait();
     }
 
@@ -196,9 +207,7 @@ public class TripoliMessageDialog extends Alert {
                     "Overwrite Report?",
                     owner);
             dialog.getButtonTypes().setAll(ButtonType.NO, ButtonType.YES);
-            dialog.setOnCloseRequest(event -> {
-                dialog.close();
-            });
+            dialog.setOnCloseRequest(event -> dialog.close());
             Optional<ButtonType> result = dialog.showAndWait();
 
             return (result.get() == ButtonType.YES);
@@ -222,9 +231,7 @@ public class TripoliMessageDialog extends Alert {
             ButtonType saveAndOpenButton = new ButtonType("Save and Open", ButtonBar.ButtonData.OK_DONE);
             ButtonType saveButton = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
             dialog.getButtonTypes().setAll(ButtonType.CANCEL, saveButton, saveAndOpenButton);
-            dialog.setOnCloseRequest(event -> {
-                dialog.close();
-            });
+            dialog.setOnCloseRequest(event -> dialog.close());
 
             return dialog.showAndWait().get().getText();
 
@@ -233,17 +240,15 @@ public class TripoliMessageDialog extends Alert {
     }
 
     public static String showLongfilePath(String path) {
-        String retVal = "";
+        StringBuilder retVal = new StringBuilder();
         String fileSeparatorPattern = Pattern.quote(File.separator);
         String[] pathParts = path.split(fileSeparatorPattern);
         for (int i = 0; i < pathParts.length; i++) {
-            retVal += pathParts[i] + (i < (pathParts.length - 1) ? File.separator : "") + "\n";
-            for (int j = 0; j < i; j++) {
-                retVal += "  ";
-            }
+            retVal.append(pathParts[i]).append(i < (pathParts.length - 1) ? File.separator : "").append("\n");
+            retVal.append("  ".repeat(i));
         }
 
-        return retVal;
+        return retVal.toString();
     }
 
 }

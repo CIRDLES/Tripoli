@@ -20,9 +20,6 @@ import com.google.common.primitives.Booleans;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.parameters.Parameters;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
 import static org.apache.commons.math3.special.Erf.erfc;
 
 /**
@@ -39,13 +36,7 @@ public class MathUtilities {
      * @return double rounded to sigFigs significant digits
      */
     public static double roundedToSize(double value, int sigFigs) {
-        BigDecimal valueBDtoSize = BigDecimal.ZERO;
-        if (Double.isFinite(value)) {
-            BigDecimal valueBD = new BigDecimal(String.valueOf(value));
-            int newScale = sigFigs - (valueBD.precision() - valueBD.scale());
-            valueBDtoSize = valueBD.setScale(newScale, RoundingMode.HALF_UP);
-        }
-        return valueBDtoSize.doubleValue();
+        return MatLab.roundedToSize(value, sigFigs);
     }
 
     /**

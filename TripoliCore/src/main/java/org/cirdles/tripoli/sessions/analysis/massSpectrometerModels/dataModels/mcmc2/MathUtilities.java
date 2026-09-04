@@ -23,23 +23,6 @@ public enum MathUtilities {
 
 
     /*
-         %% caluclate log-likelihood as a function of model parameters
-         % minimize ll for least squares
-
-         function ll = loglikLeastSquares(m, data, setup)
-
-         dhat = evaluateModel(m, setup);
-         dvar = updateDataVariance(m, setup);
-         ll = loglik(dhat, data, dvar);
-
-         end % function loglikLeastSquares
- */
-    private static double loglikLeastSquares(MCMC2ModelRecord m, double[] data, MCMC2SetupRecord setup) {
-
-        return 0.0;
-    }
-
-    /*
         function ionBeamVariance = ...
             estimateIonBeamVariance(trueCountRates, integrationTimes, detector)
                 %ESTIMATEIONBEAMVARIANCE Estimate ion beam variance

@@ -38,6 +38,12 @@ public class Parameters implements Serializable {
     // LiveWorkFlow
     private String sampleMetaDataFolderPath;
 
+    // LiveData
+    private String liveDataStatusTxtFilePath;
+
+    // oxide correction
+    private double r18O_16O_OxideCorrection;
+
     public Parameters() {
         this.chauvenetRejectionProbability = CHAUVENETS_DEFAULT_REJECT_PROBABILITY;
         this.requiredMinDatumCount = CHAUVENETS_DEFAULT_MIN_DATUM_COUNT;
@@ -45,6 +51,8 @@ public class Parameters implements Serializable {
         this.scalingDotMinSize = SCALING_DOT_DEFAULT_MIN_SIZE;
         this.scalingDotMaxSize = SCALING_DOT_DEFAULT_MAX_SIZE;
         sampleMetaDataFolderPath = "";
+        liveDataStatusTxtFilePath = "";
+        r18O_16O_OxideCorrection = R18O_16O_DEFAULT_OXIDE_CORRECTION;
     }
 
     // Copy Constructor
@@ -55,6 +63,8 @@ public class Parameters implements Serializable {
         this.scalingDotMinSize = other.getScalingDotMinSize();
         this.scalingDotMaxSize = other.getScalingDotMaxSize();
         this.sampleMetaDataFolderPath = other.getSampleMetaDataFolderPath();
+        this.liveDataStatusTxtFilePath = other.getLiveDataStatusTxtFilePath();
+        this.r18O_16O_OxideCorrection = other.r18O_16O_OxideCorrection;
     }
 
     // Provides a deep copy of this instance
@@ -119,5 +129,27 @@ public class Parameters implements Serializable {
 
     public void setSampleMetaDataFolderPath(String sampleMetaDataFolderPath) {
         this.sampleMetaDataFolderPath = sampleMetaDataFolderPath;
+    }
+
+    public String getLiveDataStatusTxtFilePath() {
+        if (null == liveDataStatusTxtFilePath) {
+            liveDataStatusTxtFilePath = "";
+        }
+        return liveDataStatusTxtFilePath;
+    }
+
+    public void setLiveDataStatusTxtFilePath(String liveDataStatusTxtFilePath) {
+        this.liveDataStatusTxtFilePath = liveDataStatusTxtFilePath;
+    }
+
+    public double getR18O_16O_OxideCorrection() {
+        if (r18O_16O_OxideCorrection <= 0.0) {
+            r18O_16O_OxideCorrection = R18O_16O_DEFAULT_OXIDE_CORRECTION;
+        }
+        return r18O_16O_OxideCorrection;
+    }
+
+    public void setR18O_16O_OxideCorrection(double r18O_16O_OxideCorrection) {
+        this.r18O_16O_OxideCorrection = r18O_16O_OxideCorrection;
     }
 }

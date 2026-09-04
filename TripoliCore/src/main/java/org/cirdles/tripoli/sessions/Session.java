@@ -16,9 +16,9 @@
 
 package org.cirdles.tripoli.sessions;
 
-import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
 import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.collections.TripoliSessionAnalysisMap;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
@@ -41,32 +41,33 @@ public class Session implements Serializable {
     private static final long serialVersionUID = 6597752272434171800L;
 
     private static boolean sessionChanged;
+    //    private Map<String, AnalysisInterface> mapOfAnalyses;
+    private final TripoliSessionAnalysisMap mapOfAnalyses;
     private String sessionName;
     private String analystName;
     private String sessionFilePathAsString;
     private String sessionNotes;
-    //    private Map<String, AnalysisInterface> mapOfAnalyses;
-    private TripoliSessionAnalysisMap mapOfAnalyses;
     private boolean mutable;
     private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
     private Parameters sessionDefaultParameters;
     private boolean expressionRefreshed;
 
-
     // Color Strings for ratio plots
     private RatiosColors ratiosColors;
     // END OF ratio plot Color Strings
 
-    private Session() {
+    private PhoenixLiveData phoenixLiveData;
+
+    private Session() throws TripoliException {
         this("New Session");
         expressionRefreshed = true;
     }
 
-    private Session(String sessionName) {
+    private Session(String sessionName) throws TripoliException {
         this(sessionName, new TripoliSessionAnalysisMap());
     }
 
-    private Session(String sessionName, Map<String, AnalysisInterface> mapOfAnalyses) {
+    private Session(String sessionName, Map<String, AnalysisInterface> mapOfAnalyses) throws TripoliException {
         this.sessionName = sessionName;
         this.mapOfAnalyses = ((TripoliSessionAnalysisMap) mapOfAnalyses);
         this.mapOfAnalyses.setSession(this);
@@ -75,11 +76,15 @@ public class Session implements Serializable {
         sessionFilePathAsString = "";
         mutable = true;
         sessionChanged = false;
+        phoenixLiveData = new PhoenixLiveData();
     }
 
-    public static Session initializeDefaultSession() throws JAXBException {
+    public static Session initializeDefaultSession() throws TripoliException {
         Session session = new Session();
-//        session.addAnalysis(initializeNewAnalysis(1));
+        return getSavedSession(session);
+    }
+
+    private static Session getSavedSession(Session session) {
         try {
             TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
             session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
@@ -91,17 +96,9 @@ public class Session implements Serializable {
         return session;
     }
 
-    public static Session initializeSession(String sessionName) {
+    public static Session initializeSession(String sessionName) throws TripoliException {
         Session session = new Session(sessionName);
-        try {
-            TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
-            session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
-            session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
-            session.ratiosColors = tripoliPersistentState.getBlockCyclesPlotColors();
-        } catch (TripoliException e) {
-            e.printStackTrace();
-        }
-        return session;
+        return getSavedSession(session);
     }
 
     public static boolean isSessionChanged() {
@@ -158,10 +155,6 @@ public class Session implements Serializable {
         return mapOfAnalyses;
     }
 
-    public String getSessionNotes() {
-        return sessionNotes;
-    }
-
     public void setSessionNotes(String sessionNotes) {
         this.sessionNotes = sessionNotes;
     }
@@ -206,5 +199,16 @@ public class Session implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(sessionName, analystName, sessionNotes);
+    }
+
+    public PhoenixLiveData getPhoenixLiveData() throws TripoliException {
+        if (phoenixLiveData == null) {
+            phoenixLiveData = new PhoenixLiveData();
+        }
+        return phoenixLiveData;
+    }
+
+    public void resetPhoenixLiveData() throws TripoliException {
+        phoenixLiveData = new PhoenixLiveData();
     }
 }

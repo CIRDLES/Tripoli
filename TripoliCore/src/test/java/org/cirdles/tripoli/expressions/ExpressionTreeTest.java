@@ -131,7 +131,7 @@ public class ExpressionTreeTest {
 
         ExpressionTree tree = (ExpressionTree) ExpressionTree.buildTree(postfixList);
 
-        System.out.println(tree.prettyPrint(tree, analysis, true));
+        System.out.println(ExpressionTree.prettyPrint(tree, analysis, true));
 
         for (int i = 0; i < treeEvalOracle.length; i++) {
             assertArrayEquals(treeEvalOracle[i], tree.eval(analysis)[i]);

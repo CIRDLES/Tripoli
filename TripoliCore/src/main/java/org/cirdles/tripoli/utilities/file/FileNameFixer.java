@@ -24,7 +24,7 @@ public enum FileNameFixer {
     ;
 
     public static String fixFileName(String name) {
-        String nameFixed = name.replaceAll(" ", "_");
+        String nameFixed = name.replace(" ", "_");
         nameFixed = nameFixed.replaceAll("\\^", "");
         nameFixed = nameFixed.replaceAll("\\n", "");
         nameFixed = nameFixed.replaceAll("\\*", "");
@@ -32,26 +32,26 @@ public enum FileNameFixer {
         nameFixed = nameFixed.replaceAll("]", "");
         nameFixed = nameFixed.replaceAll("\\(", "");
         nameFixed = nameFixed.replaceAll("\\)", "");
-        nameFixed = nameFixed.replaceAll("!", "");
+        nameFixed = nameFixed.replace("!", "");
         nameFixed = nameFixed.replaceAll("#", "");
-        nameFixed = nameFixed.replaceAll("&", "");
+        nameFixed = nameFixed.replace("&", "");
         nameFixed = nameFixed.replaceAll("@", "");
         nameFixed = nameFixed.replaceAll("\\+", "");
-        nameFixed = nameFixed.replaceAll("/", "");
+        nameFixed = nameFixed.replace("/", "");
         nameFixed = nameFixed.replaceAll("\\{", "");
         nameFixed = nameFixed.replaceAll("}", "");
-        nameFixed = nameFixed.replaceAll(":", "");
+        nameFixed = nameFixed.replace(":", "");
         nameFixed = nameFixed.replaceAll("\\?", "");
         nameFixed = nameFixed.replaceAll(">", "");
-        nameFixed = nameFixed.replaceAll("<", "");
+        nameFixed = nameFixed.replace("<", "");
         nameFixed = nameFixed.replaceAll("%", "");
-        nameFixed = nameFixed.replaceAll("'", "");
+        nameFixed = nameFixed.replace("'", "");
         nameFixed = nameFixed.replaceAll("\"", "");
-        nameFixed = nameFixed.replaceAll("~", "");
+        nameFixed = nameFixed.replace("~", "");
         nameFixed = nameFixed.replaceAll("`", "");
-        nameFixed = nameFixed.replaceAll("=", "");
+        nameFixed = nameFixed.replace("=", "");
         while (nameFixed.contains("__")) {
-            nameFixed = nameFixed.replaceAll("__", "_");
+            nameFixed = nameFixed.replace("__", "_");
         }
 
         return nameFixed;

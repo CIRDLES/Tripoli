@@ -34,12 +34,13 @@ import java.util.stream.Collectors;
 
 
 public class Report implements Serializable, Comparable<Report> {
+    @Serial
     private static final long serialVersionUID = 1064098835718283672L;
     public static boolean supressContents = false;
     public final String FIXED_REPORT_NAME = "Full Report";
+    private final String methodName;
+    private final Set<ReportCategory> categorySet;
     private String reportName;
-    private String methodName;
-    private Set<ReportCategory> categorySet;
 
     public Report(String reportName, String methodName, Set<ReportCategory> categorySet) {
         this.reportName = reportName;
@@ -109,8 +110,9 @@ public class Report implements Serializable, Comparable<Report> {
     }
 
     /**
-     * Creates a class type of File for the location of a generated CSV report. Location is in the same directory as
-     * the first analysis and the name is as follows: [SessionName]-[Each Analysis Name]-report.csc
+     * Creates a class type of File for the location of a generated CSV report. Location is in the parent directory of
+     * the first analysis and the name is as follows:
+     * [SessionName]-[Analysis SampleName . Analysis Fraction Name]-report.csv
      * <p>THIS METHOD DOES NOT GENERATE THE CSV</p>
      *
      * @param listOfAnalyses analyses to be appended to file name
@@ -119,7 +121,34 @@ public class Report implements Serializable, Comparable<Report> {
      */
     public static File getReportCSVFile(List<AnalysisInterface> listOfAnalyses, String sessionName) {
         StringBuilder filePathString = new StringBuilder(listOfAnalyses.get(0).getDataFilePathString());
-        filePathString.replace(filePathString.lastIndexOf(File.separator), filePathString.length(), File.separator);
+        if (!(new File(filePathString.toString())).exists()) {
+            filePathString = new StringBuilder("");
+        } else {
+            String systemFileSeparator = File.separator;
+            if (filePathString.lastIndexOf(File.separator) == -1) {
+                systemFileSeparator = (File.separator.compareTo("/") == 0) ? "\\" : "/";
+            }
+            filePathString.replace(filePathString.lastIndexOf(systemFileSeparator), filePathString.length(), "");
+            filePathString.replace(filePathString.lastIndexOf(systemFileSeparator), filePathString.length(), systemFileSeparator);
+        }
+        filePathString.append(sessionName).append("-");
+
+        for (AnalysisInterface analysis : listOfAnalyses) {
+            filePathString.append("[").append(analysis.getAnalysisSampleName()).append(".")
+                    .append(analysis.getAnalysisFractionName()).append("]-");
+        }
+        filePathString.append("report.csv");
+
+        return new File(filePathString.toString());
+    }
+
+    public static File getReportCSVFileForTesting(List<AnalysisInterface> listOfAnalyses, String sessionName) {
+        StringBuilder filePathString = new StringBuilder(listOfAnalyses.get(0).getDataFilePathString());
+        String systemFileSeparator = File.separator;
+        if (filePathString.lastIndexOf(File.separator) == -1) {
+            systemFileSeparator = (File.separator.compareTo("/") == 0) ? "\\" : "/";
+        }
+        filePathString.replace(filePathString.lastIndexOf(systemFileSeparator), filePathString.length(), systemFileSeparator);
         filePathString.append(sessionName).append("-");
         for (AnalysisInterface analysis : listOfAnalyses) {
             filePathString.append(analysis.getAnalysisName()).append("-");
@@ -218,10 +247,13 @@ public class Report implements Serializable, Comparable<Report> {
      * Internally filters out analyses that don't match the report.
      *
      * @param listOfAnalyses List of all loaded analyses
+     * @param forTesting
      * @return File of the created CSV. Null if process failed.
      */
-    public File generateCSVFile(List<AnalysisInterface> listOfAnalyses, String sessionName) {
-        File reportCSVFile = getReportCSVFile(listOfAnalyses, sessionName);
+    public File generateCSVFile(List<AnalysisInterface> listOfAnalyses, String sessionName, boolean forTesting) {
+        File reportCSVFile =
+                (forTesting ? getReportCSVFileForTesting(listOfAnalyses, sessionName)
+                        : getReportCSVFile(listOfAnalyses, sessionName));
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(reportCSVFile))) {
             Set<ReportCategory> categories = this.getCategories().stream()

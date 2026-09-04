@@ -33,7 +33,7 @@ public class SpeciesIntensityAnalysisBuilder extends PlotBuilder {
 
     private final AnalysisInterface analysis;
     private final double[][] onPeakDataSignalNoiseArray;
-    private boolean[][] onPeakDataIncludedAllBlocks;
+    private final boolean[][] onPeakDataIncludedAllBlocks;
 
     protected SpeciesIntensityAnalysisBuilder(boolean showResiduals, AnalysisInterface analysis, double[] xData,
                                               boolean[][] onPeakDataIncludedAllBlocks, int[] xAxisBlockIDs, double[][] yData,
@@ -78,10 +78,6 @@ public class SpeciesIntensityAnalysisBuilder extends PlotBuilder {
 
     public boolean[][] getOnPeakDataIncludedAllBlocks() {
         return onPeakDataIncludedAllBlocks;
-    }
-
-    public void setOnPeakDataIncludedAllBlocks(boolean[][] onPeakDataIncludedAllBlocks) {
-        this.onPeakDataIncludedAllBlocks = onPeakDataIncludedAllBlocks;
     }
 
     public double[][] getAmpResistance() {

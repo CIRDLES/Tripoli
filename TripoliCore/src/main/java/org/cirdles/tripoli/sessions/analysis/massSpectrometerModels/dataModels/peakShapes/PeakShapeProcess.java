@@ -29,8 +29,6 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassS
 
 public class PeakShapeProcess {
 
-
-    private static double measBeamWidthAMU;
     private final Path dataFile;
     private PeakShapeOutputDataRecord peakShapeOutputDataRecord;
 
@@ -42,10 +40,6 @@ public class PeakShapeProcess {
 
     public static synchronized PeakShapeProcess createPeakShapeProcess(Path dataFile) {
         return new PeakShapeProcess(dataFile);
-    }
-
-    public static double getMeasBeamWidthAMU() {
-        return measBeamWidthAMU;
     }
 
     public void initializePeakShapeProcess() throws IOException {

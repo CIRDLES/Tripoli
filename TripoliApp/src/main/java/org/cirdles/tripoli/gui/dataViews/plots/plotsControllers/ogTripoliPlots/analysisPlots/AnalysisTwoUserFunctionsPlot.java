@@ -49,26 +49,23 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     private final Tooltip tooltip;
     private final String tooltipTextSculpt = "Left mouse: cntrl click toggles block, Dbl-click to Sculpt data. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
     private final String tooltipTextExitSculpt = "Left mouse: cntrl click toggles block, Dbl-click Exits Sculpting. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
-    private AnalysisInterface analysis;
-    private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
-    private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecordX;
-    private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecordIntensity;
-    private UserFunction userFunction;
-    private UserFunction xAxisUserFunction;
-    private UserFunction intensityUserFunction;
-
-    private double[] oneSigmaForCycles;
+    private final AnalysisInterface analysis;
+    private final Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
+    private final Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecordX;
+    private final Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecordIntensity;
+    private final UserFunction userFunction;
+    private final UserFunction xAxisUserFunction;
+    private final UserFunction intensityUserFunction;
+    private final PlotWallPaneInterface parentWallPane;
     private double[] intensityData;
     private double minIntensity;
     private double maxIntensity;
     private boolean[] zoomFlagsXY;
-    private PlotWallPaneInterface parentWallPane;
     private double selectorBoxX;
     private double selectorBoxY;
     private boolean inSculptorMode;
     private int sculptBlockID;
     private boolean showSelectionBox;
-    private int countOfPreviousBlockIncludedData;
     private boolean inZoomBoxMode;
     private boolean showZoomBox;
     private double zoomBoxX;
@@ -187,7 +184,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
         // Populate y-axis data
         yAxisData = new double[xAxisData.length];
-        oneSigmaForCycles = new double[xAxisData.length];
+        double[] oneSigmaForCycles = new double[xAxisData.length];
         boolean doInvertY = userFunction.isInverted() && userFunction.isTreatAsIsotopicRatio();
         for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
             PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
@@ -873,7 +870,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             selectorBoxY = mouseStartY;
 
             // zoom into block
-            countOfPreviousBlockIncludedData = (sculptBlockID - 1) * mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
+            int countOfPreviousBlockIncludedData = (sculptBlockID - 1) * mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
             if (zoomBlock) {
                 displayOffsetX = 0;
                 int countOfCycles = mapBlockIdToBlockCyclesRecord.get(sculptBlockID).cyclesIncluded().length;

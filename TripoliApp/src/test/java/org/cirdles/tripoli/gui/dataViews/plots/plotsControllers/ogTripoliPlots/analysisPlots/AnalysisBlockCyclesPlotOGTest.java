@@ -103,7 +103,7 @@ public class AnalysisBlockCyclesPlotOGTest {
         double meanMinusTwoStandardDeviation = mean - 2.0 * stdDev;
         double meanMinusTwoStandardError = mean - 2.0 * stdErr;
 
-        HashMap<String, Double> output = new HashMap<>(Map.ofEntries(
+        return new HashMap<>(Map.ofEntries(
                 entry("mean", mean),
                 entry("stdDev", stdDev),
                 entry("stdErr", stdErr),
@@ -114,8 +114,6 @@ public class AnalysisBlockCyclesPlotOGTest {
                 entry("meanMinusTwoStandardDeviation", meanMinusTwoStandardDeviation),
                 entry("meanMinusTwoStandardError", meanMinusTwoStandardError)
         ));
-
-        return output;
     }
 
     @Test

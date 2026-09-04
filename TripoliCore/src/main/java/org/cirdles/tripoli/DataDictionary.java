@@ -19,7 +19,7 @@ package org.cirdles.tripoli;
 
 public enum DataDictionary {
     ;
-    public static String[] etReduxLeadMeasuredRatioNames = {
+    public static final String[] etReduxLeadMeasuredRatioNames = {
             "206_204",
             "207_204",
             "208_204",
@@ -31,7 +31,7 @@ public enum DataDictionary {
             "208_205",
             "202_205"};
 
-    public static String[] etReduxUraniumMeasuredRatioNames = {
+    public static final String[] etReduxUraniumMeasuredRatioNames = {
             "238_236",
             "233_236",
             "238_235",

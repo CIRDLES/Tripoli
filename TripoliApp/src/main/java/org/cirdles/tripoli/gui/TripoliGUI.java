@@ -34,7 +34,10 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Objects;
 
+import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
+import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliSession;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_STARTING_YELLOW;
 
 /**
@@ -45,23 +48,23 @@ public class TripoliGUI extends Application {
     public static final String Tripoli_LOGO_SANS_TEXT_URL = "images/TripoliJune2022.png";
     public static Window primaryStageWindow;
     public static Stage primaryStage;
+    public static boolean isLiveDataOn = false;
     protected static TripoliAboutWindow tripoliAboutWindow;
 
-    public static void updateStageTitle(String fileName, MassSpectrometerContextEnum massSpecContext) {
-        String fileSpec = " [Session File: NONE] ";
-        fileSpec = !fileName.isEmpty() ? fileSpec.replace("NONE", fileName) : fileSpec;
-        String massSpecSpec = " [Mass Spectrometer: UNKNOWN]";
-        massSpecSpec = massSpecContext != null ? massSpecSpec.replace("UNKNOWN", massSpecContext.toString()) : massSpecSpec;
-        primaryStage.setTitle("Tripoli " + fileSpec + massSpecSpec);
-    }
+    public static void updateStageTitle() {
+        String liveDataStatus = "Tripoli  *[LiveData: " + ((isLiveDataOn ? "ON" : "OFF")) + "]* ";
+        String analysisSpec = " [Analysis: NONE] ";
+        String sessionSpec = " [Session: NONE] ";
+        String massSpecSpec = " [Mass Spec: UNKNOWN]";
 
-    public static void updateStageTitle(MassSpectrometerContextEnum massSpecContext) {
-        String fileSpec = "Tripoli [Session File: NONE] ";
-        String sessionName = primaryStage.getTitle().substring(primaryStage.getTitle().indexOf(':') + 2, primaryStage.getTitle().indexOf("]"));
-        //fileSpec.replace("NONE", sessionName);
-        String massSpecSpec = " [Mass Spectrometer: UNKNOWN]";
+        String analysisName = ((AnalysisManagerController.analysis == null) ? "NONE" : AnalysisManagerController.analysis.getAnalysisName());
+        String sessionName = ((tripoliSession == null) ? "NONE" : tripoliSession.getSessionName());
+        MassSpectrometerContextEnum massSpecContext = tripoliPersistentState.getTripoliPersistentParameters().getMassSpectrometerContext();
         massSpecSpec = massSpecContext != null ? massSpecSpec.replace("UNKNOWN", massSpecContext.toString()) : massSpecSpec;
-        primaryStage.setTitle(fileSpec.replace("NONE", sessionName) + massSpecSpec);
+        primaryStage.setTitle(liveDataStatus
+                + analysisSpec.replace("NONE", analysisName)
+                + sessionSpec.replace("NONE", sessionName)
+                + massSpecSpec);
     }
 
     public static void main(String[] args) {
@@ -71,25 +74,19 @@ public class TripoliGUI extends Application {
             verbose = args[0].startsWith("-v");
         }
 //  http://patorjk.com/software/taag/#p=display&c=c%2B%2B&f=Varsity&t=Tripoli
-//   _________          _                  __    _
-//  |  _   _  |        (_)                [  |  (_)
-//  |_/ | | \_|_ .--.  __  _ .--.    .--.  | |  __
-//      | |   [ `/'`\][  |[ '/'`\ \/ .'`\ \| | [  |
-//     _| |_   | |     | | | \__/ || \__. || |  | |
-//    |_____| [___]   [___]| ;.__/  '.__.'[___][___]
-//                        [__|
-
-        String logo = "        _________          _                  __    _   \n" +
-                "       |  _   _  |        (_)                [  |  (_)  \n" +
-                "       |_/ | | \\_|_ .--.  __  _ .--.    .--.  | |  __   \n" +
-                "           | |   [ `/'`\\][  |[ '/'`\\ \\/ .'`\\ \\| | [  |  \n" +
-                "          _| |_   | |     | | | \\__/ || \\__. || |  | |  \n" +
-                "         |_____| [___]   [___]| ;.__/  '.__.'[___][___] \n" +
-                "                             [__|                       \n";
+        String logo = """
+                        _________          _                  __    _  \s
+                       |  _   _  |        (_)                [  |  (_) \s
+                       |_/ | | \\_|_ .--.  __  _ .--.    .--.  | |  __  \s
+                           | |   [ `/'`\\][  |[ '/'`\\ \\/ .'`\\ \\| | [  | \s
+                          _| |_   | |     | | | \\__/ || \\__. || |  | | \s
+                         |_____| [___]   [___]| ;.__/  '.__.'[___][___]\s
+                                             [__|                      \s
+                """;
         System.out.println(logo);
 
 
-        // detect if running from jar file
+        // detect if running from a jar file
         if (!verbose && (ClassLoader.getSystemResource("org/cirdles/tripoli/gui/TripoliGUI.class").toExternalForm().startsWith("jar"))) {
             System.out.println(
                     "Running Tripoli from Jar file ... suppressing terminal output.\n"
@@ -115,7 +112,7 @@ public class TripoliGUI extends Application {
         Parent root = new AnchorPane();
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
-        updateStageTitle("", null);
+        updateStageTitle();
 
         // this produces non-null window after .show()
         primaryStageWindow = primaryStage.getScene().getWindow();
@@ -128,13 +125,14 @@ public class TripoliGUI extends Application {
 
         primaryStage.setMinHeight(scene.getHeight() + 15);
         primaryStage.setMinWidth(scene.getWidth());
-        primaryStage.getIcons().add(new Image(TripoliGUI.class.getResourceAsStream(Tripoli_LOGO_SANS_TEXT_URL)));
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(
+                TripoliGUI.class.getResourceAsStream(Tripoli_LOGO_SANS_TEXT_URL))));
 
         tripoliAboutWindow = new TripoliAboutWindow(primaryStage);
 
         primaryStage.show();
 
-        // create stops for color gradient
+        // create stops for the color gradient
         Stop[] stop = {new Stop(0, TRIPOLI_STARTING_YELLOW),
 //                new Stop(0.5, new Color(24.0/256.0, 162.0/256.0, 74.0/256.0, 1.0)),
                 new Stop(1, new Color(236.0 / 256.0, 123.0 / 256.0, 56.0 / 256.0, 1.0))};

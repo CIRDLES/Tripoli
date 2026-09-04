@@ -151,7 +151,7 @@ public abstract class AbstractMatrixModel implements Serializable {
                 for (int col = 0; col < matrix.getColumnDimension(); col++) {
                     retVal.append(String.format(formatCell, formatter.format(matrix.get(row, col))));
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             retVal.append("\n");
         }

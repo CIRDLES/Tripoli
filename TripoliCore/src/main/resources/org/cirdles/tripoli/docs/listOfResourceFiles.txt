@@ -1,1 +1,3 @@
 ogTripoliHelp.md
+autoUO2Correction.md
+OxideCorrectionImplementation.pdf

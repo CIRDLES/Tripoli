@@ -39,8 +39,8 @@ public enum SerializableIntegerComparator {
         /**
          * Replaces the de-serialized object.
          */
-        private Object readResolve() {
+       /* private Object readResolve() {
             return SERIALIZABLE_COMPARATOR;
-        }
+        }*/
     }
 }

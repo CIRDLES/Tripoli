@@ -104,7 +104,7 @@ class TripoliSerializerTest {
     }
 
     @Test
-    void testSessionEquality() throws JAXBException {
+    void testSessionEquality() throws JAXBException, TripoliException {
         Session session1 = Session.initializeDefaultSession();
         Session session2 = Session.initializeDefaultSession();
 

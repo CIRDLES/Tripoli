@@ -20,13 +20,14 @@ import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 
+import java.io.Serial;
 import java.util.Map;
 
 public class ConstantNode extends ExpressionTree {
+    @Serial
     private static final long serialVersionUID = 750641824380081476L;
-
+    final Double value;
     String name;
-    Double value;
 
     public ConstantNode(String name, Double value) {
         this.name = name;
@@ -55,11 +56,6 @@ public class ConstantNode extends ExpressionTree {
         return retVal;
     }
 
-
-    @Override
-    public int getOperationPrecedence() {
-        return 0;
-    }
 
     @Override
     public String getName() {

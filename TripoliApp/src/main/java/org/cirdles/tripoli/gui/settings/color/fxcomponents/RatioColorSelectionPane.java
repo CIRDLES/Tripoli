@@ -40,11 +40,10 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColor
 
 public class RatioColorSelectionPane extends ScrollPane implements Initializable {
 
+    private final ObjectProperty<RatiosColors> ratioColorsProperty;
+    private final List<RatioColorRow> ratioColorRowList;
     @FXML
     private VBox vBox;
-
-    private ObjectProperty<RatiosColors> ratioColorsProperty;
-    private List<RatioColorRow> ratioColorRowList;
 
 
     public RatioColorSelectionPane(DelegateActionSet delegateActionSet, AnalysisInterface analysis) {

@@ -38,9 +38,7 @@ public class DetectorSetup implements Serializable {
     }
 
     public static DetectorSetup initializeDetectorSetup() {
-        DetectorSetup detectorSetup = new DetectorSetup();
-
-        return detectorSetup;
+        return new DetectorSetup();
     }
 
     public Detector addDetector(Detector detector) {

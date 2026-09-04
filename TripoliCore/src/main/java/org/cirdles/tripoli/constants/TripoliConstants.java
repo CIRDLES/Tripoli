@@ -42,10 +42,6 @@ public enum TripoliConstants {
     public static final File SYNTHETIC_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "syntheticData");
     public static final File SYNTHETIC_DATA_FOLDER_2ISOTOPE
             = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "TwoIsotopeSyntheticData");
-    public static final File SYNTHETIC_DATA_FOLDER_DATA
-            = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "data");
-    public static final File SYNTHETIC_DATA_FOLDER_METHODS
-            = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "methods");
     public static final File SYNTHETIC_DATA_FOLDER_SYNTHETICFORTRIPOLI
             = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "SyntheticOutToTripoli");
     public static final File NUCLIDESCHART_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "NuclidesChartData");
@@ -65,7 +61,7 @@ public enum TripoliConstants {
 
     /**
      * elementary charge e is exactly 1.602176634×10−19 coulomb (C).
-     * see: https://en.wikipedia.org/wiki/2019_redefinition_of_the_SI_base_units
+     * see: <a href="https://en.wikipedia.org/wiki/2019_redefinition_of_the_SI_base_units">...</a>
      */
     public static final double ELEMENTARY_CHARGE_E = 1.602176634e-19;
     public static final double ONE_COULOMB = 1.0 / ELEMENTARY_CHARGE_E; // s.b. 6.2415091e18 == 6.2415090744607631E18
@@ -77,11 +73,6 @@ public enum TripoliConstants {
     public static final String PLOT_TAB_CONVERGE = "Converge";
     public static final String PLOT_TAB_CONVERGE_INTENSITY = "Converge Intensity";
 
-    //    public static final FixedLengthCircularQueue<String> TRIPOLI_DEFAULT_HEX_COLORS =
-//            new FixedLengthCircularQueue<>(new String[]{
-//                    "#12bceb", "#095c73", "#ff0000", "#7fffd4", "#ffcf62", "#ac8c42", "#ff0000",
-//                    "#7fffd4", "#9e6fb1", "#4d3656", "#ff0000", "#7fffd4", "#baff78", "#6e9747", "#ff0000",
-//                    "#7fffd4", "#ffa056", "#b2703c", "#ff0000", "#7fffd4"});
     public static final FixedLengthCircularQueue<String> TRIPOLI_DEFAULT_HEX_COLORS =
             new FixedLengthCircularQueue<>(new String[]{
                     "#12bceb", "#095c73", "#ed4213", "#f6a38b", "#ffcf62", "#ac8c42", "#002f9d",
@@ -92,6 +83,10 @@ public enum TripoliConstants {
     public static final double CHAUVENETS_DEFAULT_REJECT_PROBABILITY = 0.5;
     public static final int CHAUVENETS_DEFAULT_MIN_DATUM_COUNT = 20;
     // END Chauvenet's parameter defaults
+
+    // Oxide correction default
+    public static final Double R18O_16O_DEFAULT_OXIDE_CORRECTION = 0.00205;
+
 
     public static final double SCALING_DOT_DEFAULT_MIN_SIZE = 5.0;
     public static final double SCALING_DOT_DEFAULT_MAX_SIZE = 20.0;
@@ -116,9 +111,9 @@ public enum TripoliConstants {
     }
 
     public enum RatiosPlotColorFlavor {
-        ONE_SIGMA_SHADE("One \u03C3 Shading"),
-        TWO_SIGMA_SHADE("Two \u03C3 Shading"),
-        TWO_STD_ERR_SHADE("Two \u03C3 Standard Error Shading"),
+        ONE_SIGMA_SHADE("One σ Shading"),
+        TWO_SIGMA_SHADE("Two σ Shading"),
+        TWO_STD_ERR_SHADE("Two σ Standard Error Shading"),
         MEAN_COLOR("Mean Color"),
         DATA_COLOR("Data Color"),
         REJECTED_COLOR("Rejected Data Color");
@@ -160,15 +155,15 @@ public enum TripoliConstants {
         }
     }
 
-    public static enum ETReduxExportTypeEnum {
+    public enum ETReduxExportTypeEnum {
         Pb(),
         U(),
-        NONE();
+        NONE()
     }
 
-    public static enum ReductionModeEnum {
+    public enum ReductionModeEnum {
         BLOCK(),
-        CYCLE();
+        CYCLE()
     }
 
 }

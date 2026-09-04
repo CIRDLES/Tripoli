@@ -43,9 +43,7 @@ public class BaselineTable implements Serializable {
     }
 
     public static BaselineTable createEmptyBaselineTable() {
-        BaselineTable baselineTable = new BaselineTable();
-
-        return baselineTable;
+        return new BaselineTable();
     }
 
     public BaselineCell accessBaselineCellForDetector(Detector detector, String baselineName, int baselineIndex) {

@@ -26,32 +26,29 @@ import java.util.List;
  */
 @XmlRootElement
 public class SampleMetaData {
+    final String sampleName;
+    final String sampleAnalysisFolderPath;
+    final List<FractionMetaData> fractionsMetaData;
 
-    String sampleName;
-    String sampleAnalysisFolderPath;
-    List<FractionMetaData> fractionsMetaData = new ArrayList<>();
+    public SampleMetaData() {
+        this("MISSING SAMPLE NAME", "", new ArrayList<>());
+    }
+
+    public SampleMetaData(String sampleName, String sampleAnalysisFolderPath, List<FractionMetaData> fractionsMetaData) {
+        this.sampleName = sampleName;
+        this.sampleAnalysisFolderPath = sampleAnalysisFolderPath;
+        this.fractionsMetaData = fractionsMetaData;
+    }
 
     public String getSampleName() {
         return sampleName;
-    }
-
-    public void setSampleName(String sampleName) {
-        this.sampleName = sampleName;
     }
 
     public String getSampleAnalysisFolderPath() {
         return sampleAnalysisFolderPath;
     }
 
-    public void setSampleAnalysisFolderPath(String sampleAnalysisFolderPath) {
-        this.sampleAnalysisFolderPath = sampleAnalysisFolderPath;
-    }
-
     public List<FractionMetaData> getFractionsMetaData() {
         return fractionsMetaData;
-    }
-
-    public void setFractionsMetaData(List<FractionMetaData> fractionsMetaData) {
-        this.fractionsMetaData = fractionsMetaData;
     }
 }

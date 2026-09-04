@@ -19,8 +19,9 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" prefHeight="810.0" prefWidth="1250.0" style="-fx-background-color: LINEN;"
-      stylesheets="@../css/report.css" xmlns="http://javafx.com/javafx/17.0.12"
+      stylesheets="@../css/report.css" xmlns="http://javafx.com/javafx/20.0.1"
       fx:controller="org.cirdles.tripoli.gui.reports.ReportBuilderController">
     <!-- Menu Bar -->
     <GridPane hgap="15.0" prefHeight="115.0" prefWidth="875.0" vgap="10.0">
@@ -59,6 +60,14 @@
                     prefHeight="25.0" prefWidth="67.0" text="Delete" HBox.hgrow="ALWAYS"/>
             <Button fx:id="generateButton" minWidth="75.0" mnemonicParsing="false" onAction="#generateOnAction"
                     prefHeight="25.0" prefWidth="89.0" text="Generate" HBox.hgrow="ALWAYS"/>
+            <Region prefHeight="27.0" prefWidth="111.0"/>
+            <Button mnemonicParsing="false" onAction="#howToReportsVideoAction" prefHeight="27.0" prefWidth="108.0"
+                    style="-fx-background-color: black; -fx-text-fill: white; -fx-font-weight: BOLD; -fx-border-color: red; -fx-border-width: 3; -fx-border-radius: 6; -fx-background-radius: 6;"
+                    text="HowTo Video">
+                <font>
+                    <Font name="System Bold" size="14.0"/>
+                </font>
+            </Button>
         </HBox>
         <columnConstraints>
             <ColumnConstraints/>

@@ -21,9 +21,6 @@ package org.cirdles.tripoli.utilities.exceptions;
  */
 public class TripoliException extends Exception {
 
-    private TripoliException() {
-    }
-
     /**
      * @param message
      */

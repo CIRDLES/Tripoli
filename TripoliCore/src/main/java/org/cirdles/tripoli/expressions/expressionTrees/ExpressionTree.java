@@ -22,6 +22,7 @@ import org.cirdles.tripoli.expressions.userFunctions.UserFunctionNode;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import static org.cirdles.tripoli.expressions.operations.Operation.OPERATIONS_MA
 
 
 public class ExpressionTree implements ExpressionTreeInterface, Serializable {
+    @Serial
     private static final long serialVersionUID = -2418173823255685906L;
     protected String name;
     protected ExpressionTreeInterface leftChildET;
@@ -56,7 +58,7 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
                 Operation operation = OPERATIONS_MAP.get(token);
 
                 if (operation.isSingleArg()) {
-                    if (stack.size() < 1) {
+                    if (stack.isEmpty()) {
                         throw new IllegalArgumentException("Invalid RPN expression: insufficient operands for operator " + token);
                     }
                     ExpressionTreeInterface child = stack.pop();
@@ -166,17 +168,6 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
 
     private Operation getOperation() {
         return this.rootOperator;
-    }
-
-    @Override
-    public int getOperationPrecedence() {
-        int retVal = 100;
-
-        if (rootOperator != null) {
-            retVal = rootOperator.getPrecedence();
-        }
-
-        return retVal;
     }
 
     @Override

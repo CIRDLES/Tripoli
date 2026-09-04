@@ -129,10 +129,10 @@ public class SequenceCell implements Serializable {
     }
 
     public String prettyPrintBaseLineRefs() {
-        String retVal = "";
+        StringBuilder retVal = new StringBuilder();
         for (String blref : baselineReferences) {
-            retVal += blref + " ";
+            retVal.append(blref).append(" ");
         }
-        return retVal;
+        return retVal.toString();
     }
 }

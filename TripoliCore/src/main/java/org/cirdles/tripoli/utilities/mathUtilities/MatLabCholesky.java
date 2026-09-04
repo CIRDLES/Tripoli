@@ -20,6 +20,8 @@ import jama.CholeskyDecomposition;
 import jama.Matrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
+import java.util.Arrays;
+
 /**
  * @author James F. Bowring
  */
@@ -81,9 +83,7 @@ public enum MatLabCholesky {
 
         // mu = repmat(mu,n,1);
         double[][] mu = new double[cases][];
-        for (int row = 0; row < cases; row++) {
-            mu[row] = myMu;
-        }
+        Arrays.fill(mu, myMu);
         /*
                 % Factor sigma using a function that will perform a Cholesky-like
         % factorization as long as the sigma matrix is positive
@@ -113,9 +113,7 @@ public enum MatLabCholesky {
             }
         }
 
-        Matrix r = (new Matrix(rArray)).times(T).plus(new Matrix(mu));
-
-        return r;
+        return (new Matrix(rArray)).times(T).plus(new Matrix(mu));
     }
         /*
             function [T,p] = cholCov(Sigma,flag)
@@ -272,13 +270,13 @@ public enum MatLabCholesky {
 
     public static boolean all(double[][] array, String operator, double tolerance) {
         boolean retVal = true;
-        for (int row = 0; row < array.length; row++) {
-            for (int col = 0; col < array[row].length; col++) {
+        for (double[] doubles : array) {
+            for (double aDouble : doubles) {
                 if (0 == "<".compareTo(operator)) {
-                    retVal = retVal && (Math.abs(array[row][col]) < tolerance);
+                    retVal = retVal && (Math.abs(aDouble) < tolerance);
                 }
                 if (0 == ">".compareTo(operator)) {
-                    retVal = retVal && (Math.abs(array[row][col]) > tolerance);
+                    retVal = retVal && (Math.abs(aDouble) > tolerance);
                 }
                 if (!retVal) break;
             }
