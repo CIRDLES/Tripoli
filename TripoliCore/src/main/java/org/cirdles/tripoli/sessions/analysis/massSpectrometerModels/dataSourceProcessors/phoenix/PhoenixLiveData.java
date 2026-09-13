@@ -333,7 +333,9 @@ public class PhoenixLiveData implements Serializable {
                     String analysisName = dataLineSplit[1].substring(dataLineSplit[1].lastIndexOf("\\") + 1, dataLineSplit[1].length() - 1);
                     liveDataAnalysis.setAnalysisName(analysisName + (" (Live Data)"));
                     liveDataAnalysis.setAnalysisSampleName(analysisName.split(" ")[0]);
-                    liveDataAnalysis.setAnalysisFractionName(analysisName.split(" ")[1].split("-")[0]);
+                    boolean hasUnderscore = analysisName.contains("_");
+                    liveDataAnalysis.setAnalysisFractionName(
+                            analysisName.split(hasUnderscore?"_":" ")[1].split("-")[0]);
                 }
                 break;
             case "Acquire Date":
