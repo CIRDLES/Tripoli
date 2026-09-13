@@ -29,6 +29,8 @@ module Tripoli.TripoliCore {
     requires org.apache.commons.rng.simple;
     requires jxl;
     requires org.antlr.antlr4.runtime;
+    requires java.datatransfer;
+    requires java.desktop;
 
     exports org.cirdles.tripoli;
     exports org.cirdles.tripoli.valueModels;

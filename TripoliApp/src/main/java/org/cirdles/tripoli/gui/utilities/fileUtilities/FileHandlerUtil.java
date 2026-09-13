@@ -14,6 +14,9 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.file.SessionFileUtilities;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -290,5 +293,23 @@ public enum FileHandlerUtil {
         } else {
             return null;
         }
+    }
+    /**
+     * Reads a text file and copies its full content to the system clipboard.
+     *
+     * @param filePath The path of the file to be copied.
+     * @throws IOException If an I/O error occurs reading from the file.
+     */
+    public static void copyFileToClipboard(String filePath) throws IOException {
+        // 1. Read the contents of the file into a String
+        Path path = Paths.get(filePath);
+        String fileContent = Files.readString(path);
+
+        // 2. Wrap the text in a StringSelection object
+        StringSelection selection = new StringSelection(fileContent);
+
+        // 3. Get the system clipboard and set its contents
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(selection, null);
     }
 }
