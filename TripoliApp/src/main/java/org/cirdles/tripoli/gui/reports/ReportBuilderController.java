@@ -61,6 +61,7 @@ import java.util.stream.Collectors;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
+import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.copyFileToClipboard;
 
 public class ReportBuilderController {
 
@@ -93,6 +94,7 @@ public class ReportBuilderController {
     public Label methodNameLabel;
     @FXML
     public Label unsavedChangesLabel;
+    public Button clipboardButton;
     @FXML
     private ListView<ReportCategory> categoryListView;
     @FXML
@@ -159,6 +161,7 @@ public class ReportBuilderController {
         categoryListView.setDisable(false);
         columnListView.setDisable(false);
         generateButton.setDisable(false);
+        clipboardButton.setDisable(false);
         createCategoryButton.setDisable(false);
         categoryTextField.setDisable(false);
         columnAccordion.setDisable(false);
@@ -770,6 +773,10 @@ public class ReportBuilderController {
         }
     }
 
+    public void clipboardOnAction() throws IOException {
+        File reportCSVFile = currentReport.generateCSVFile(listOfAnalyses, tripoliSession.getSessionName(), false);
+        copyFileToClipboard(reportCSVFile.getAbsolutePath());
+    }
 
     public void createCategoryOnAction() {
         String categoryName = categoryTextField.getText();
@@ -814,6 +821,7 @@ public class ReportBuilderController {
     public void howToReportsVideoAction() {
         BrowserControl.showURI("https://www.youtube.com/watch?v=I0Or-uVmr-A");
     }
+
 }
 
 
