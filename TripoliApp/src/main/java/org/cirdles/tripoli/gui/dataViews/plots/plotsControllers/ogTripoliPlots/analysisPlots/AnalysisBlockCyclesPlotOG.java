@@ -734,8 +734,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
     public void prepareExtents(boolean reScaleX, boolean reScaleY) {
         if (reScaleX) {
-            minX -= 2;
-            maxX += 2;
+            minX -= 5;
+            maxX += 5;
         }
 
         if (reScaleY || ignoreRejects) {
