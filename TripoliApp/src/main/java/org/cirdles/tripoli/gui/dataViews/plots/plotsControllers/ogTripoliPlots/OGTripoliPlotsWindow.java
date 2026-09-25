@@ -23,6 +23,7 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.IOException;
 
@@ -98,7 +99,7 @@ public class OGTripoliPlotsWindow {
         plottingStage.requestFocus();
     }
 
-    public void loadPlotsWindow() {
+    public void loadPlotsWindow() throws TripoliException {
         if (!plottingStage.isShowing() && plottingData != null) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/dataViews/plots/plotsControllers/OGTripoliView.fxml"));
             try {

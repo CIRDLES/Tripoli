@@ -53,6 +53,7 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.net.URL;
 import java.util.*;
@@ -238,7 +239,11 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
                         AnalysisManagerController.ogTripoliReviewPlotsWindow =
                                 new OGTripoliPlotsWindow(TripoliGUI.primaryStage, analysisManagerCallbackI, plottingData);
                         OGTripoliViewController.analysis = analysis;
-                        AnalysisManagerController.ogTripoliReviewPlotsWindow.loadPlotsWindow();
+                        try {
+                            AnalysisManagerController.ogTripoliReviewPlotsWindow.loadPlotsWindow();
+                        } catch (TripoliException e) {
+                            //  throw new RuntimeException(e);
+                        }
                     }
                 }
             });

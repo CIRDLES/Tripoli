@@ -17,6 +17,8 @@
 package org.cirdles.tripoli.gui.constants;
 
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import org.jetbrains.annotations.NonNls;
 
 /**
@@ -51,14 +53,13 @@ public enum ConstantsTripoliApp {
     //    https://chartio.com/learn/charts/how-to-choose-colors-data-visualization/
     public static final String[] TRIPOLI_PALLETTE_FIVE = {"#0d84a5", "#f6c85f", "#6f4e7c", "#9ed866", "#ffa056", "#8dddd0", "#ca472f"};
 
-    public static final String TRIPOLI_HIGHLIGHTED_HEX = "#b0b0b0";
     public static final Color TRIPOLI_MOVING_SHADE = new Color(255.0 / 256.0, 182.0 / 256.0, 193.0 / 256.0, 0.5);
 
-    public static final Color OGTRIPOLI_TWOSIGMA = new Color(255.0 / 256.0, 191.0 / 256.0, 203.0 / 256.0, 1.0);
-    public static final Color OGTRIPOLI_ONESIGMA = new Color(255.0 / 256.0, 234.0 / 256.0, 0.0 / 256.0, 1.0);
-    public static final Color OGTRIPOLI_ONESIGMA_SEMI = new Color(255.0 / 256.0, 234.0 / 256.0, 0.0 / 256.0, 0.25);
-    public static final Color OGTRIPOLI_TWOSTDERR = new Color(144.0 / 256.0, 238.0 / 256.0, 143.0 / 256.0, 1.0);
-    public static final Color OGTRIPOLI_MEAN = Color.RED;//    new Color(3.0 / 256.0, 1.0 / 256.0, 255.0 / 256.0, 1.0);
+
+    public static final Font PLOT_LEGEND_FONT_16 = Font.font("Consolas", FontWeight.BOLD, 14);
+    public static final Font PLOT_LEGEND_FONT_0 = Font.font("Courier New", FontWeight.BOLD, 0);
+    public static final Font PLOT_LEGEND_FONT_12 = Font.font("Consolas", FontWeight.BOLD, 10);
+    public static final Font PLOT_LEGEND_FONT_MONO_8 = Font.font("Monospaced", FontWeight.NORMAL, 8);
 
     public static @NonNls String convertColorToHex(Color color) {
         String red = Integer.toHexString((int) (color.getRed() * 255));
@@ -70,11 +71,9 @@ public enum ConstantsTripoliApp {
 
         return "#" + red + green + blue;
     }
-
     public enum PlotLayoutStyle {
         TILE(),
         STACK()
     }
-
 
 }

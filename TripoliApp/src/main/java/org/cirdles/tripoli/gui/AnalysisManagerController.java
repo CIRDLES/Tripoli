@@ -125,6 +125,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public static AnalysisInterface concatenatedAnalysis;
 
     public static boolean showBlockDelimiters = true;
+    public static boolean showLegend = true;
 
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     private final TextArea expressionAsTextArea = new TextArea();
@@ -719,7 +720,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         try {
             tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
         } catch (TripoliException e) {
-//            throw new RuntimeException(e);
+///            throw new RuntimeException(e);
         }
 
         List<UserFunction> userFunctions = analysis.getUserFunctions();
@@ -2087,7 +2088,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
-    public void reviewAndSculptDataAction() {
+    public void reviewAndSculptDataAction() throws TripoliException {
         // fire up OGTripoli style session plots
         if (null != ogTripoliReviewPlotsWindow) {
             ogTripoliReviewPlotsWindow.close();
@@ -2146,7 +2147,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     @Override
-    public void callBackSetBlockIncludedStatus(int blockID, boolean included) {
+    public void callBackSetBlockIncludedStatus(int blockID, boolean included) throws TripoliException {
         boolean isProcessed = (null != analysis.getMapOfBlockIdToPlots().get(blockID));
         analysis.getMapOfBlockIdToProcessStatus().put(blockID, included ? (isProcessed ? SHOW : RUN) : SKIP);
         populateBlocksStatus();

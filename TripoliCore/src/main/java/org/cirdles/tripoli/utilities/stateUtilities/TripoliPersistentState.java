@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static org.cirdles.tripoli.constants.TripoliConstants.PlotLegendFlavor;
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_USERS_DATA_FOLDER_NAME;
 
 /**
@@ -64,6 +65,8 @@ public class TripoliPersistentState implements Serializable {
     //  Ratio Stat plot colors
     private RatiosColors ratiosColors;
     // END Ratio Stat plot colors
+
+    private PlotLegendFlavor plotLegendFlavor;
 
     private TripoliPersistentState() {
 
@@ -139,6 +142,17 @@ public class TripoliPersistentState implements Serializable {
                 + File.separator//
                 + TRIPOLI_USERS_DATA_FOLDER_NAME //
                 + File.separator + TRIPOLI_PERSISTENT_STATE_FILE_NAME;
+    }
+
+    public PlotLegendFlavor getPlotLegendFlavor() {
+        if (plotLegendFlavor == null) {
+            plotLegendFlavor = PlotLegendFlavor.NORMAL;
+        }
+        return plotLegendFlavor;
+    }
+
+    public void setPlotLegendFlavor(PlotLegendFlavor plotLegendFlavor) {
+        this.plotLegendFlavor = plotLegendFlavor;
     }
 
     private void serializeSelf() {

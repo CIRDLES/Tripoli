@@ -16,10 +16,12 @@
 
 package org.cirdles.tripoli.gui;
 
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+
 public interface AnalysisManagerCallbackI {
     void callbackRefreshBlocksStatus();
 
-    void reviewAndSculptDataAction();
+    void reviewAndSculptDataAction() throws TripoliException;
 
-    void callBackSetBlockIncludedStatus(int blockID, boolean status);
+    void callBackSetBlockIncludedStatus(int blockID, boolean status) throws TripoliException;
 }

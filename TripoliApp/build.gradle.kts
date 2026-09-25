@@ -45,13 +45,6 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
     implementation("org.apache.commons:commons-math3:3.6.1") // group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
-
-//    // https://mvnrepository.com/artifact/com.google.guava/guava
-//    implementation("com.google.guava:guava:31.1-jre")
-//    // https://mvnrepository.com/artifact/com.google.guava/guava-primitives
-//    implementation("com.google.guava:guava-primitives:r03")
-
-
 }
 
 extraJavaModuleInfo {

@@ -87,7 +87,7 @@ public class OGTripoliViewController {
     }
 
     @FXML
-    public void initialize() {
+    public void initialize() throws TripoliException {
         ratiosPlotTab.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue) {
                 SettingsWindow.getCurrentScene().ifPresent(scene -> Event.fireEvent(scene, PlotTabSelectedEvent.create(
@@ -136,7 +136,7 @@ public class OGTripoliViewController {
         }
     }
 
-    public void populatePlots() {
+    public void populatePlots() throws TripoliException {
         plotRatios();
         if (plottingData.analysisCaseNumber() == 4) {
             plotOnPeakIntensitiesAndResiduals();
@@ -170,7 +170,7 @@ public class OGTripoliViewController {
         plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.repeatLayoutStyle());
     }
 
-    public void plotRatios() {
+    public void plotRatios() throws TripoliException {
         ogtCycleRatioPlotsAnchorPane.getChildren().clear();
 
         plotsWallPaneRatios = PlotWallPane.createPlotWallPane("OGTripoliSession", analysis, null, analysisManagerCallbackI);

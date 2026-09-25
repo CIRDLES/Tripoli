@@ -294,6 +294,7 @@ public enum FileHandlerUtil {
             return null;
         }
     }
+
     /**
      * Reads a text file and copies its full content to the system clipboard.
      *
@@ -312,4 +313,6 @@ public enum FileHandlerUtil {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(selection, null);
     }
+
+
 }

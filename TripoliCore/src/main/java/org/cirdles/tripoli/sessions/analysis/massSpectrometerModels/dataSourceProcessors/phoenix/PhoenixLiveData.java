@@ -40,6 +40,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 //import static org.cirdles.tripoli.constants.TripoliConstants.R18O_16O_DEFAULT_OXIDE_CORRECTION;
+import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.createAnalysisMethodFromCase1;
 
 
@@ -105,7 +106,7 @@ public class PhoenixLiveData implements Serializable {
 
             do {
                 line = bufferedReader.readLine();
-            } while (null !=line && !Objects.equals(line.split(",")[0], "Method"));
+            } while (null != line && !Objects.equals(line.split(",")[0], "Method"));
         } catch (IOException ignored) {
         }
 
@@ -334,8 +335,13 @@ public class PhoenixLiveData implements Serializable {
                     liveDataAnalysis.setAnalysisName(analysisName + (" (Live Data)"));
                     liveDataAnalysis.setAnalysisSampleName(analysisName.split(" ")[0]);
                     boolean hasUnderscore = analysisName.contains("_");
-                    liveDataAnalysis.setAnalysisFractionName(
-                            analysisName.split(hasUnderscore?"_":" ")[1].split("-")[0]);
+                    boolean hasSpace = analysisName.contains(" ");
+                    if (hasUnderscore || hasSpace) {
+                        liveDataAnalysis.setAnalysisFractionName(
+                                analysisName.split(hasUnderscore ? "_" : " ")[1].split("-")[0]);
+                    } else {
+                        liveDataAnalysis.setAnalysisFractionName(MISSING_STRING_FIELD);
+                    }
                 }
                 break;
             case "Acquire Date":
