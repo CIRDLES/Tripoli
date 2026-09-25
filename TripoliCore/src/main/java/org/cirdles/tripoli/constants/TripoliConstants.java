@@ -110,6 +110,24 @@ public enum TripoliConstants {
 
     }
 
+    public enum PlotLegendFlavor {
+
+        NORMAL("NORMAL"),
+        COMPACT("COMPACT"),
+        HIDE("HIDE");
+
+        private final String name;
+
+        PlotLegendFlavor(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+    }
+
     public enum RatiosPlotColorFlavor {
         ONE_SIGMA_SHADE("One σ Shading"),
         TWO_SIGMA_SHADE("Two σ Shading"),
@@ -165,5 +183,4 @@ public enum TripoliConstants {
         BLOCK(),
         CYCLE()
     }
-
 }

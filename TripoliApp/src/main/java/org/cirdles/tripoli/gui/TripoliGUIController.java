@@ -279,6 +279,17 @@ public class TripoliGUIController implements Initializable {
 
     }
 
+    public static boolean isFileClosed(File file) {
+        // Try opening the file with read-write permissions
+        try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+            // If we successfully opened it, the other process has likely released it
+            return true;
+        } catch (IOException e) {
+            // File is still locked/being written to by another process
+            return false;
+        }
+    }
+
     /**
      * @param location  The location used to resolve relative paths for the root object, or
      *                  {@code null} if the location is not known.
@@ -673,12 +684,12 @@ public class TripoliGUIController implements Initializable {
         }
     }
 
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++ end sessions ++++++++++++++++++++++++++++++++++++++++++++++++++
+
     @FXML
     private void quitAction() {
         quit();
     }
-
-    // ++++++++++++++++++++++++++++++++++++++++++++++++++ end sessions ++++++++++++++++++++++++++++++++++++++++++++++++++
 
     // ++++++++++++++++++++++++++++++++++++++++++++++++++ analyses ++++++++++++++++++++++++++++++++++++++++++++++++++
     private void launchAnalysesManager() throws IOException, TripoliException {
@@ -763,7 +774,6 @@ public class TripoliGUIController implements Initializable {
         settingsWindow.show();
     }
 
-
     public void newAnalysisMenuItemOnAction() throws TripoliException {
         if (tripoliSession == null) {
             MenuItem menuItemSessionNew = ((MenuBar) primaryStage.getScene()
@@ -806,7 +816,6 @@ public class TripoliGUIController implements Initializable {
     public void visitLatestVersionAction() {
         BrowserControl.showURI("https://github.com/CIRDLES/Tripoli/releases/latest");
     }
-
 
     public void etReduxExportAction() {
         ETReduxFraction etReduxFraction = analysis.prepareFractionForETReduxExport();
@@ -866,11 +875,11 @@ public class TripoliGUIController implements Initializable {
         BrowserControl.showURI("https://github.com/CIRDLES/Tripoli/discussions");
     }
 
+    // ------------------ LiveData Methods ------------------------------------------------
+
     public void showTripoliUserManual() {
         BrowserControl.showURI("https://cirdles.org/tripoli-manual");
     }
-
-    // ------------------ LiveData Methods ------------------------------------------------
 
     public void processLiveData() throws IOException, TripoliException {
 
@@ -1079,7 +1088,7 @@ public class TripoliGUIController implements Initializable {
         liveDataFinishFileWatcher = new FileWatcher(analysisFolderPath, (filePath, kind) -> {
             if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
                 // add pause aug 2026
-                while(!isFileClosed(filePath.toFile())){
+                while (!isFileClosed(filePath.toFile())) {
                     try {
                         TimeUnit.MILLISECONDS.sleep(10);
                     } catch (InterruptedException e) {
@@ -1095,7 +1104,7 @@ public class TripoliGUIController implements Initializable {
         liveDataLogWatcher = new FileWatcher(liveDataFolderPath, (filePath, kind) -> {
             if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
                 // add pause aug 2026
-                while(!isFileClosed(filePath.toFile())){
+                while (!isFileClosed(filePath.toFile())) {
                     try {
                         TimeUnit.MILLISECONDS.sleep(10);
                     } catch (InterruptedException e) {
@@ -1129,16 +1138,6 @@ public class TripoliGUIController implements Initializable {
             liveDataFinishFileThread.start();
         }
     }
-    public static boolean isFileClosed(File file) {
-        // Try opening the file with read-write permissions
-        try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
-            // If we successfully opened it, the other process has likely released it
-            return true;
-        } catch (IOException e) {
-            // File is still locked/being written to by another process
-            return false;
-        }
-    }
     // ------------------ End LiveData Methods ------------------------------------------------
 
     // ------------------ Import from ogTripoli -----------------------------------------------
@@ -1170,7 +1169,8 @@ public class TripoliGUIController implements Initializable {
         BrowserControl.showURI("https://cirdles.org/Tripoli/");
     }
 
-    public void dedicationMenuAction() {BrowserControl.showURI("https://news.mit.edu/2019/samuel-bowring-pioneering-geologist-proefssor-emeritus-dies-0730");
+    public void dedicationMenuAction() {
+        BrowserControl.showURI("https://news.mit.edu/2019/samuel-bowring-pioneering-geologist-proefssor-emeritus-dies-0730");
     }
 
 }

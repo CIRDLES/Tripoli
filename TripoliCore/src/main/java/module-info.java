@@ -31,6 +31,7 @@ module Tripoli.TripoliCore {
     requires org.antlr.antlr4.runtime;
     requires java.datatransfer;
     requires java.desktop;
+    requires javafx.graphics;
 
     exports org.cirdles.tripoli;
     exports org.cirdles.tripoli.valueModels;

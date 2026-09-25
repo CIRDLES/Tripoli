@@ -40,6 +40,7 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotOG.plotLegendFlavor;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.BlockEnsemblesPlotter.blockEnsemblePlotEngine;
 
 /**
@@ -280,7 +282,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
     }
 
-    public void applyBurnIn() {
+    public void applyBurnIn() throws TripoliException {
         int burnIn = (int) analysis.getMapOfBlockIdToPlots().get(mcmcPlotsController.getCurrentBlockID())[5][0].getShadeWidthForModelConvergence();
         int blockID = mcmcPlotsController.getCurrentBlockID();
         analysis.getMapOfBlockIdToModelsBurnCount().put(blockID, burnIn);
@@ -297,7 +299,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
     }
 
-    public void applyBurnInAllBlocks() {
+    public void applyBurnInAllBlocks() throws TripoliException {
         int burnIn = (int) analysis.getMapOfBlockIdToPlots().get(mcmcPlotsController.getCurrentBlockID())[5][0].getShadeWidthForModelConvergence();
         int blockIDCount = analysis.getMapOfBlockIdToPlots().keySet().size() + 1;
 
@@ -357,11 +359,23 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
         if (0 == iD.compareToIgnoreCase(PLOT_TAB_ENSEMBLES)) {
             Button applyBurnInButton = new Button("Apply BurnIn");
-            applyBurnInButton.setOnAction(event -> applyBurnIn());
+            applyBurnInButton.setOnAction(event -> {
+                try {
+                    applyBurnIn();
+                } catch (TripoliException e) {
+                    //  throw new RuntimeException(e);
+                }
+            });
             toolBar.getItems().addAll(applyBurnInButton);
 
             Button applyBurnAllBlocksButton = new Button("Apply BurnIn All Blocks");
-            applyBurnAllBlocksButton.setOnAction(event -> applyBurnInAllBlocks());
+            applyBurnAllBlocksButton.setOnAction(event -> {
+                try {
+                    applyBurnInAllBlocks();
+                } catch (TripoliException e) {
+                    // throw new RuntimeException(e);
+                }
+            });
             toolBar.getItems().addAll(applyBurnAllBlocksButton);
         }
 
@@ -442,10 +456,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                 });
 
 
-        Label labelMode = new Label("Mode:");
+     /*   Label labelMode = new Label("Mode:");
         labelMode.setFont(commandFont);
         labelMode.setAlignment(Pos.CENTER_RIGHT);
-        labelMode.setPrefWidth(50);
+        labelMode.setPrefWidth(50);*/
 //        scaleControlsToolbar.getItems().add(labelMode);
 
         // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
@@ -460,7 +474,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             Label labelScale = new Label("Ratio Scale:");
             labelScale.setFont(commandFont);
             labelScale.setAlignment(Pos.CENTER_RIGHT);
-            labelScale.setPrefWidth(80);
+            labelScale.setPrefWidth(70);
             scaleControlsToolbar.getItems().add(labelScale);
 
             CheckBox logCB = new CheckBox("Log");
@@ -475,7 +489,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         Label labelZoom = new Label("Zoom:");
         labelZoom.setFont(commandFont);
         labelZoom.setAlignment(Pos.CENTER_RIGHT);
-        labelZoom.setPrefWidth(50);
+        labelZoom.setPrefWidth(40);
         scaleControlsToolbar.getItems().add(labelZoom);
 
         ToggleGroup toggleScaleY = new ToggleGroup();
@@ -493,7 +507,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                     resetZoom();
                 });
 
-        RadioButton xOnlyRB = new RadioButton("X-only");
+        RadioButton xOnlyRB = new RadioButton("X");
         xOnlyRB.setToggleGroup(toggleScaleY);
         scaleControlsToolbar.getItems().add(xOnlyRB);
         xOnlyRB.selectedProperty().addListener(
@@ -505,7 +519,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                     resetZoom();
                 });
 
-        RadioButton yOnlyRB = new RadioButton("Y-only");
+        RadioButton yOnlyRB = new RadioButton("Y");
         yOnlyRB.setToggleGroup(toggleScaleY);
         scaleControlsToolbar.getItems().add(yOnlyRB);
         yOnlyRB.selectedProperty().addListener(
@@ -517,7 +531,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                     resetZoom();
                 });
 
-        CheckBox showBlockLinesCB = new CheckBox("Show Block Lines");
+        CheckBox showBlockLinesCB = new CheckBox("Blocks");
         showBlockLinesCB.setPadding(new Insets(0, 0, 0, 10));
         showBlockLinesCB.setSelected(AnalysisManagerController.showBlockDelimiters);
         showBlockLinesCB.setOnAction(event -> {
@@ -531,6 +545,52 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         });
 
         scaleControlsToolbar.getItems().add(showBlockLinesCB);
+
+        CheckBox showLegendCB = new CheckBox("Legend");
+        RadioButton normalRB = new RadioButton("N");
+        showLegendCB.setPadding(new Insets(0, 0, 0, 10));
+        scaleControlsToolbar.getItems().add(showLegendCB);
+        showLegendCB.setSelected(AnalysisManagerController.showLegend);
+        showLegendCB.setOnAction(event -> {
+            if (showLegendCB.isSelected()) {
+                AnalysisManagerController.showLegend = true;
+                if (normalRB.isSelected()) {
+                    plotLegendFlavor = PlotLegendFlavor.NORMAL;
+                }else   {
+                    plotLegendFlavor = PlotLegendFlavor.COMPACT;
+                }
+                rebuildPlot(false, false);
+            } else {
+                AnalysisManagerController.showLegend = false;
+                plotLegendFlavor = PlotLegendFlavor.HIDE;
+                rebuildPlot(false, false);
+            }
+        });
+
+        ToggleGroup toggleLegendSize = new ToggleGroup();
+        normalRB.selectedProperty().setValue(true);
+        normalRB.setToggleGroup(toggleLegendSize);
+        scaleControlsToolbar.getItems().add(normalRB);
+        normalRB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    if (newVal) {
+                        plotLegendFlavor = PlotLegendFlavor.NORMAL;
+                    }
+                    rebuildPlot(true, false);
+                });
+
+        RadioButton compactRB = new RadioButton("C");
+        compactRB.setToggleGroup(toggleLegendSize);
+        scaleControlsToolbar.getItems().add(compactRB);
+        compactRB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    if (newVal) {
+                        plotLegendFlavor = PlotLegendFlavor.COMPACT;
+                    }
+                    rebuildPlot(true, false);
+                });
+
+
 
         getChildren().add(scaleControlsToolbar);
     }
@@ -636,7 +696,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     //     cycleCB.selectedProperty().addListener(cycleCBChangeListener);
     // }
 
-    public void synchronizeBlockToggle(int blockID) {
+    public void synchronizeBlockToggle(int blockID) throws TripoliException {
         ObservableList<Node> children = getChildren();
         boolean included = false;
         for (Node child : children) {
