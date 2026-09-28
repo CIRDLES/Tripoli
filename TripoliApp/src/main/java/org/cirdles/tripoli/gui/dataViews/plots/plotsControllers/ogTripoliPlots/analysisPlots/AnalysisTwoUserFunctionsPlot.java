@@ -955,8 +955,8 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         this.ignoreRejects = ignoreRejects;
     }
 
-    public void toggleSculptingMode() {
-        if (inSculptorMode) {
+    public void toggleSculptingMode(boolean allSculptingMode) {
+        if (allSculptingMode) {
             exitSculptingMode();
         } else {
             enterSculptingMode();

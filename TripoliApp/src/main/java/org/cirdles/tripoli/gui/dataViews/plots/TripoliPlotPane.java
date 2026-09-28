@@ -360,9 +360,9 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
         }
     }
 
-    public void toggleSculptingMode() {
+    public void toggleSculptingMode(boolean allSculptingMode) {
         if (plot != null) {
-            plot.toggleSculptingMode();
+            plot.toggleSculptingMode(allSculptingMode);
             plot.repaint();
         }
     }
