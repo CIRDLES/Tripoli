@@ -31,6 +31,7 @@ import org.cirdles.tripoli.gui.AnalysisManagerController;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotOG;
 import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.SettingsButton;
@@ -85,6 +86,8 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     // log toggle in this wall pane's scale toolbar. Individual Plot2 panes also hide their
     // Chauvenet / SYNCH buttons based on plot type.
     private boolean showAnalysisControls = true;
+
+    private static boolean allSculptingMode = false;
 
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
@@ -257,9 +260,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     }
 
     public void toggleSculptingMode() {
+        allSculptingMode = !allSculptingMode;
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).toggleSculptingMode();
+                ((TripoliPlotPane) plotPane).toggleSculptingMode(allSculptingMode);
             }
         }
     }

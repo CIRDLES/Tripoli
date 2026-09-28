@@ -33,6 +33,7 @@ import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.AnalysisManagerController;
+import org.cirdles.tripoli.gui.TripoliGUI;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisBlockCyclesRecord;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
@@ -90,6 +91,9 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     private double zoomBoxY;
     private boolean ignoreRejects;
 
+    public boolean isInSculptorMode() {
+        return inSculptorMode;
+    }
 
     private AnalysisBlockCyclesPlotOG(
             AnalysisInterface analysis,
@@ -177,6 +181,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         selectorBoxY = mouseStartY;
         zoomBoxX = mouseStartX;
         zoomBoxY = mouseStartY;
+
+        boolean savedIsSculptorMode = inSculptorMode;
 
         // process blocks
         //TODO: SOLVE DIFFERENT CYCLE COUNTS FOR CONCAT
@@ -268,6 +274,10 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         calcStats();
         calculateTics();
         repaint();
+
+        if(TripoliGUI.isLiveDataOn && savedIsSculptorMode) {
+            enterSculptingMode();
+        }
     }
 
     /**
@@ -1197,11 +1207,11 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         this.ignoreRejects = ignoreRejects;
     }
 
-    public void toggleSculptingMode() {
-        if (inSculptorMode) {
-            exitSculptingMode();
-        } else {
+    public void toggleSculptingMode(boolean allSculptingMode) {
+        if (allSculptingMode) {
             enterSculptingMode();
+        } else {
+            exitSculptingMode();
         }
     }
 
