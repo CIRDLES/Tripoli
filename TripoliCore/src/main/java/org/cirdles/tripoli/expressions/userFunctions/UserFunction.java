@@ -129,9 +129,11 @@ public class UserFunction implements Comparable<UserFunction>, Serializable {
                 for (int i = 0; i < plotBlockCyclesRecord.cycleMeansData().length; i++) {
                     if ((plotBlockCyclesRecord.cycleMeansData()[i] <= 0.0)
                             && (plotBlockCyclesRecord.cyclesIncluded()[i])) {
+/*
                         System.out.println(
                                 "ALERT NEG VAL:  " + name + "  at point# " + i + "  =  "
                                         + plotBlockCyclesRecord.cycleMeansData()[i]);
+*/
                         allPositive = false;
                         break;
                     }

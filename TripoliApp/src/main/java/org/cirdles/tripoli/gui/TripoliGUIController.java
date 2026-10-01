@@ -994,6 +994,7 @@ public class TripoliGUIController implements Initializable {
                         ogTripoliPreviewPlotsWindow.getOgTripoliViewController().replotAllPlots();
                     } else {*/
                 // sept 2026 for constant update for sculpting
+                ogTripoliPreviewPlotsWindow.close();
                 ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(primaryStage, null, plottingData);
                 ogTripoliPreviewPlotsWindow.loadPlotsWindow();
                 // }
