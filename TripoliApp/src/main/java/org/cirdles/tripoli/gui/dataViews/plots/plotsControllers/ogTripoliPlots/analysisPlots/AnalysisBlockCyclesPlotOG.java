@@ -91,10 +91,6 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     private double zoomBoxY;
     private boolean ignoreRejects;
 
-    public boolean isInSculptorMode() {
-        return inSculptorMode;
-    }
-
     private AnalysisBlockCyclesPlotOG(
             AnalysisInterface analysis,
             Rectangle bounds,
@@ -133,6 +129,10 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
         return new AnalysisBlockCyclesPlotOG(
                 analysis, bounds, userFunction, blockIDsPerTimeSlot, parentWallPane);
+    }
+
+    public boolean isInSculptorMode() {
+        return inSculptorMode;
     }
 
     public PlotWallPaneInterface getParentWallPane() {
@@ -275,7 +275,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         calculateTics();
         repaint();
 
-        if(TripoliGUI.isLiveDataOn && savedIsSculptorMode) {
+        if (TripoliGUI.isLiveDataOn && savedIsSculptorMode) {
             enterSculptingMode();
         }
     }
@@ -733,11 +733,11 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
             g2d.setFont(legendFont);
 
-        g2d.setStroke(Color.web(analysis.getMeanHexColorString()));
-        g2d.setLineWidth(1.5);
-        g2d.strokeLine(textLeft + 5, textTop + textDeltaY + 50, textLeft + 70, textTop + textDeltaY + 50);
-        g2d.fillText("x", textLeft + 70, textTop + 3.2 * textDeltaY + 14);
-        g2d.fillText("\u0304", textLeft + 70, textTop + 3.2 * textDeltaY + 14);
+            g2d.setStroke(Color.web(analysis.getMeanHexColorString()));
+            g2d.setLineWidth(1.5);
+            g2d.strokeLine(textLeft + 5, textTop + textDeltaY + 50, textLeft + 70, textTop + textDeltaY + 50);
+            g2d.fillText("x", textLeft + 70, textTop + 3.2 * textDeltaY + 14);
+            g2d.fillText("\u0304", textLeft + 70, textTop + 3.2 * textDeltaY + 14);
 
         }
     }

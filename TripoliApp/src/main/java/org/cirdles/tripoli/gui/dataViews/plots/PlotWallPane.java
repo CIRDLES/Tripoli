@@ -22,6 +22,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -31,7 +32,6 @@ import org.cirdles.tripoli.gui.AnalysisManagerController;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotOG;
 import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.SettingsButton;
@@ -47,9 +47,12 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.ETREDDUX_ICON;
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_CLIPBOARD_ICON;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotOG.plotLegendFlavor;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.BlockEnsemblesPlotter.blockEnsemblePlotEngine;
 
@@ -61,6 +64,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     public static final double gridCellDim = 2.0;
     private static final DelegateActionSet repaintDelegateActionSet = new DelegateActionSet();
     public static double menuOffset = 30.0;
+    private static boolean allSculptingMode = false;
     final AnalysisManagerCallbackI analysisManagerCallbackI;
     private final String iD;
     private final boolean[] zoomFlagsXY = new boolean[2];
@@ -78,16 +82,13 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private ConstantsTripoliApp.PlotLayoutStyle plotLayoutStyle;
     private ToolBar scaleControlsToolbar;
     private TripoliPlotPane zoomedPlot;
-    private Button toggleSculptingModeButton;
     // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
     // private CheckBox cycleCB;
-
+    private Button toggleSculptingModeButton;
     // When false (Plot2-only window), hide analysis-related controls such as the ratio-scale
     // log toggle in this wall pane's scale toolbar. Individual Plot2 panes also hide their
     // Chauvenet / SYNCH buttons based on plot type.
     private boolean showAnalysisControls = true;
-
-    private static boolean allSculptingMode = false;
 
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
@@ -403,8 +404,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                             SettingsRequestType.RATIOS);
             settingsWindow.show();
         });
+        Tooltip tooltip = new Tooltip("Settings");
+        settingsGearButton.setTooltip(tooltip);
         scaleControlsToolbar.getItems().add(settingsGearButton);
-        // END OF settings button
+        // END-OF-settings button
 
         Button infoButton = new Button("?");
         infoButton.setFont(commandFont);
@@ -412,20 +415,50 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             Path resourcePath = Path.of(DOCS_FOLDER.getAbsolutePath() + File.separator + "ogTripoliHelp.md");
             BrowserControl.showURI(resourcePath.toString());
         });
+        tooltip = new Tooltip("Local help.");
+        infoButton.setTooltip(tooltip);
         scaleControlsToolbar.getItems().add(infoButton);
         // TODO: Create issue/bugfix for bad url above ^^
 
-        Button stackButton = new Button("Stack Plots");
+        Button exportToReduxButton = new Button();
+        ImageView imageView = new ImageView(Objects.requireNonNull(getClass().getResource("/" + ETREDDUX_ICON)).toExternalForm());
+        imageView.setFitWidth(40);
+        imageView.setFitHeight(35);
+        imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
+
+        exportToReduxButton.setGraphic(imageView);
+        exportToReduxButton.setPadding(new Insets(0, 0, 0, 0));
+        exportToReduxButton.setMaxHeight(35);
+        exportToReduxButton.setOnAction(event -> {
+            try {
+                AnalysisManagerController.exportToETRedux();
+            } catch (TripoliException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        tooltip = new Tooltip("Export to ET_Redux");
+        exportToReduxButton.setTooltip(tooltip);
+        scaleControlsToolbar.getItems().add(exportToReduxButton);
+
+        Button exportToClipBoardButton = new Button();
+        imageView = new ImageView(Objects.requireNonNull(getClass().getResource("/" + TRIPOLI_CLIPBOARD_ICON)).toExternalForm());
+        exportToClipBoardButton.setGraphic(imageView);
+        exportToClipBoardButton.setPadding(new Insets(0, 0, 0, 0));
+        exportToClipBoardButton.setMaxHeight(35);
+        exportToClipBoardButton.setOnAction(event -> {
+            AnalysisManagerController.exportToClipboard();
+        });
+        tooltip = new Tooltip("Export to clipboard.");
+        exportToClipBoardButton.setTooltip(tooltip);
+        scaleControlsToolbar.getItems().add(exportToClipBoardButton);
+
+        Button stackButton = new Button("Stack");
         stackButton.setFont(commandFont);
         stackButton.setOnAction(event -> stackPlots());
         scaleControlsToolbar.getItems().add(stackButton);
 
-//        Button toggleStatsButton = new Button("Toggle Stats");
-//        toggleStatsButton.setFont(commandFont);
-//        toggleStatsButton.setOnAction(event -> toggleShowStatsAllPlots());
-//        scaleControlsToolbar.getItems().add(toggleStatsButton);
-
-        Button tileButton = new Button("Tile Plots");
+        Button tileButton = new Button("Tile");
         tileButton.setFont(commandFont);
         tileButton.setOnAction(event -> tilePlots());
         scaleControlsToolbar.getItems().add(tileButton);
@@ -442,7 +475,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         });
         scaleControlsToolbar.getItems().add(resetAllDataButton);
 
-        toggleSculptingModeButton = new Button("Toggle ALL Sculpting Mode");
+        toggleSculptingModeButton = new Button("Toggle ALL Sculpting");
         toggleSculptingModeButton.setDisable(((Analysis) analysis).hasMemberAnalyses());
         toggleSculptingModeButton.setFont(commandFont);
         toggleSculptingModeButton.setStyle(toggleSculptingModeButton.getStyle() + ";-fx-text-fill: RED;");
@@ -450,6 +483,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             toggleSculptingMode();
         });
         scaleControlsToolbar.getItems().add(toggleSculptingModeButton);
+
 
         CheckBox ignoreCB = new CheckBox("Ignore Rejects");
         scaleControlsToolbar.getItems().add(ignoreCB);
@@ -560,7 +594,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                 AnalysisManagerController.showLegend = true;
                 if (normalRB.isSelected()) {
                     plotLegendFlavor = PlotLegendFlavor.NORMAL;
-                }else   {
+                } else {
                     plotLegendFlavor = PlotLegendFlavor.COMPACT;
                 }
                 rebuildPlot(false, false);
@@ -593,7 +627,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                     }
                     rebuildPlot(true, false);
                 });
-
 
 
         getChildren().add(scaleControlsToolbar);
