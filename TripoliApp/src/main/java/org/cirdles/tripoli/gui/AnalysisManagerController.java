@@ -245,6 +245,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Button treatAsRatioButton;
     @FXML
     public Tab customExpressionsTab;
+    @FXML
     public TextField liveWorkFlowStatusText;
     Text insertIndicator = new Text("|");
     @FXML
@@ -339,6 +340,126 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         ratioFlipperVBox.setAlignment(Pos.CENTER);
 
         return ratioFlipperVBox;
+    }
+
+    public static String exportToETRedux() throws TripoliException {
+        AllBlockInitForDataLiteOne.initBlockModels(analysis);
+        ETReduxFraction etReduxFraction = analysis.prepareFractionForETReduxExport();
+
+        TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+
+        // save for live workflow
+        if (null != tripoliSession) {
+            try {
+                if (null == tripoliPersistentState.getMRUSessionFile()) {
+                    File sessionFile = saveSessionFile(tripoliSession, primaryStageWindow);
+                    tripoliPersistentState.updateSessionListMRU(sessionFile);
+                } else {
+                    serializeObjectToFile(tripoliSession, tripoliPersistentState.getMRUSessionFile().getAbsolutePath());
+                }
+                Session.setSessionChanged(false);
+            } catch (TripoliException ex) {
+                TripoliMessageDialog.showWarningDialog(ex.getMessage(), null);
+            }
+        }
+        String sampleMetaDataFolderPath =
+                tripoliPersistentState.getTripoliPersistentParameters().getSampleMetaDataFolderPath();
+        if (sampleMetaDataFolderPath.isBlank()) {
+            TripoliMessageDialog.showWarningDialog(
+                    "Please set SampleMetaDataFolder in Settings.",
+                    TripoliGUI.primaryStage);
+            return "";
+        }
+        Path directoryPath = Paths.get(sampleMetaDataFolderPath);
+        try {
+            List<Path> xmlFiles;
+            try (Stream<Path> walk = Files.walk(directoryPath)) {
+                xmlFiles = walk
+                        .filter(Files::isRegularFile)
+                        .filter(p -> p.toString().endsWith(etReduxFraction.getSampleName() + ".xml"))
+                        .toList();
+            }
+            // should be only one file
+            if (xmlFiles.isEmpty()) {
+                TripoliMessageDialog.showWarningDialog(
+                        "There is no SampleMetaData .xml file present",
+                        TripoliGUI.primaryStage);
+                return "";
+            }
+            File sampleMetaDataFile = xmlFiles.get(0).toFile();
+            SampleMetaData sampleMetaData = SampleMetaDataUnmarshaller.unmarshall(sampleMetaDataFile.getAbsolutePath());
+            boolean result = false;
+            if (sampleMetaData.getSampleName().compareToIgnoreCase(analysis.getAnalysisSampleName()) != 0) {
+                result = TripoliMessageDialog.showChoiceDialog(
+                        "The sample name in the data file does not match the sample name in the sample metadata file.\n\n"
+                                + "The sample name in the data file is: "
+                                + analysis.getAnalysisSampleName()
+                                + "\n\nThe sample name in the sample metadata file is: "
+                                + sampleMetaData.getSampleName()
+                                + "\n\nConfirm to save to another folder.", TripoliGUI.primaryStage);
+                if (result) {
+                    exportToFile(etReduxFraction);
+                } else {
+                    return "";
+                }
+            }
+
+            String aliquotName = "";
+            String fractionMame = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_"
+                    + etReduxFraction.getEtReduxExportType() + ".xml";
+            if (!result) {
+                // locate fraction
+                boolean found = false;
+                for (FractionMetaData fm : sampleMetaData.getFractionsMetaData()) {
+                    if (fm.getFractionXMLUPbReduxFileName_U().compareToIgnoreCase(fractionMame) == 0) {
+                        found = true;
+                        aliquotName = fm.getAliquotName();
+                        break;
+                    }
+                    if (fm.getFractionXMLUPbReduxFileName_Pb().compareToIgnoreCase(fractionMame) == 0) {
+                        found = true;
+                        aliquotName = fm.getAliquotName();
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    result = TripoliMessageDialog.showChoiceDialog(
+                            "The fraction name in the data file does not match any fraction names in the sample metadata file.\n\n"
+                                    + "The fraction name in the data file is: "
+                                    + fractionMame
+                                    + "\n\nConfirm to save to another folder.", TripoliGUI.primaryStage);
+                    if (result) {
+                        exportToFile(etReduxFraction);
+                    } else {
+                        return "";
+                    }
+                }
+            }
+            String sampleAnalysisFolderPath = sampleMetaData.getSampleAnalysisFolderPath();
+            String exportFileName =
+                    sampleAnalysisFolderPath + File.separator + aliquotName + File.separator + fractionMame;
+            etReduxFraction.serializeXMLObject(exportFileName);
+            return "LiveWorkFlow Exported to " + exportFileName;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    private static void exportToFile(ETReduxFraction etReduxFraction) {
+        String fileName = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
+        etReduxFraction.serializeXMLObject(fileName);
+        saveExportFile(etReduxFraction, primaryStage);
+    }
+
+    public static void exportToClipboard() {
+        AllBlockInitForDataLiteOne.initBlockModels(analysis);
+        String clipBoardString = analysis.prepareFractionForClipboardExport();
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(clipBoardString);
+        clipboard.setContent(content);
     }
 
     private void populateDetectorDetailRow(GridPane target, String entry, int colIndex, int rowIndex) {
@@ -2178,122 +2299,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void exportToETReduxButtonAction() throws TripoliException {
-        AllBlockInitForDataLiteOne.initBlockModels(analysis);
-        ETReduxFraction etReduxFraction = analysis.prepareFractionForETReduxExport();
-
-        TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
-
-        // save for live workflow
-        if (null != tripoliSession) {
-            try {
-                if (null == tripoliPersistentState.getMRUSessionFile()) {
-                    File sessionFile = saveSessionFile(tripoliSession, primaryStageWindow);
-                    tripoliPersistentState.updateSessionListMRU(sessionFile);
-                } else {
-                    serializeObjectToFile(tripoliSession, tripoliPersistentState.getMRUSessionFile().getAbsolutePath());
-                }
-                Session.setSessionChanged(false);
-            } catch (TripoliException ex) {
-                TripoliMessageDialog.showWarningDialog(ex.getMessage(), null);
-            }
-        }
-        String sampleMetaDataFolderPath =
-                tripoliPersistentState.getTripoliPersistentParameters().getSampleMetaDataFolderPath();
-        if (sampleMetaDataFolderPath.isBlank()) {
-            TripoliMessageDialog.showWarningDialog(
-                    "Please set SampleMetaDataFolder in Settings.",
-                    TripoliGUI.primaryStage);
-            return;
-        }
-        Path directoryPath = Paths.get(sampleMetaDataFolderPath);
-        try {
-            List<Path> xmlFiles;
-            try (Stream<Path> walk = Files.walk(directoryPath)) {
-                xmlFiles = walk
-                        .filter(Files::isRegularFile)
-                        .filter(p -> p.toString().endsWith(etReduxFraction.getSampleName() + ".xml"))
-                        .toList();
-            }
-            // should be only one file
-            if (xmlFiles.isEmpty()) {
-                TripoliMessageDialog.showWarningDialog(
-                        "There is no SampleMetaData .xml file present",
-                        TripoliGUI.primaryStage);
-                return;
-            }
-            File sampleMetaDataFile = xmlFiles.get(0).toFile();
-            SampleMetaData sampleMetaData = SampleMetaDataUnmarshaller.unmarshall(sampleMetaDataFile.getAbsolutePath());
-            boolean result = false;
-            if (sampleMetaData.getSampleName().compareToIgnoreCase(analysis.getAnalysisSampleName()) != 0) {
-                result = TripoliMessageDialog.showChoiceDialog(
-                        "The sample name in the data file does not match the sample name in the sample metadata file.\n\n"
-                                + "The sample name in the data file is: "
-                                + analysis.getAnalysisSampleName()
-                                + "\n\nThe sample name in the sample metadata file is: "
-                                + sampleMetaData.getSampleName()
-                                + "\n\nConfirm to save to another folder.", TripoliGUI.primaryStage);
-                if (result) {
-                    exportToFile(etReduxFraction);
-                } else {
-                    return;
-                }
-            }
-
-            String aliquotName = "";
-            String fractionMame = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_"
-                    + etReduxFraction.getEtReduxExportType() + ".xml";
-            if (!result) {
-                // locate fraction
-                boolean found = false;
-                for (FractionMetaData fm : sampleMetaData.getFractionsMetaData()) {
-                    if (fm.getFractionXMLUPbReduxFileName_U().compareToIgnoreCase(fractionMame) == 0) {
-                        found = true;
-                        aliquotName = fm.getAliquotName();
-                        break;
-                    }
-                    if (fm.getFractionXMLUPbReduxFileName_Pb().compareToIgnoreCase(fractionMame) == 0) {
-                        found = true;
-                        aliquotName = fm.getAliquotName();
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    result = TripoliMessageDialog.showChoiceDialog(
-                            "The fraction name in the data file does not match any fraction names in the sample metadata file.\n\n"
-                                    + "The fraction name in the data file is: "
-                                    + fractionMame
-                                    + "\n\nConfirm to save to another folder.", TripoliGUI.primaryStage);
-                    if (result) {
-                        exportToFile(etReduxFraction);
-                    } else {
-                        return;
-                    }
-                }
-            }
-            String sampleAnalysisFolderPath = sampleMetaData.getSampleAnalysisFolderPath();
-            String exportFileName =
-                    sampleAnalysisFolderPath + File.separator + aliquotName + File.separator + fractionMame;
-            etReduxFraction.serializeXMLObject(exportFileName);
-            liveWorkFlowStatusText.setText("LiveWorkFlow Exported to " + exportFileName);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void exportToFile(ETReduxFraction etReduxFraction) {
-        String fileName = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
-        etReduxFraction.serializeXMLObject(fileName);
-        saveExportFile(etReduxFraction, primaryStage);
+        liveWorkFlowStatusText.setText(exportToETRedux());
     }
 
     public void exportToClipboardAction() {
-        AllBlockInitForDataLiteOne.initBlockModels(analysis);
-        String clipBoardString = analysis.prepareFractionForClipboardExport();
-        Clipboard clipboard = Clipboard.getSystemClipboard();
-        ClipboardContent content = new ClipboardContent();
-        content.putString(clipBoardString);
-        clipboard.setContent(content);
+        exportToClipboard();
     }
 
     public void reloadDataForCyclesPerBlockBtnAction() throws TripoliException {
