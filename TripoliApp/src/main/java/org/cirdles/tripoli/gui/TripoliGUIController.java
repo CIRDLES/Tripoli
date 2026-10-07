@@ -41,6 +41,7 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.gui.reports.ReportBuilderController;
@@ -987,18 +988,16 @@ public class TripoliGUIController implements Initializable {
                 liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne().clear();
                 AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(liveDataAnalysis);
 
-                /*if (plottingData != null) {
+                if (plottingData != null) {
                     OGTripoliViewController.analysis = liveDataAnalysis;
                     if (ogTripoliPreviewPlotsWindow != null) {
                         ogTripoliPreviewPlotsWindow.setPlottingData(plottingData);
-                        ogTripoliPreviewPlotsWindow.getOgTripoliViewController().replotAllPlots();
-                    } else {*/
-                // sept 2026 for constant update for sculpting
-                ogTripoliPreviewPlotsWindow.close();
-                ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(primaryStage, null, plottingData);
-                ogTripoliPreviewPlotsWindow.loadPlotsWindow();
-                // }
-                //  }
+                        ogTripoliPreviewPlotsWindow.getOgTripoliViewController().populatePlots();
+                    } else {
+                        ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(primaryStage, null, plottingData);
+                        ogTripoliPreviewPlotsWindow.loadPlotsWindow();
+                    }
+                }
             } catch (Exception e) {
                 // throw new RuntimeException(e);
             }
